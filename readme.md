@@ -68,7 +68,7 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile=preview
 ```
 
-## Develop a Keycloak extension
+## Developing a Keycloak extension
 
 To develop your extension, simply create a new maven module, e.g. `simple-auth-extension` in the `keycloak-extension-playground`.
 Then add the module as a dependency to the `keycloak-playground-server` project.
@@ -80,5 +80,4 @@ The [Server Development part of the Keycloak reference documentation](https://ww
 The [Keycloak](https://github.com/keycloak/keycloak) project on github provides a useful set of [examples for Keycloak extensions](https://github.com/keycloak/keycloak/tree/master/examples).
 
 ### Simple Auth Extension
-The `simple-auth-extension` provides an example project that can be used as a starting point.
-
+The `simple-auth-extension` project provides an example project that can be used as a starting point.
