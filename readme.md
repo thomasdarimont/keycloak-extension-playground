@@ -3,6 +3,9 @@
 Simple project environment for developing custom [Keycloak](https://keycloak.org) extensions.  
 This example uses the in-process `KeycloakServer` from the `keycloak-testsuite-utils` project to ease development.
 
+Note that you might need to build the [keycloak project](https://github.com/keycloak/keycloak) locally via `mvn clean install -DskipTests` since the
+`keycloak-testsuite-utils` is not distributed via maven central. 
+
 ## IDE Setup
 
 Create a new launch configuration and configure `com.github.thomasdarimont.keycloak.server.KeycloakPlaygroundServer` as the main class.
@@ -18,7 +21,7 @@ The following set of JVM options configure Keycloak with:
 
 You can access the local Keycloak instance via the URL: `http://localhost:8081/auth` 
 
-### Developing with local h2 database
+### Developing with a local h2 database
 
 ```
 -Dkeycloak.bind.address=0.0.0.0
@@ -43,7 +46,7 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile=preview
 ```
 
-### Developing with postgres database
+### Developing with a PostgreSQL database
 
 ```
 -Dkeycloak.bind.address=0.0.0.0
