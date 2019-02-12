@@ -16,7 +16,7 @@ Note, that you can configure Keycloak to use an h2 or PostgreSQL database, depen
 The following set of JVM options configure Keycloak with:
 * h2 or PostgreSQL as database
 * listen on all local interfaces on port `8081`
-* Keycloak Admin User `keycloak` with password `keycloak`
+* Keycloak Admin User `admin` with password `admin`
 * `preview` Profile features enabled
 
 You can access the local Keycloak instance via the URL: `http://localhost:8081/auth` 
