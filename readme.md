@@ -35,6 +35,7 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.connectionsJpa.formatSql=true
 -Dprofile=COMMUNITY
 -Dproduct.default-profile=COMMUNITY
+-Dkeycloak.theme.dir=../simple-themes/target/theme/
 -Dkeycloak.password.blacklists.path=./data/blacklists/
 -Dcom.sun.net.ssl.checkRevocation=false
 -Dkeycloak.truststore.disabled=true
@@ -60,6 +61,7 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.connectionsJpa.formatSql=true
 -Dprofile=COMMUNITY
 -Dproduct.default-profile=COMMUNITY
+-Dkeycloak.theme.dir=../simple-themes/target/theme/
 -Dkeycloak.password.blacklists.path=./data/blacklists/
 -Dcom.sun.net.ssl.checkRevocation=false
 -Dkeycloak.truststore.disabled=true
@@ -84,3 +86,6 @@ The [Keycloak](https://github.com/keycloak/keycloak) project on github provides 
 
 ### Simple Auth Extension
 The `simple-auth-extension` project provides an example project that can be used as a starting point.
+
+### Simple Themes
+The `simple-themes` example project demonstrates how to use custom themes with keycloak. 

@@ -1,0 +1,28 @@
+.login-pf body {
+    background: url("../img/WJAX_18_Website_Header_45485_v2_web.jpg") top left no-repeat;
+    background-size: contain;
+    background-position: -10px center;
+    background-color: #03151d;
+}
+
+.login-pf-page .card-pf {
+    padding-bottom: 10px;
+}
+
+#kc-page-title {
+    margin-top: -20px;
+}
+
+#kc-header-wrapper {
+   background: url("../img/wjax_logo_big-1.png") top right no-repeat;
+   background-size: contain;
+   font-family: 'Montserrat', sans-serif;
+   margin-top: 170px;
+   margin-left: 500px;
+   padding-left: 20px;
+}
+
+.zocial.google {
+    background-color: #c34f3f;
+    color: white;
+}

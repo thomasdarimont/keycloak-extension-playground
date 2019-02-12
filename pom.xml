@@ -12,6 +12,7 @@
     <modules>
         <module>keycloak-playground-server</module>
         <module>simple-auth-extension</module>
+        <module>simple-themes</module>
     </modules>
 
     <properties>
