@@ -39,7 +39,6 @@ public class BcryptPasswordHashProvider implements PasswordHashProvider {
         credential.setType(UserCredentialModel.PASSWORD);
         credential.setHashIterations(iterations);
         credential.setValue(encodedPassword);
-
     }
 
     @Override
