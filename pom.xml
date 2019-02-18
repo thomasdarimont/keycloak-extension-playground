@@ -13,6 +13,7 @@
         <module>keycloak-playground-server</module>
         <module>simple-auth-extension</module>
         <module>simple-themes</module>
+        <module>bcrypt-password-hashing</module>
     </modules>
 
     <properties>

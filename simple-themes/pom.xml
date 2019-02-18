@@ -20,7 +20,7 @@
                 <version>3.1.1</version>
                 <executions>
                     <execution>
-                        <id>copy-default-keycloak-themes-to-target</id>
+                        <providerId>copy-default-keycloak-themes-to-target</providerId>
                         <phase>package</phase>
                         <goals>
                             <goal>unpack</goal>
@@ -48,7 +48,7 @@
                 <executions>
 
                     <execution>
-                        <id>copy-simple-theme-to-target</id>
+                        <providerId>copy-simple-theme-to-target</providerId>
                         <phase>validate</phase>
                         <goals>
                             <goal>copy-resources</goal>
