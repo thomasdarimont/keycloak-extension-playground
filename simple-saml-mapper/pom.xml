@@ -9,7 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>simple-auth-extension</artifactId>
+    <artifactId>simple-saml-mapper</artifactId>
+
     <packaging>jar</packaging>
 
     <dependencies>
@@ -25,6 +26,14 @@
             <version>${keycloak.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-saml-core-public</artifactId>
+            <version>${keycloak.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
 
         <dependency>
             <groupId>org.keycloak</groupId>
@@ -53,7 +62,7 @@
                         <manifestEntries>
                             <!-- Adding explicit dependencies to avoid class-loading issues at runtime -->
                             <Dependencies>
-                                <![CDATA[org.keycloak.keycloak-common,org.keycloak.keycloak-core,org.keycloak.keycloak-server-spi,org.keycloak.keycloak-server-spi-private,org.apache.httpcomponents,org.keycloak.keycloak-services,org.jboss.logging,javax.api,javax.jms.api,javax.transaction.api,com.fasterxml.jackson.core.jackson-core,com.fasterxml.jackson.core.jackson-annotations,com.fasterxml.jackson.core.jackson-databind]]></Dependencies>
+                                <![CDATA[org.keycloak.keycloak-common,org.keycloak.keycloak-core,org.keycloak.keycloak-server-spi,org.keycloak.keycloak-saml-core-public,org.keycloak.keycloak-server-spi-private,org.apache.httpcomponents,org.keycloak.keycloak-services,org.jboss.logging,javax.api,javax.jms.api,javax.transaction.api,com.fasterxml.jackson.core.jackson-core,com.fasterxml.jackson.core.jackson-annotations,com.fasterxml.jackson.core.jackson-databind]]></Dependencies>
                         </manifestEntries>
                     </archive>
                 </configuration>

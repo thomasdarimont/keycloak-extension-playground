@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>simple-themes</artifactId>
+    <artifactId>simple-theme</artifactId>
 
     <build>
         <plugins>
@@ -43,8 +43,9 @@
             </plugin>
 
             <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
                 <executions>
 
                     <execution>

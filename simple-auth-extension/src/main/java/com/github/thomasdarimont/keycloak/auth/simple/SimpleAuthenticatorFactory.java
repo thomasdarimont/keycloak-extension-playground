@@ -12,7 +12,7 @@ import java.util.List;
 
 public class SimpleAuthenticatorFactory implements AuthenticatorFactory {
 
-    private static final String PROVIDER_ID = "simple-passthrough";
+    private static final String PROVIDER_ID = "demo-simple-passthrough";
 
     @Override
     public String getDisplayType() {

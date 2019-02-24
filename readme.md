@@ -24,7 +24,7 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 ### Developing with a local h2 database
 
 ```
--Dkeycloak.bind.address=0.0.0.0
+-Dkeycloak.bind.address=127.0.0.1
 -Djava.net.preferIPv4Stack=true
 -Dkeycloak.connectionsJpa.url=jdbc:h2:file:./data/keycloak_4_x_master;DB_CLOSE_ON_EXIT=FALSE
 -Dkeycloak.connectionsJpa.driver=org.h2.Driver
@@ -35,7 +35,6 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.connectionsJpa.formatSql=true
 -Dprofile=COMMUNITY
 -Dproduct.default-profile=COMMUNITY
--Dkeycloak.theme.dir=../simple-themes/target/theme/
 -Dkeycloak.password.blacklists.path=./data/blacklists/
 -Dcom.sun.net.ssl.checkRevocation=false
 -Dkeycloak.truststore.disabled=true
@@ -43,14 +42,17 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.product.name=keycloak
 -Dproduct.name=keycloak
 -Dproduct.version=4.8.x
--Dkeycloak.theme.welcomeTheme=keycloak
 -Dkeycloak.profile=preview
+-Dkeycloak.profile.feature.account2=enabled
+-Dkeycloak.profile.feature.scripts=enabled
+-Dkeycloak.theme.welcomeTheme=keycloak
+-Dkeycloak.theme.dir=../simple-theme/target/theme/
 ```
 
 ### Developing with a PostgreSQL database
 
 ```
--Dkeycloak.bind.address=0.0.0.0
+-Dkeycloak.bind.address=127.0.0.1
 -Djava.net.preferIPv4Stack=true
 -Dkeycloak.connectionsJpa.url=jdbc:postgresql://localhost:5432/keycloak_4_x_master
 -Dkeycloak.connectionsJpa.driver=org.postgresql.Driver
@@ -61,16 +63,18 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.connectionsJpa.formatSql=true
 -Dprofile=COMMUNITY
 -Dproduct.default-profile=COMMUNITY
--Dkeycloak.theme.dir=../simple-themes/target/theme/
--Dkeycloak.password.blacklists.path=./data/blacklists/
+-Dkeycloak.password.blacklists.path=/home/tom/dev/tmp/blacklists/
 -Dcom.sun.net.ssl.checkRevocation=false
 -Dkeycloak.truststore.disabled=true
 -Dkeycloak.profile=COMMUNITY
 -Dkeycloak.product.name=keycloak
 -Dproduct.name=keycloak
 -Dproduct.version=4.8.x
--Dkeycloak.theme.welcomeTheme=keycloak
 -Dkeycloak.profile=preview
+-Dkeycloak.profile.feature.account2=enabled
+-Dkeycloak.profile.feature.scripts=enabled
+-Dkeycloak.theme.welcomeTheme=keycloak
+-Dkeycloak.theme.dir=../simple-theme/target/theme/
 ```
 
 ## Developing a Keycloak extension
