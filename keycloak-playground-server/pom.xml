@@ -20,6 +20,18 @@
 
         <dependency>
             <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <artifactId>simple-auth-form-extension</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <artifactId>simple-custom-saml-protocol</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.thomasdarimont.keycloak</groupId>
             <artifactId>simple-oidc-mapper</artifactId>
             <version>${project.version}</version>
         </dependency>

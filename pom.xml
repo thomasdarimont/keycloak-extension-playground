@@ -12,10 +12,12 @@
     <modules>
         <module>keycloak-playground-server</module>
         <module>simple-auth-extension</module>
+        <module>simple-auth-form-extension</module>
         <module>simple-theme</module>
         <module>simple-formaction-extension</module>
         <module>simple-oidc-mapper</module>
         <module>simple-saml-mapper</module>
+        <module>simple-custom-saml-protocol</module>
     </modules>
 
     <properties>
