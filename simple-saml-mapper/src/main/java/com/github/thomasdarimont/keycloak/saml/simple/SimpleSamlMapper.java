@@ -51,20 +51,8 @@ public class SimpleSamlMapper extends AbstractSAMLProtocolMapper implements SAML
     @Override
     public void transformAttributeStatement(AttributeStatementType attributeStatement, ProtocolMapperModel mappingModel, KeycloakSession session, UserSessionModel userSession, AuthenticatedClientSessionModel clientSession) {
 
-
-        Object attributeValue;
-        try {
-
-            attributeValue = mappingModel.getConfig().getOrDefault(CONFIG_PROPERTY, "defaultProperty");
-            LOGGER.infof("setClaim %s=%s", mappingModel.getName(), attributeValue);
-
-            // single value case
-            AttributeStatementHelper.addAttribute(attributeStatement, mappingModel, attributeValue.toString());
-
-        } catch (Exception ex) {
-            LOGGER.error("Error during execution of ProtocolMapper script", ex);
-            AttributeStatementHelper.addAttribute(attributeStatement, mappingModel, null);
-        }
+        // transform attributeStatement here
+        LOGGER.infof("transformAttributeStatement");
     }
 
     @Override
