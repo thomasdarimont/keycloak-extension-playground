@@ -58,7 +58,8 @@
 
         <div class="form-group">
             <div class="col-sm-2 col-md-2">
-                <label for="user.attributes.mobile" class="control-label">Mobile</label>
+                <!-- test -->
+                <label for="user.attributes.mobile" class="control-label">${msg("mobile")}</label>
             </div>
             <div class="col-sm-10 col-md-10">
                 <input type="tel" class="form-control" autocomplete="mobile tel"
