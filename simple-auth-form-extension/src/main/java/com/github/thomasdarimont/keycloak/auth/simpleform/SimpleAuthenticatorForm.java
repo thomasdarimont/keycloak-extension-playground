@@ -15,21 +15,24 @@ import java.util.Random;
 public class SimpleAuthenticatorForm implements Authenticator {
 
     private static final Logger LOG = Logger.getLogger(SimpleAuthenticatorForm.class);
+    public static final String EXPECTED_SUM = "expectedSum";
+    private final KeycloakSession session;
 
     public SimpleAuthenticatorForm(KeycloakSession session) {
-        // configure from session
+        this.session = session;
     }
 
     @Override
     public void authenticate(AuthenticationFlowContext context) {
 
+        // Note that you can use the `session` to access Keycloaks services.
 
         Random random = new Random();
 
         int x = random.nextInt(5);
         int y = random.nextInt(5);
 
-        context.getAuthenticationSession().setAuthNote("expectedSum", "" + (x + y));
+        context.getAuthenticationSession().setAuthNote(EXPECTED_SUM, "" + (x + y));
 
         Response response = context.form()
                 .setAttribute("username", context.getUser().getUsername())
@@ -58,10 +61,12 @@ public class SimpleAuthenticatorForm implements Authenticator {
     public void action(AuthenticationFlowContext context) {
 
         MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
-        int expectedSum = Integer.parseInt(context.getAuthenticationSession().getAuthNote("expectedSum"));
+        int expectedSum = Integer.parseInt(context.getAuthenticationSession().getAuthNote(EXPECTED_SUM));
         int givenSum = Integer.parseInt(formData.getFirst("givenSum"));
 
         LOG.infof("Retrieved givenSum=%s expectedSum=%s", givenSum, expectedSum);
+
+        context.getAuthenticationSession().removeAuthNote(EXPECTED_SUM);
 
         if (givenSum == expectedSum) {
             context.success();
@@ -69,6 +74,7 @@ public class SimpleAuthenticatorForm implements Authenticator {
         }
 
         context.failure(AuthenticationFlowError.INTERNAL_ERROR);
+
     }
 
     @Override
