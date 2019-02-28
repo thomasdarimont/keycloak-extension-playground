@@ -22,6 +22,8 @@ public class CustomSamlProtocol extends SamlProtocol {
         // TODO pull information from user attributes
 
         attributeStatementElement.appendChild(newSamlAttributeElement(samlDocument, null, "Role", JBossSAMLURIConstants.ATTRIBUTE_FORMAT_BASIC.get(), "dummy", "xsd:string"));
+
+        // see: http://oid-info.com/get/
         attributeStatementElement.appendChild(newSamlAttributeElement(samlDocument, "XSPA Organization ID", "urn:oasis:names:tc:xspa:1.0:subject:organization-id", JBossSAMLURIConstants.ATTRIBUTE_FORMAT_URI.get(), "urn:oid:1.2.3.4.5.6.7.8.9.10.11.12", "xsd:anyURI"));
 
         Element roleElement = samlDocument.createElementNS("urn:hl7-org:v3", "Role");
