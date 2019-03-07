@@ -16,22 +16,26 @@ public class CustomSamlProtocol extends SamlProtocol {
 
     protected Response buildAuthenticatedResponse(AuthenticatedClientSessionModel clientSession, String redirectUri, Document samlDocument, JaxrsSAML2BindingBuilder bindingBuilder) throws ConfigurationException, ProcessingException, IOException {
 
-        // TODO use Keycloak provider information from this.session
+//        // TODO use Keycloak provider information from this.session
+//        Element assertionElement = (Element) samlDocument.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), "Assertion").item(0);
+//
+//        Element attributeStatementElement = (Element) assertionElement.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), "AttributeStatement").item(0);
+//        if (attributeStatementElement == null) {
+//            attributeStatementElement = samlDocument.createElementNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), "AttributeStatement");
+//            assertionElement.appendChild(attributeStatementElement);
+//        }
+//        // TODO pull information from user attributes
+//        attributeStatementElement.appendChild(newSamlAttributeElement(samlDocument, null, "Role", JBossSAMLURIConstants.ATTRIBUTE_FORMAT_BASIC.get(), "dummy", "xsd:string"));
 
-        Element attributeStatementElement = (Element) samlDocument.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), "AttributeStatement").item(0);
-        // TODO pull information from user attributes
-
-        attributeStatementElement.appendChild(newSamlAttributeElement(samlDocument, null, "Role", JBossSAMLURIConstants.ATTRIBUTE_FORMAT_BASIC.get(), "dummy", "xsd:string"));
-
-        // see: http://oid-info.com/get/
-        attributeStatementElement.appendChild(newSamlAttributeElement(samlDocument, "XSPA Organization ID", "urn:oasis:names:tc:xspa:1.0:subject:organization-id", JBossSAMLURIConstants.ATTRIBUTE_FORMAT_URI.get(), "urn:oid:1.2.3.4.5.6.7.8.9.10.11.12", "xsd:anyURI"));
-
-        Element roleElement = samlDocument.createElementNS("urn:hl7-org:v3", "Role");
-        roleElement.setAttribute("code", "PRA");
-        roleElement.setAttribute("codeSystem", "1.2.3.4.5.6.7.8.9.10.11.12");
-        roleElement.setAttribute("codeSystemName", "IHEXDShealthcareFacilityTypeCode");
-        roleElement.setAttribute("displayName", "Arztpraxis");
-        attributeStatementElement.appendChild(newSamlAttributeElement(samlDocument, "Acme Role", "urn:oasis:names:tc:xacml:2.0:subject:role", JBossSAMLURIConstants.ATTRIBUTE_FORMAT_URI.get(), roleElement, "xsd:anyType"));
+//        // see: http://oid-info.com/get/
+//        attributeStatementElement.appendChild(newSamlAttributeElement(samlDocument, "XSPA Organization ID", "urn:oasis:names:tc:xspa:1.0:subject:organization-id", JBossSAMLURIConstants.ATTRIBUTE_FORMAT_URI.get(), "urn:oid:1.2.3.4.5.6.7.8.9.10.11.12", "xsd:anyURI"));
+//
+//        Element roleElement = samlDocument.createElementNS("urn:hl7-org:v3", "Role");
+//        roleElement.setAttribute("code", "PRA");
+//        roleElement.setAttribute("codeSystem", "1.2.3.4.5.6.7.8.9.10.11.12");
+//        roleElement.setAttribute("codeSystemName", "IHEXDShealthcareFacilityTypeCode");
+//        roleElement.setAttribute("displayName", "Doctor's office");
+//        attributeStatementElement.appendChild(newSamlAttributeElement(samlDocument, "Acme Role", "urn:oasis:names:tc:xacml:2.0:subject:role", JBossSAMLURIConstants.ATTRIBUTE_FORMAT_URI.get(), roleElement, "xsd:anyType"));
 
         return super.buildAuthenticatedResponse(clientSession, redirectUri, samlDocument, bindingBuilder);
     }

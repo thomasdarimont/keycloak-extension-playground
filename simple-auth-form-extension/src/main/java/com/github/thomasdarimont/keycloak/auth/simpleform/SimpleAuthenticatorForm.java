@@ -2,7 +2,6 @@ package com.github.thomasdarimont.keycloak.auth.simpleform;
 
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
-import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
@@ -68,13 +67,16 @@ public class SimpleAuthenticatorForm implements Authenticator {
 
         context.getAuthenticationSession().removeAuthNote(EXPECTED_SUM);
 
-        if (givenSum == expectedSum) {
-            context.success();
+        if (givenSum != expectedSum) {
+
+            context.cancelLogin();
+
+            // reauthenticate...
+            authenticate(context);
             return;
         }
 
-        context.failure(AuthenticationFlowError.INTERNAL_ERROR);
-
+        context.success();
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.github.thomasdarimont.keycloak.saml.simple;
 
 import org.jboss.logging.Logger;
 import org.keycloak.dom.saml.v2.assertion.AttributeStatementType;
+import org.keycloak.dom.saml.v2.assertion.AttributeType;
 import org.keycloak.models.AuthenticatedClientSessionModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.ProtocolMapperModel;
@@ -53,6 +54,16 @@ public class SimpleSamlMapper extends AbstractSAMLProtocolMapper implements SAML
 
         // transform attributeStatement here
         LOGGER.infof("transformAttributeStatement");
+
+        AttributeType bubu = new AttributeType("bubu");
+        bubu.setFriendlyName("FriendlyBubu");
+        bubu.setNameFormat("urn:oasis:names:tc:SAML:2.0:attrname-format:basic");
+        bubu.setName("Bubu");
+
+        bubu.addAttributeValue("Object allowed but only Strings or NameIDType supported here...");
+        // see: bottom of org.keycloak.saml.processing.core.saml.v2.writers.BaseWriter.writeAttributeTypeWithoutRootTag
+
+        attributeStatement.addAttribute(new AttributeStatementType.ASTChoiceType(bubu));
     }
 
     @Override
