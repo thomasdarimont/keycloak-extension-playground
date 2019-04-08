@@ -18,6 +18,8 @@
         <module>simple-oidc-mapper</module>
         <module>simple-saml-mapper</module>
         <module>simple-custom-saml-protocol</module>
+        <module>simple-event-listener</module>
+        <module>simple-realm-rest-resource</module>
     </modules>
 
     <properties>
@@ -29,9 +31,9 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
 
         <!-- dependency versions -->
-        <lombok.version>1.18.4</lombok.version>
+        <lombok.version>1.18.6</lombok.version>
 
-        <keycloak.version>4.8.3.Final</keycloak.version>
+        <keycloak.version>5.0.0</keycloak.version>
     </properties>
 
     <dependencyManagement>
