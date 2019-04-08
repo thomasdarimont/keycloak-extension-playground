@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>simple-form-action</artifactId>
+    <artifactId>simple-formaction-extension</artifactId>
 
     <properties>
         <libphonenumber.version>8.10.6</libphonenumber.version>

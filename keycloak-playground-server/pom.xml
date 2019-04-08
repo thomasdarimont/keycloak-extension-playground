@@ -12,6 +12,19 @@
     <artifactId>keycloak-playground-server</artifactId>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <artifactId>simple-realm-rest-resource</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <artifactId>simple-event-listener</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.github.thomasdarimont.keycloak</groupId>
             <artifactId>simple-auth-extension</artifactId>
@@ -44,7 +57,7 @@
 
         <dependency>
             <groupId>com.github.thomasdarimont.keycloak</groupId>
-            <artifactId>simple-form-action</artifactId>
+            <artifactId>simple-formaction-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
