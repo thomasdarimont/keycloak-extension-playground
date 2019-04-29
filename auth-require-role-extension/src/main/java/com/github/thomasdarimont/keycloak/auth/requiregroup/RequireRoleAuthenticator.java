@@ -1,34 +1,36 @@
-package com.github.thomasdarimont.keycloak.auth.requirerole;
+package com.github.thomasdarimont.keycloak.auth.requiregroup;
 
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.models.AuthenticatorConfigModel;
-import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
+import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserModel;
-import org.keycloak.models.utils.KeycloakModelUtils;
+import org.keycloak.models.utils.RoleUtils;
+
+import static org.keycloak.models.utils.KeycloakModelUtils.getRoleFromString;
 
 /**
- * Simple {@link Authenticator} that checks of a user is member of a given {@link GroupModel Group}.
+ * Simple {@link Authenticator} that checks of the user has a given {@link RoleModel Role}.
  */
-public class RequireGroupAuthenticator implements Authenticator {
+public class RequireRoleAuthenticator implements Authenticator {
 
-    private static final Logger LOG = Logger.getLogger(RequireGroupAuthenticator.class);
+    private static final Logger LOG = Logger.getLogger(RequireRoleAuthenticator.class);
 
     @Override
     public void authenticate(AuthenticationFlowContext context) {
 
         AuthenticatorConfigModel configModel = context.getAuthenticatorConfig();
 
-        String groupPath = configModel.getConfig().get(RequireGroupAuthenticatorFactory.GROUP);
+        String roleName = configModel.getConfig().get(RequireRoleAuthenticatorFactory.ROLE);
         RealmModel realm = context.getRealm();
         UserModel user = context.getUser();
 
-        if (!isMemberOfGroup(realm, user, groupPath)) {
+        if (!userHasRole(realm, user, roleName)) {
 
-            LOG.debugf("Access denied because of missing group membership. realm=%s username=%s groupPath=%s", realm.getName(), user.getUsername(), groupPath);
+            LOG.debugf("Access denied because of missing role. realm=%s username=%s role=%s", realm.getName(), user.getUsername(), roleName);
             context.cancelLogin();
             return;
         }
@@ -36,15 +38,15 @@ public class RequireGroupAuthenticator implements Authenticator {
         context.success();
     }
 
-    private boolean isMemberOfGroup(RealmModel realm, UserModel user, String groupPath) {
+    private boolean userHasRole(RealmModel realm, UserModel user, String roleName) {
 
-        if (groupPath == null) {
+        if (roleName == null) {
             return false;
         }
 
-        GroupModel group = KeycloakModelUtils.findGroupByPath(realm, groupPath);
+        RoleModel role = getRoleFromString(realm, roleName);
 
-        return user.isMemberOf(group);
+        return RoleUtils.hasRole(user.getRoleMappings(), role);
     }
 
 

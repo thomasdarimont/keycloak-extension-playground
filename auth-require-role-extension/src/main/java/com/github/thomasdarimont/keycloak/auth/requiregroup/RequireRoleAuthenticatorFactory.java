@@ -1,4 +1,4 @@
-package com.github.thomasdarimont.keycloak.auth.requirerole;
+package com.github.thomasdarimont.keycloak.auth.requiregroup;
 
 import org.keycloak.Config;
 import org.keycloak.authentication.Authenticator;
