@@ -20,6 +20,7 @@
         <module>simple-custom-saml-protocol</module>
         <module>simple-event-listener</module>
         <module>simple-realm-rest-resource</module>
+        <module>auth-require-role-extension</module>
     </modules>
 
     <properties>

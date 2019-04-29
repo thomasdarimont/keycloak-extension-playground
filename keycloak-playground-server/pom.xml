@@ -15,6 +15,12 @@
 
         <dependency>
             <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <artifactId>auth-require-role-extension</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.thomasdarimont.keycloak</groupId>
             <artifactId>simple-realm-rest-resource</artifactId>
             <version>${project.version}</version>
         </dependency>
