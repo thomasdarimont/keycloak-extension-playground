@@ -33,7 +33,7 @@
         <!-- dependency versions -->
         <lombok.version>1.18.6</lombok.version>
 
-        <keycloak.version>5.0.0</keycloak.version>
+        <keycloak.version>6.0.1</keycloak.version>
     </properties>
 
     <dependencyManagement>
