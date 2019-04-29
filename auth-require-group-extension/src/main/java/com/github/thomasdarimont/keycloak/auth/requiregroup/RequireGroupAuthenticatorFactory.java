@@ -56,13 +56,15 @@ public class RequireGroupAuthenticatorFactory implements AuthenticatorFactory {
     @Override
     public List<ProviderConfigProperty> getConfigProperties() {
 
-        ProviderConfigProperty role = new ProviderConfigProperty();
-        role.setType(ProviderConfigProperty.STRING_TYPE);
-        role.setName(GROUP);
-        role.setLabel("Group");
-        role.setHelpText("Required group.");
+        // TODO add support for selecting an existing group, similar to role selection
 
-        return Arrays.asList(role);
+        ProviderConfigProperty group = new ProviderConfigProperty();
+        group.setType(ProviderConfigProperty.STRING_TYPE);
+        group.setName(GROUP);
+        group.setLabel("Group");
+        group.setHelpText("Required group");
+
+        return Arrays.asList(group);
     }
 
     @Override
