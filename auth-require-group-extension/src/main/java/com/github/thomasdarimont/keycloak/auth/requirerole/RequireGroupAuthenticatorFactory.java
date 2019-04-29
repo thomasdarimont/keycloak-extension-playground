@@ -11,19 +11,17 @@ import org.keycloak.provider.ProviderConfigProperty;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.keycloak.provider.ProviderConfigProperty.ROLE_TYPE;
+public class RequireGroupAuthenticatorFactory implements AuthenticatorFactory {
 
-public class RequireRoleAuthenticatorFactory implements AuthenticatorFactory {
+    private static final String PROVIDER_ID = "require-group";
 
-    private static final String PROVIDER_ID = "require-role";
+    static final String GROUP = "group";
 
-    static final String ROLE = "role";
-
-    public static final RequireRoleAuthenticator ROLE_AUTHENTICATOR = new RequireRoleAuthenticator();
+    public static final RequireGroupAuthenticator GROUP_AUTHENTICATOR = new RequireGroupAuthenticator();
 
     @Override
     public String getDisplayType() {
-        return "Require Role";
+        return "Require Group";
     }
 
     @Override
@@ -52,17 +50,17 @@ public class RequireRoleAuthenticatorFactory implements AuthenticatorFactory {
 
     @Override
     public String getHelpText() {
-        return "Requires the user to have a given role.";
+        return "Requires the user to be a member of a given group. Note that nested group paths have the form: /parentGroup/childGroup";
     }
 
     @Override
     public List<ProviderConfigProperty> getConfigProperties() {
 
         ProviderConfigProperty role = new ProviderConfigProperty();
-        role.setType(ROLE_TYPE);
-        role.setName(ROLE);
-        role.setLabel("Role");
-        role.setHelpText("Require role.");
+        role.setType(ProviderConfigProperty.STRING_TYPE);
+        role.setName(GROUP);
+        role.setLabel("Group");
+        role.setHelpText("Required group.");
 
         return Arrays.asList(role);
     }
@@ -74,7 +72,7 @@ public class RequireRoleAuthenticatorFactory implements AuthenticatorFactory {
 
     @Override
     public Authenticator create(KeycloakSession session) {
-        return ROLE_AUTHENTICATOR;
+        return GROUP_AUTHENTICATOR;
     }
 
     @Override
