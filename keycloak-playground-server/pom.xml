@@ -74,6 +74,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <artifactId>auth-validate-password-extension</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-testsuite-utils</artifactId>
         </dependency>
