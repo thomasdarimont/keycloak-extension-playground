@@ -1,8 +1,10 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayInfo=social.displayInfo displayWide=(realm.password && social.providers??); section>
     <#if section = "header">
-        ${msg("selectUser")}
+        ${msg("doLogIn")}
     <#elseif section = "form">
+        <link rel="stylesheet" href="${url.resourcesPath}/../auth-identity-first-extension-theme/css/identity-first.css">
+        <script src="${url.resourcesPath}/../auth-identity-first-extension-theme/js/identity-first.js" defer></script>
         <div id="kc-form" <#if realm.password && social.providers??>class="${properties.kcContentWrapperClass!}"</#if>>
             <div id="kc-form-wrapper" <#if realm.password && social.providers??>class="${properties.kcFormSocialAccountContentClass!} ${properties.kcFormSocialAccountClass!}"</#if>>
                 <#if realm.password>
@@ -11,9 +13,9 @@
                             <label for="username" class="${properties.kcLabelClass!}"><#if !realm.loginWithEmailAllowed>${msg("username")}<#elseif !realm.registrationEmailAsUsername>${msg("usernameOrEmail")}<#else>${msg("email")}</#if></label>
 
                             <#if usernameEditDisabled??>
-                                <input tabindex="1" id="username" class="${properties.kcInputClass!}" name="username" value="${(login.username!'')}" type="text" disabled />
+                                <input tabindex="1" id="username" class="${properties.kcInputClass!}" name="username" value="${(login.username!'')}" type="text" disabled required placeholder="Username" autocomplete="username" spellcheck="false" aria-label="Email or phone" autocapitalize="none"/>
                             <#else>
-                                <input tabindex="1" id="username" class="${properties.kcInputClass!}" name="username" value="${(login.username!'')}"  type="text" autofocus autocomplete="off" />
+                                <input tabindex="1" id="username" class="${properties.kcInputClass!}" name="username" value="${(login.username!'')}"  type="text" autofocus autocomplete="off" required placeholder="Email or Username" autocomplete="username" spellcheck="false" aria-label="Email or phone" autocapitalize="none"/>
                             </#if>
                         </div>
 

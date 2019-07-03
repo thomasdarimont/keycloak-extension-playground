@@ -1,0 +1,10 @@
+{
+  "themes": [
+    {
+      "name": "auth-identity-first-extension-theme",
+      "types": [
+        "login"
+      ]
+    }
+  ]
+}

@@ -12,7 +12,7 @@ import org.keycloak.services.messages.Messages;
 
 import javax.ws.rs.core.Response;
 
-public abstract class AbstractIdentityFirstAbstractUsernameFormAuthenticator extends AbstractUsernameFormAuthenticator {
+public abstract class AbstractIdentityFirstUsernameFormAuthenticator extends AbstractUsernameFormAuthenticator {
 
 
     protected UserModel lookupUser(AuthenticationFlowContext context, String username) {

@@ -13,6 +13,7 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.messages.Messages;
 
 import javax.ws.rs.core.MultivaluedMap;
@@ -20,7 +21,7 @@ import javax.ws.rs.core.Response;
 import java.util.LinkedList;
 import java.util.List;
 
-public class PasswordAuthenticatorForm extends AbstractIdentityFirstAbstractUsernameFormAuthenticator {
+public class PasswordAuthenticatorForm extends AbstractIdentityFirstUsernameFormAuthenticator {
 
     private static final Logger LOG = Logger.getLogger(PasswordAuthenticatorForm.class);
     private final KeycloakSession session;
@@ -46,6 +47,9 @@ public class PasswordAuthenticatorForm extends AbstractIdentityFirstAbstractUser
             form.setError(error);
         }
 
+        String attemptedUsername = context.getAuthenticationSession().getAuthNote(AbstractUsernameFormAuthenticator.ATTEMPTED_USERNAME);
+        form.setAttribute(AuthenticationManager.FORM_USERNAME, attemptedUsername);
+
         Response response = form.createForm("validate-password-form.ftl");
         return response;
     }
@@ -70,6 +74,7 @@ public class PasswordAuthenticatorForm extends AbstractIdentityFirstAbstractUser
         MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
         if (formData.containsKey("cancel")) {
             context.cancelLogin();
+            context.resetFlow();
             return;
         }
         if (!validatePasswordForm(context, formData)) {
@@ -107,14 +112,6 @@ public class PasswordAuthenticatorForm extends AbstractIdentityFirstAbstractUser
             return false;
         }
 
-        String rememberMe = formData.getFirst("rememberMe");
-        boolean remember = rememberMe != null && rememberMe.equalsIgnoreCase("on");
-        if (remember) {
-            context.getAuthenticationSession().setAuthNote(Details.REMEMBER_ME, "true");
-            context.getEvent().detail(Details.REMEMBER_ME, "true");
-        } else {
-            context.getAuthenticationSession().removeAuthNote(Details.REMEMBER_ME);
-        }
         context.setUser(user);
 
         return true;

@@ -16,7 +16,7 @@ import org.keycloak.services.managers.AuthenticationManager;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-public class SelectUserAuthenticatorForm extends AbstractIdentityFirstAbstractUsernameFormAuthenticator {
+public class SelectUserAuthenticatorForm extends AbstractIdentityFirstUsernameFormAuthenticator {
 
     private static final Logger LOG = Logger.getLogger(SelectUserAuthenticatorForm.class);
     private final KeycloakSession session;
