@@ -22,7 +22,7 @@
         <module>simple-realm-rest-resource</module>
         <module>auth-require-role-extension</module>
         <module>auth-require-group-extension</module>
-        <module>auth-validate-password-extension</module>
+        <module>auth-identity-first-extension</module>
     </modules>
 
     <properties>
