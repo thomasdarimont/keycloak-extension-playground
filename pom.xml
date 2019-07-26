@@ -23,6 +23,8 @@
         <module>auth-require-role-extension</module>
         <module>auth-require-group-extension</module>
         <module>auth-identity-first-extension</module>
+        <module>reset-password-after-login-eventlistener-extension</module>
+        <module>virtual-client-storage-provider-extension</module>
     </modules>
 
     <properties>
