@@ -15,6 +15,18 @@
 
         <dependency>
             <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <artifactId>virtual-client-storage-provider-extension</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <artifactId>reset-password-after-login-eventlistener-extension</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.thomasdarimont.keycloak</groupId>
             <artifactId>auth-require-role-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
