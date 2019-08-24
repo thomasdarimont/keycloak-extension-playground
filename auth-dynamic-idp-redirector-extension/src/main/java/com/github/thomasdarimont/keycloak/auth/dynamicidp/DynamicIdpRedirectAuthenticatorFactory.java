@@ -1,4 +1,4 @@
-package com.github.thomasdarimont.keycloak.auth.identityfirst;
+package com.github.thomasdarimont.keycloak.auth.dynamicidp;
 
 import com.google.auto.service.AutoService;
 import org.keycloak.Config;
@@ -13,13 +13,15 @@ import java.util.Arrays;
 import java.util.List;
 
 @AutoService(AuthenticatorFactory.class)
-public class SelectUserAuthenticatorFormFactory implements AuthenticatorFactory {
+public class DynamicIdpRedirectAuthenticatorFactory implements AuthenticatorFactory {
 
-    private static final String PROVIDER_ID = "auth-select-user";
+    private static final String PROVIDER_ID = "auth-dynamic-idp-redirector";
+
+
 
     @Override
     public String getDisplayType() {
-        return "Select User";
+        return "Dynamic IDP Redirector";
     }
 
     @Override
@@ -48,20 +50,19 @@ public class SelectUserAuthenticatorFormFactory implements AuthenticatorFactory 
 
     @Override
     public String getHelpText() {
-        return "Selects a user.";
+        return "Dynamic IDP Redirector";
     }
 
     @Override
     public List<ProviderConfigProperty> getConfigProperties() {
 
-        ProviderConfigProperty useAjax = new ProviderConfigProperty();
-        useAjax.setType(ProviderConfigProperty.BOOLEAN_TYPE);
-        useAjax.setName(SelectUserAuthenticatorForm.USE_AXJAX_CONFIG_PROPERTY);
-        useAjax.setLabel("Use AJAX");
-        useAjax.setHelpText("Use asynchronous froms submitted via AJAX");
-        useAjax.setDefaultValue(true);
+        ProviderConfigProperty emailToIdpMapping = new ProviderConfigProperty();
+        emailToIdpMapping.setType(ProviderConfigProperty.STRING_TYPE);
+        emailToIdpMapping.setName(DynamicIdpRedirectAuthenticator.EMAIL_TO_IDP_MAPPING_CONFIG_PROPERTY);
+        emailToIdpMapping.setLabel("Email IDP Mapping");
+        emailToIdpMapping.setHelpText("Email Suffix pattern to IDP Mapping. email-suffix/idp-id, multiple patterns can be delimited via ';', c.f.: example.com/idp1;.*foo.com/idp2;.*bar.(com|de)/idp3");
 
-        return Arrays.asList(useAjax);
+        return Arrays.asList(emailToIdpMapping);
     }
 
     @Override
@@ -71,7 +72,7 @@ public class SelectUserAuthenticatorFormFactory implements AuthenticatorFactory 
 
     @Override
     public Authenticator create(KeycloakSession session) {
-        return new SelectUserAuthenticatorForm(session);
+        return new DynamicIdpRedirectAuthenticator(session);
     }
 
     @Override

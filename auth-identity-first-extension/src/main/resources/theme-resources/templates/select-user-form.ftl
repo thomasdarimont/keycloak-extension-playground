@@ -4,7 +4,9 @@
         ${msg("doLogIn")}
     <#elseif section = "form">
         <link rel="stylesheet" href="${url.resourcesPath}/../auth-identity-first-extension-theme/css/identity-first.css">
-        <script src="${url.resourcesPath}/../auth-identity-first-extension-theme/js/identity-first.js" defer></script>
+        <#if useAjax>
+            <script src="${url.resourcesPath}/../auth-identity-first-extension-theme/js/identity-first.js" defer></script>
+        </#if>
         <div id="kc-form" <#if realm.password && social.providers??>class="${properties.kcContentWrapperClass!}"</#if>>
             <div id="kc-form-wrapper" <#if realm.password && social.providers??>class="${properties.kcFormSocialAccountContentClass!} ${properties.kcFormSocialAccountClass!}"</#if>>
                 <#if realm.password>

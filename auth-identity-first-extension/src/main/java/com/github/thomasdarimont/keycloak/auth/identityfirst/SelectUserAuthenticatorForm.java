@@ -7,6 +7,7 @@ import org.keycloak.authentication.authenticators.browser.AbstractUsernameFormAu
 import org.keycloak.events.Details;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.forms.login.freemarker.model.LoginBean;
+import org.keycloak.models.AuthenticatorConfigModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
@@ -15,8 +16,11 @@ import org.keycloak.services.managers.AuthenticationManager;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.util.Map;
 
 public class SelectUserAuthenticatorForm extends AbstractIdentityFirstUsernameFormAuthenticator {
+
+    final static String USE_AXJAX_CONFIG_PROPERTY = "use-ajax";
 
     private static final Logger LOG = Logger.getLogger(SelectUserAuthenticatorForm.class);
     private final KeycloakSession session;
@@ -36,8 +40,27 @@ public class SelectUserAuthenticatorForm extends AbstractIdentityFirstUsernameFo
 
     @Override
     protected Response challenge(AuthenticationFlowContext context, String error) {
+
+        String useAjax = getConfigProperty(context, USE_AXJAX_CONFIG_PROPERTY, "true");
+
         return createSelectUserForm(context, error)
+                .setAttribute("useAjax", "true".equals(useAjax))
                 .createForm("select-user-form.ftl");
+    }
+
+    private String getConfigProperty(AuthenticationFlowContext context, String configProperty, String defaultValue) {
+
+        AuthenticatorConfigModel authenticatorConfig = context.getAuthenticatorConfig();
+        if (authenticatorConfig == null) {
+            return defaultValue;
+        }
+
+        Map<String, String> config = authenticatorConfig.getConfig();
+        if (config == null) {
+            return defaultValue;
+        }
+
+        return config.get(configProperty);
     }
 
     private LoginFormsProvider createSelectUserForm(AuthenticationFlowContext context, String error) {
