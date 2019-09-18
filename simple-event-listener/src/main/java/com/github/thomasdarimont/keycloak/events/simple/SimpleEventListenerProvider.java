@@ -17,12 +17,12 @@ public class SimpleEventListenerProvider implements EventListenerProvider {
 
     @Override
     public void onEvent(Event event) {
-        log.infof("onEvent event={}", event);
+        log.infof("onEvent event=%s type=%s realm=%suserId=%s", event, event.getType(), event.getRealmId(), event.getUserId());
     }
 
     @Override
     public void onEvent(AdminEvent event, boolean includeRepresentation) {
-        log.infof("onEvent adminEvent={}, includeRepresentation=", event, includeRepresentation);
+        log.infof("onEvent adminEvent=%s, includeRepresentation=%s", event, includeRepresentation);
     }
 
     @Override
