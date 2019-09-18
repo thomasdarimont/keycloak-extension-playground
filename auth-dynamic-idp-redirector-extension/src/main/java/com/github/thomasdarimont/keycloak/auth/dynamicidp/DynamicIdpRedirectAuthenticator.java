@@ -3,8 +3,10 @@ package com.github.thomasdarimont.keycloak.auth.dynamicidp;
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.authentication.AuthenticationFlowContext;
+import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.constants.AdapterConstants;
+import org.keycloak.events.Errors;
 import org.keycloak.models.AuthenticatorConfigModel;
 import org.keycloak.models.IdentityProviderModel;
 import org.keycloak.models.KeycloakSession;
@@ -43,7 +45,10 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
         String targetIdp = determineTargetIdp(user, context);
 
         if (targetIdp == null) {
-            context.attempted();
+            context.getEvent().error(Errors.UNKNOWN_IDENTITY_PROVIDER);
+            context.failure(AuthenticationFlowError.IDENTITY_PROVIDER_NOT_FOUND);
+            context.cancelLogin();
+            context.resetFlow();
             return;
         }
 
@@ -53,7 +58,9 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
     private void redirect(AuthenticationFlowContext context, String providerId) {
 
         IdentityProviderModel identityProviderModel = selectIdp(context, providerId);
-        if (identityProviderModel == null) {
+        if (identityProviderModel == null || !identityProviderModel.isEnabled()) {
+            log.warnf("Provider not found or not enabled for realm %s", providerId);
+            context.attempted();
             return;
         }
 
@@ -64,13 +71,9 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
         if (context.getAuthenticationSession().getClientNote(OAuth2Constants.DISPLAY) != null) {
             location = UriBuilder.fromUri(location).queryParam(OAuth2Constants.DISPLAY, context.getAuthenticationSession().getClientNote(OAuth2Constants.DISPLAY)).build();
         }
-        Response response = Response.seeOther(location).build();
-
         log.debugf("Redirecting to %s", providerId);
+        Response response = Response.seeOther(location).build();
         context.forceChallenge(response);
-
-        log.warnf("Provider not found or not enabled for realm %s", providerId);
-        context.attempted();
     }
 
     private IdentityProviderModel selectIdp(AuthenticationFlowContext context, String providerId) {

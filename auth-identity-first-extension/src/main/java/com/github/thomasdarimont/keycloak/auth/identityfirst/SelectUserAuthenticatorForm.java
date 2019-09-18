@@ -14,6 +14,7 @@ import org.keycloak.models.UserModel;
 import org.keycloak.protocol.oidc.OIDCLoginProtocol;
 import org.keycloak.services.managers.AuthenticationManager;
 
+import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import java.util.Map;
@@ -42,9 +43,18 @@ public class SelectUserAuthenticatorForm extends AbstractIdentityFirstUsernameFo
     protected Response challenge(AuthenticationFlowContext context, String error) {
 
         String useAjax = getConfigProperty(context, USE_AXJAX_CONFIG_PROPERTY, "true");
+        String loginHint = context.getHttpRequest().getUri().getQueryParameters().getFirst(OIDCLoginProtocol.LOGIN_HINT_PARAM);
 
-        return createSelectUserForm(context, error)
-                .setAttribute("useAjax", "true".equals(useAjax))
+        LoginFormsProvider usernameLoginForm = createSelectUserForm(context, error)
+                .setAttribute("useAjax", "true".equals(useAjax));
+
+        if (loginHint != null) {
+            MultivaluedHashMap<String, String> formData = new MultivaluedHashMap<>();
+            formData.add(AuthenticationManager.FORM_USERNAME, loginHint);
+            usernameLoginForm.setAttribute("login", new LoginBean(formData));
+        }
+
+        return usernameLoginForm
                 .createForm("select-user-form.ftl");
     }
 
