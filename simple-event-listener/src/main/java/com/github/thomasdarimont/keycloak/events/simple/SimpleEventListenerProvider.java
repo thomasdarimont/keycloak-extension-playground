@@ -22,11 +22,11 @@ public class SimpleEventListenerProvider implements EventListenerProvider {
 
     @Override
     public void onEvent(AdminEvent event, boolean includeRepresentation) {
-        log.infof("onEvent adminEvent=%s, includeRepresentation=%s", event, includeRepresentation);
+        log.infof("onEvent adminEvent=%s type=%s resourceType=%s resourcePath=%s includeRepresentation=%s", event, event.getOperationType(), event.getResourceType(), event.getResourcePath(), includeRepresentation);
     }
 
     @Override
     public void close() {
-        log.infof("close");
+        // log.infof("close");
     }
 }
