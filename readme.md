@@ -3,8 +3,17 @@
 Simple project environment for developing custom [Keycloak](https://keycloak.org) extensions.  
 This example uses the in-process `KeycloakServer` from the `keycloak-testsuite-utils` project to ease development.
 
-Note that you might need to build the [keycloak project](https://github.com/keycloak/keycloak) locally via `mvn clean install -DskipTests` since the
-`keycloak-testsuite-utils` is not distributed via maven central. 
+Note that you might need to build the [keycloak project](https://github.com/keycloak/keycloak) locally with the version referenced in this `pom.xml`
+since the required library `keycloak-testsuite-utils` is not distributed to maven central.
+
+## Building Keycloak  
+```
+# The Keycloak version referenced in the pom.xml 
+KC_VERSION=7.0.0
+git clone https://github.com/keycloak/keycloak
+git checkout $KC_VERSION
+mvn clean install -DskipTests
+```
 
 ## IDE Setup
 
@@ -41,7 +50,7 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile=COMMUNITY
 -Dkeycloak.product.name=keycloak
 -Dproduct.name=keycloak
--Dproduct.version=4.8.x
+-Dproduct.version=7.0.x
 -Dkeycloak.profile=preview
 -Dkeycloak.profile.feature.account2=enabled
 -Dkeycloak.profile.feature.scripts=enabled
@@ -69,7 +78,7 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile=COMMUNITY
 -Dkeycloak.product.name=keycloak
 -Dproduct.name=keycloak
--Dproduct.version=4.8.x
+-Dproduct.version=7.0.x
 -Dkeycloak.profile=preview
 -Dkeycloak.profile.feature.account2=enabled
 -Dkeycloak.profile.feature.scripts=enabled
