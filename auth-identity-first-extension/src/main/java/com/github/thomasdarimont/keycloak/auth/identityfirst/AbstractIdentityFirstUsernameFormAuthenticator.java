@@ -14,6 +14,16 @@ import javax.ws.rs.core.Response;
 
 public abstract class AbstractIdentityFirstUsernameFormAuthenticator extends AbstractUsernameFormAuthenticator {
 
+    public boolean invalidUser(AuthenticationFlowContext context, UserModel user) {
+        if (user == null) {
+            dummyHash(context);
+            context.getEvent().error(Errors.USER_NOT_FOUND);
+            Response challengeResponse = challenge(context, Messages.INVALID_USER);
+            context.failureChallenge(AuthenticationFlowError.INVALID_USER, challengeResponse);
+            return true;
+        }
+        return false;
+    }
 
     protected UserModel lookupUser(AuthenticationFlowContext context, String username) {
 
