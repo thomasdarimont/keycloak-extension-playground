@@ -136,7 +136,8 @@ public class SelectUserAuthenticatorForm extends AbstractIdentityFirstUsernameFo
 
         UserModel user = lookupUser(context, username);
 
-        if (invalidUser(context, user)) {
+        if (user == null) {
+            testInvalidUser(context, user);
             return false;
         }
 
