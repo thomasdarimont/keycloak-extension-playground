@@ -27,6 +27,7 @@
         <module>virtual-client-storage-provider-extension</module>
         <module>jaxrs-request-filter-extension</module>
         <module>auth-dynamic-idp-redirector-extension</module>
+        <module>adhoc-keycloak-extensions</module>
     </modules>
 
     <properties>
