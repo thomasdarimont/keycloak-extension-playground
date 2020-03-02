@@ -43,20 +43,6 @@ public class SimpleAuthenticatorForm implements Authenticator {
     }
 
     @Override
-    public boolean requiresUser() {
-        return false;
-    }
-
-    @Override
-    public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) {
-        return true;
-    }
-
-    @Override
-    public void setRequiredActions(KeycloakSession session, RealmModel realm, UserModel user) {
-    }
-
-    @Override
     public void action(AuthenticationFlowContext context) {
 
         MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
@@ -77,6 +63,20 @@ public class SimpleAuthenticatorForm implements Authenticator {
         }
 
         context.success();
+    }
+
+    @Override
+    public boolean requiresUser() {
+        return false;
+    }
+
+    @Override
+    public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) {
+        return true;
+    }
+
+    @Override
+    public void setRequiredActions(KeycloakSession session, RealmModel realm, UserModel user) {
     }
 
     @Override
