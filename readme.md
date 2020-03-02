@@ -9,7 +9,7 @@ since the required library `keycloak-testsuite-utils` is not distributed to mave
 ## Building Keycloak  
 ```
 # The Keycloak version referenced in the pom.xml 
-KC_VERSION=8.0.1
+KC_VERSION=8.0.2
 git clone https://github.com/keycloak/keycloak
 git fetch origin --tags
 git checkout $KC_VERSION
@@ -51,7 +51,7 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile=COMMUNITY
 -Dkeycloak.product.name=keycloak
 -Dproduct.name=keycloak
--Dproduct.version=7.0.x
+-Dproduct.version=8.0.x
 -Dkeycloak.profile=preview
 -Dkeycloak.profile.feature.account2=enabled
 -Dkeycloak.profile.feature.scripts=enabled
@@ -79,7 +79,7 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile=COMMUNITY
 -Dkeycloak.product.name=keycloak
 -Dproduct.name=keycloak
--Dproduct.version=7.0.x
+-Dproduct.version=8.0.x
 -Dkeycloak.profile=preview
 -Dkeycloak.profile.feature.account2=enabled
 -Dkeycloak.profile.feature.scripts=enabled
