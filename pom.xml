@@ -44,7 +44,7 @@
         <lombok.version>1.18.12</lombok.version>
 
         <keycloak.version>8.0.2</keycloak.version>
-        <auto-service.version>1.0-rc5</auto-service.version>
+        <auto-service.version>1.0-rc6</auto-service.version>
     </properties>
 
     <dependencyManagement>
