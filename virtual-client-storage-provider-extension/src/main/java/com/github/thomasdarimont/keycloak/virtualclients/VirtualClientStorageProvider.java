@@ -6,6 +6,9 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.storage.client.ClientStorageProvider;
 
+import java.util.Collections;
+import java.util.List;
+
 public class VirtualClientStorageProvider implements ClientStorageProvider {
 
     private final KeycloakSession session;
@@ -51,5 +54,10 @@ public class VirtualClientStorageProvider implements ClientStorageProvider {
 
         VirtualClientModel virtualModel = this.virtualClientModelGenerator.createVirtualModel(clientId, realm.getName());
         return virtualModel;
+    }
+
+    @Override
+    public List<ClientModel> searchClientsByClientId(String clientId, Integer firstResult, Integer maxResults, RealmModel realm) {
+        return Collections.emptyList();
     }
 }

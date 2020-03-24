@@ -9,7 +9,7 @@ since the required library `keycloak-testsuite-utils` is not distributed to mave
 ## Building Keycloak  
 ```
 # The Keycloak version referenced in the pom.xml 
-KC_VERSION=8.0.2
+KC_VERSION=9.0.2
 git clone https://github.com/keycloak/keycloak
 git fetch origin --tags
 git checkout $KC_VERSION
@@ -51,10 +51,12 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile=COMMUNITY
 -Dkeycloak.product.name=keycloak
 -Dproduct.name=keycloak
--Dproduct.version=8.0.x
+-Dproduct.version=9.0.x
 -Dkeycloak.profile=preview
 -Dkeycloak.profile.feature.account2=enabled
 -Dkeycloak.profile.feature.scripts=enabled
+-Dkeycloak.profile.feature.token_exchange=enabled
+-Dkeycloak.profile.feature.admin_fine_grained_authz=enabled
 -Dkeycloak.theme.welcomeTheme=keycloak
 -Dkeycloak.theme.dir=../simple-theme/target/theme/
 ```
@@ -79,10 +81,12 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile=COMMUNITY
 -Dkeycloak.product.name=keycloak
 -Dproduct.name=keycloak
--Dproduct.version=8.0.x
+-Dproduct.version=9.0.x
 -Dkeycloak.profile=preview
 -Dkeycloak.profile.feature.account2=enabled
 -Dkeycloak.profile.feature.scripts=enabled
+-Dkeycloak.profile.feature.token_exchange=enabled
+-Dkeycloak.profile.feature.admin_fine_grained_authz=enabled
 -Dkeycloak.theme.welcomeTheme=keycloak
 -Dkeycloak.theme.dir=../simple-theme/target/theme/
 ```
