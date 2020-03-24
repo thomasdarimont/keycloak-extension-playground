@@ -1,0 +1,23 @@
+{
+	"name": "keycloak-acme-theme",
+	"version": "1.0.1.0-SNAPSHOT",
+	"private": true,
+	"license": "Apache-2.0",
+	"scripts": {
+		"clean": "rm -rf target/classes/public",
+		"start": "parcel --public-url ./ -d target/classes/theme src/main/theme/template.ftl",
+		"watch": "parcel watch --public-url ./ -d target/classes/theme src/main/theme/template.ftl",
+		"build": "parcel build --public-url ./ -d target/classes/theme src/main/theme/template.ftl"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.0.0-0",
+		"@babel/plugin-proposal-async-generator-functions": "^7.2.0",
+		"babel-preset-latest": "^6.24.1",
+		"less": "^3.9.0",
+		"parcel": "^1.11.0",
+		"typescript": "^3.3.3"
+	},
+	"dependencies": {
+		"@babel/polyfill": "^7.2.5"
+	}
+}

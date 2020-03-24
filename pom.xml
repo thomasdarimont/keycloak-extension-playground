@@ -30,6 +30,7 @@
         <module>auth-session-propagation-extension</module>
         <module>adhoc-keycloak-extensions</module>
         <module>smallrye-metrics-extension</module>
+        <module>simple-javascript-extensions</module>
     </modules>
 
     <properties>

@@ -1,0 +1,16 @@
+{
+  "authenticators": [
+    {
+      "name": "My Authenticator",
+      "fileName": "my-script-authenticator.js",
+      "description": "My Authenticator from a JS file"
+    }
+  ],
+  "mappers": [
+    {
+      "name": "My Mapper",
+      "fileName": "my-script-mapper.js",
+      "description": "My Mapper from a JS file"
+    }
+  ]
+}

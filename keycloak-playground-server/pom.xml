@@ -15,21 +15,21 @@
 
         <dependency>
             <groupId>com.github.thomasdarimont.keycloak</groupId>
-            <artifactId>auth-dynamic-idp-redirector-extension</artifactId>
+            <artifactId>auth-session-propagation-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.thomasdarimont.keycloak</groupId>
-            <artifactId>jaxrs-request-filter-extension</artifactId>
+            <artifactId>auth-dynamic-idp-redirector-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>com.github.thomasdarimont.keycloak</groupId>-->
-<!--            <artifactId>jaxrs-request-filter-extension</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>com.github.thomasdarimont.keycloak</groupId>-->
+        <!--            <artifactId>jaxrs-request-filter-extension</artifactId>-->
+        <!--            <version>${project.version}</version>-->
+        <!--        </dependency>-->
 
         <dependency>
             <groupId>com.github.thomasdarimont.keycloak</groupId>
@@ -112,6 +112,12 @@
         <dependency>
             <groupId>com.github.thomasdarimont.keycloak</groupId>
             <artifactId>adhoc-keycloak-extensions</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <artifactId>simple-javascript-extensions</artifactId>
             <version>${project.version}</version>
         </dependency>
 
