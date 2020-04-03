@@ -10,6 +10,8 @@ import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.utils.RoleUtils;
 
+import java.util.Set;
+
 import static org.keycloak.models.utils.KeycloakModelUtils.getRoleFromString;
 
 /**
@@ -29,24 +31,34 @@ public class RequireRoleAuthenticator implements Authenticator {
         UserModel user = context.getUser();
 
         if (!userHasRole(realm, user, roleName)) {
-
             LOG.debugf("Access denied because of missing role. realm=%s username=%s role=%s", realm.getName(), user.getUsername(), roleName);
             context.cancelLogin();
             return;
         }
 
+        LOG.debugf("user=%s has role=%s. Access granted", user.getUsername(), roleName);
         context.success();
     }
 
+   /**
+     *
+     * @param realm
+     * @param user
+     * @param roleName
+     * @return true if roleName is in any of all user role mappings including all groups of user
+     */
     private boolean userHasRole(RealmModel realm, UserModel user, String roleName) {
+        LOG.debugf("Checking if user=%s has role=%s or inherits it from any of its groups...", user.getUsername(), roleName);
 
         if (roleName == null) {
+            LOG.debugf("Required role name is empty", user.getUsername(), roleName);
             return false;
         }
 
         RoleModel role = getRoleFromString(realm, roleName);
-
-        return RoleUtils.hasRole(user.getRoleMappings(), role);
+        Set<RoleModel> roles = RoleUtils.getDeepUserRoleMappings(user);
+        LOG.debugf("user=%s has assigned this list of group roles=%s, the required one is: %s", user.getUsername(), roles, role);
+        return (roles.contains(role))?true:false;
     }
 
 
