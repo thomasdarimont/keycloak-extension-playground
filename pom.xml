@@ -31,6 +31,7 @@
         <module>adhoc-keycloak-extensions</module>
         <module>smallrye-metrics-extension</module>
         <module>simple-javascript-extensions</module>
+        <module>smallrye-health-extension</module>
     </modules>
 
     <properties>
