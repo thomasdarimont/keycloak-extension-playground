@@ -54,6 +54,7 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dproduct.version=9.0.x
 -Dkeycloak.profile=preview
 -Dkeycloak.profile.feature.account2=enabled
+-Dkeycloak.profile.feature.account_api=enabled
 -Dkeycloak.profile.feature.scripts=enabled
 -Dkeycloak.profile.feature.token_exchange=enabled
 -Dkeycloak.profile.feature.admin_fine_grained_authz=enabled
@@ -84,6 +85,7 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dproduct.version=9.0.x
 -Dkeycloak.profile=preview
 -Dkeycloak.profile.feature.account2=enabled
+-Dkeycloak.profile.feature.account_api=enabled
 -Dkeycloak.profile.feature.scripts=enabled
 -Dkeycloak.profile.feature.token_exchange=enabled
 -Dkeycloak.profile.feature.admin_fine_grained_authz=enabled
