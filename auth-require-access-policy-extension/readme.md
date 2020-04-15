@@ -1,4 +1,4 @@
-Access Policy Acuthenticator
+Access Policy Authenticator
 ---
 
 Simple example for an authenticator which can evaluate custom access-policies written as JSON documents.
