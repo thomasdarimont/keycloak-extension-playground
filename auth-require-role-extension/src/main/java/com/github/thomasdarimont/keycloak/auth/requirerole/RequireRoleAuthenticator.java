@@ -1,4 +1,4 @@
-package com.github.thomasdarimont.keycloak.auth.requiregroup;
+package com.github.thomasdarimont.keycloak.auth.requirerole;
 
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;

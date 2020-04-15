@@ -1,1 +1,1 @@
-com.github.thomasdarimont.keycloak.auth.requiregroup.RequireRoleAuthenticatorFactory
+com.github.thomasdarimont.keycloak.auth.requirerole.RequireRoleAuthenticatorFactory
