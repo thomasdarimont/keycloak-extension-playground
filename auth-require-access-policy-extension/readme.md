@@ -3,6 +3,9 @@ Access Policy Acuthenticator
 
 Simple example for an authenticator which can evaluate custom access-policies written as JSON documents.
 
+This introduces a new `Authenticator` with the name `Check Access Policy` which be used in custom authentication flows
+after the user has authenticated but before the authentication flow has completed. 
+
 # Access Policies
 
 An access-policy can be defined as a JSON document which holds a list of access-policy entries. 
