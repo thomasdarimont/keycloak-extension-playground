@@ -32,6 +32,7 @@
         <module>smallrye-metrics-extension</module>
         <module>simple-javascript-extensions</module>
         <module>smallrye-health-extension</module>
+        <module>auth-require-access-policy-extension</module>
     </modules>
 
     <properties>
