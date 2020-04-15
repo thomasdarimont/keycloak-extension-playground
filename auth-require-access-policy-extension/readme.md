@@ -9,8 +9,8 @@ An access-policy can be defined as a JSON document which holds a list of access-
 An `access-policy-entry` consists of a client-id regex pattern `app` and a list of allowed realm- or client-role names.
 Client roles have the form `clientId.roleName`. 
 
-If a client is not contained in the access-policy the access is always granted. 
-If a client is contained in the access-policy but contains an role list with the sole value `NONE`, then access is always denied.
+If a client is not contained in the access-policy the access to this client is always granted. 
+If a client is contained in the access-policy, but contains an role list with the sole value `NONE`, then access is always denied.
 
 An example access-policy looks like this:
 ```json
@@ -46,6 +46,8 @@ Users with role `domain-role` can access the clients `app-domain-a`, `app-domain
 ## Allow access to clients based on client regex pattern for some client roles
 
 Users with an `access` client-role for the respective client can access the client apps denoted by `app-domain-a`, `app-domain-b` and `app-domain-c`.
+
+The `$1` in the required role name refers to the matched cliendId in the first regex group.
 ```json
 {"p":[
     { "app": "(app-domain-(a|b|c))", "allow": ["$1.access"] }
