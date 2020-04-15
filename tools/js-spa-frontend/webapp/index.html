@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Plain JS Profile</title>
+
+    <link rel="stylesheet" type="text/css" href="styles.css"/>
+
+    <script src="app.js"></script>
+</head>
+
+<body style="display: none;">
+
+<div class="wrapper" id="welcome" style="display: none;">
+    <div class="menu">
+        <button name="loginBtn" onclick="keycloak.login()">Login</button>
+    </div>
+
+    <div class="content">
+        <div class="message">Please login</div>
+    </div>
+</div>
+
+<div class="wrapper" id="profile" style="display: none;">
+    <div class="menu">
+        <button name="profileBtn" onclick="showProfile()">Profile</button>
+        <button name="tokenBtn" onclick="showToken()">AccessToken</button>
+        <button name="idTokenBtn" onclick="showIdToken()">IDToken</button>
+        <button name="accountBtn" onclick="keycloak.accountManagement()">Account</button>
+        <button name="logoutBtn" onclick="keycloak.logout()">Logout</button>
+    </div>
+
+    <div class="content">
+        <div id="profile-content" class="message">
+            <table cellpadding="0" cellspacing="0">
+                <tr>
+                    <td class="label">First name</td>
+                    <td><span id="firstName"></span></td>
+                </tr>
+                <tr class="even">
+                    <td class="label">Last name</td>
+                    <td><span id="lastName"></span></td>
+                </tr>
+                <tr>
+                    <td class="label">Username</td>
+                    <td><span id="username"></span></td>
+                </tr>
+                <tr class="even">
+                    <td class="label">Email</td>
+                    <td><span id="email"></span></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="wrapper" id="token" style="display: none;">
+    <div class="menu">
+        <button onclick="showProfile()">Profile</button>
+        <button onclick="showToken()">AccessToken</button>
+        <button onclick="showIdToken()">IDToken</button>
+        <button onclick="keycloak.logout()">Logout</button>
+        <button onclick="keycloak.accountManagement()">Account</button>
+    </div>
+
+    <div class="content">
+        <div id="token-content" class="message"></div>
+    </div>
+</div>
+
+<div class="wrapper" id="idToken" style="display: none;">
+    <div class="menu">
+        <button onclick="showProfile()">Profile</button>
+        <button onclick="showToken()">AccessToken</button>
+        <button onclick="showIdToken()">IDToken</button>
+        <button onclick="keycloak.logout()">Logout</button>
+        <button onclick="keycloak.accountManagement()">Account</button>
+    </div>
+
+    <div class="content">
+        <div id="token-content" class="message"></div>
+    </div>
+</div>
+
+</body>
+
+</html>
