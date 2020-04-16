@@ -10,6 +10,8 @@ import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.utils.RoleUtils;
 
+import java.util.Set;
+
 import static org.keycloak.models.utils.KeycloakModelUtils.getRoleFromString;
 
 /**
@@ -38,15 +40,35 @@ public class RequireRoleAuthenticator implements Authenticator {
         context.success();
     }
 
+    /**
+     * @param realm
+     * @param user
+     * @param roleName
+     * @return true if roleName is in any of all user role mappings including all groups of user
+     */
     private boolean userHasRole(RealmModel realm, UserModel user, String roleName) {
 
         if (roleName == null) {
             return false;
         }
 
-        RoleModel role = getRoleFromString(realm, roleName);
+        LOG.debugf("Checking if user=%s has role=%s", user.getUsername(), roleName);
+        RoleModel requiredRole = getRoleFromString(realm, roleName);
 
-        return RoleUtils.hasRole(RoleUtils.getDeepUserRoleMappings(user), role);
+        // first perform cheap role check
+        Set<RoleModel> directAssignedRoles = user.getRoleMappings();
+        if (RoleUtils.hasRole(directAssignedRoles, requiredRole)) {
+            return true;
+        }
+
+        // Next perform more expensive nested roles check
+        Set<RoleModel> nestedAssignedRoles = RoleUtils.getDeepUserRoleMappings(user);
+        if (RoleUtils.hasRole(nestedAssignedRoles, requiredRole)) {
+            return true;
+        }
+
+        LOG.debugf("User does not have the required role. user=%s role=%s assignedRoles=%s", user.getUsername(), requiredRole, nestedAssignedRoles);
+        return false;
     }
 
 
