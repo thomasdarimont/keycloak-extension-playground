@@ -46,7 +46,7 @@ public class RequireRoleAuthenticator implements Authenticator {
 
         RoleModel role = getRoleFromString(realm, roleName);
 
-        return RoleUtils.hasRole(user.getRoleMappings(), role);
+        return RoleUtils.hasRole(RoleUtils.getDeepUserRoleMappings(user), role);
     }
 
 
