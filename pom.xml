@@ -33,6 +33,7 @@
         <module>simple-javascript-extensions</module>
         <module>smallrye-health-extension</module>
         <module>auth-require-access-policy-extension</module>
+        <module>auth-check-authz-policy-extension</module>
     </modules>
 
     <properties>
