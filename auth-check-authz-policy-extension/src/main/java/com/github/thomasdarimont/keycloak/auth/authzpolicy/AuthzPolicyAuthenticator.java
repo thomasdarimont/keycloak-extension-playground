@@ -41,7 +41,6 @@ public class AuthzPolicyAuthenticator implements Authenticator {
 
         RealmModel realm = context.getRealm();
         ClientModel client = context.getAuthenticationSession().getClient();
-        UserModel user = context.getUser();
 
         AuthorizationProvider authzProvider = session.getProvider(AuthorizationProvider.class);
         PolicyStore policyStore = authzProvider.getStoreFactory().getPolicyStore();
@@ -54,27 +53,31 @@ public class AuthzPolicyAuthenticator implements Authenticator {
 
         String realmManagementClientId = realm.getClientByClientId(Constants.REALM_MANAGEMENT_CLIENT_ID).getId();
         Policy clientPolicy = policyStore.findByName(clientPolicyName, realmManagementClientId);
-        Policy rolePolicy = policyStore.findByName(rolePolicyName, realmManagementClientId);
 
         List<String> clients = parseJson(clientPolicy.getConfig().get("clients"), List.class);
         if (!clients.contains(client.getId())) {
+            // The current client is not contained in the client policy -> skip the authenticator
             context.success();
             return;
         }
 
+        Policy rolePolicy = policyStore.findByName(rolePolicyName, realmManagementClientId);
         List<Map<String, Object>> roles = parseJson(rolePolicy.getConfig().get("roles"), List.class);
         List<RoleModel> requiredRoles = roles.stream()
                 .map(r -> (String) r.get("id"))
                 .map(realm::getRoleById)
                 .collect(Collectors.toList());
 
-        boolean accessAllowed = requiredRoles.stream()
-                .anyMatch(user::hasRole);
+        UserModel user = context.getUser();
+        boolean accessAllowed = requiredRoles.stream().anyMatch(user::hasRole);
 
         if (accessAllowed) {
+            // the user has the required roles -> let the authentication succeed
             context.success();
             return;
         }
+
+        // the user does not have the required roles -> deny the authentication
 
         context.getEvent().user(user);
         context.getEvent().error(Errors.NOT_ALLOWED);
