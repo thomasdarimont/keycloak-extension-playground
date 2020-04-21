@@ -3,12 +3,15 @@ package com.github.thomasdarimont.keycloak.auth.requirerole;
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.Authenticator;
+import org.keycloak.events.Errors;
 import org.keycloak.models.AuthenticatorConfigModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.models.utils.FormMessage;
 import org.keycloak.models.utils.RoleUtils;
+import org.keycloak.services.messages.Messages;
 
 import java.util.Set;
 
@@ -30,14 +33,15 @@ public class RequireRoleAuthenticator implements Authenticator {
         RealmModel realm = context.getRealm();
         UserModel user = context.getUser();
 
-        if (!userHasRole(realm, user, roleName)) {
-
-            LOG.debugf("Access denied because of missing role. realm=%s username=%s role=%s", realm.getName(), user.getUsername(), roleName);
-            context.cancelLogin();
+        if (userHasRole(realm, user, roleName)) {
+            context.success();
             return;
         }
 
-        context.success();
+        LOG.debugf("Access denied because of missing role. realm=%s username=%s role=%s", realm.getName(), user.getUsername(), roleName);
+        context.getEvent().user(user);
+        context.getEvent().error(Errors.NOT_ALLOWED);
+        context.forkWithErrorMessage(new FormMessage(Messages.NO_ACCESS));
     }
 
     /**
@@ -55,13 +59,13 @@ public class RequireRoleAuthenticator implements Authenticator {
         LOG.debugf("Checking if user=%s has role=%s", user.getUsername(), roleName);
         RoleModel requiredRole = getRoleFromString(realm, roleName);
 
-        // first perform cheap role check
+        // First perform cheap role check for direct or composite roles
         Set<RoleModel> directAssignedRoles = user.getRoleMappings();
         if (RoleUtils.hasRole(directAssignedRoles, requiredRole)) {
             return true;
         }
 
-        // Next perform more expensive nested roles check
+        // Next perform more expensive roles check for group membership role mappings
         Set<RoleModel> nestedAssignedRoles = RoleUtils.getDeepUserRoleMappings(user);
         if (RoleUtils.hasRole(nestedAssignedRoles, requiredRole)) {
             return true;
