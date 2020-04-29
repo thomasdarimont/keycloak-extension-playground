@@ -1,13 +1,17 @@
 package com.github.thomasdarimont.keycloak.virtualclients;
 
+import com.github.thomasdarimont.keycloak.virtualclients.mappers.DynamicClaimMapper;
 import lombok.RequiredArgsConstructor;
+import org.keycloak.common.constants.ServiceAccountConstants;
 import org.keycloak.models.ClientScopeModel;
 import org.keycloak.models.ProtocolMapperModel;
+import org.keycloak.models.RealmModel;
 import org.keycloak.models.RoleModel;
 import org.keycloak.models.utils.KeycloakModelUtils;
+import org.keycloak.protocol.ProtocolMapper;
 import org.keycloak.protocol.oidc.OIDCLoginProtocol;
 import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
-import org.keycloak.protocol.oidc.mappers.UserPropertyMapper;
+import org.keycloak.protocol.oidc.mappers.UserSessionNoteMapper;
 
 import java.beans.Introspector;
 import java.lang.reflect.InvocationHandler;
@@ -15,7 +19,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -26,30 +30,51 @@ public class VirtualClientModelGenerator {
 
     private static Set<ProtocolMapperModel> createDefaultProtocolMappers() {
 
-        Set<ProtocolMapperModel> mappers = new HashSet<>();
+        Set<ProtocolMapperModel> mappers = new LinkedHashSet<>();
 
-        ProtocolMapperModel usernameMapper = OIDCAttributeMapperHelper.createClaimMapper("username", "username", "preferred_username", "string", true, true, UserPropertyMapper.PROVIDER_ID);
-        usernameMapper.setId(KeycloakModelUtils.generateId());
+        ProtocolMapperModel clientIdMapper = UserSessionNoteMapper.createClaimMapper(
+                ServiceAccountConstants.CLIENT_ID_PROTOCOL_MAPPER,
+                ServiceAccountConstants.CLIENT_ID,
+                ServiceAccountConstants.CLIENT_ID,
+                "String",
+                true,
+                true);
+        clientIdMapper.setId(KeycloakModelUtils.generateId());
+        mappers.add(clientIdMapper);
 
-        mappers.add(usernameMapper);
+        ProtocolMapperModel dynamicMapperModel = new ProtocolMapperModel();
+        dynamicMapperModel.setName(DynamicClaimMapper.PROVIDER_ID);
+        dynamicMapperModel.setId(KeycloakModelUtils.generateId());
+        dynamicMapperModel.setProtocol(OIDCLoginProtocol.LOGIN_PROTOCOL);
+        dynamicMapperModel.setProtocolMapper(DynamicClaimMapper.PROVIDER_ID);
+        Map<String, String> config = new HashMap<>();
+        config.put(OIDCAttributeMapperHelper.INCLUDE_IN_ACCESS_TOKEN, "true");
+        config.put(OIDCAttributeMapperHelper.INCLUDE_IN_ID_TOKEN, "false");
+        dynamicMapperModel.setConfig(config);
+        mappers.add(dynamicMapperModel);
+
         return mappers;
     }
 
-    VirtualClientModel createVirtualModel(String clientId, String realmName) {
-        return createVirtualModel(clientId, realmName, modelAttributes -> {
+    VirtualClientModel createVirtualModel(String id, String clientId, RealmModel realm) {
+        return createVirtualModel(id, clientId, realm, modelAttributes -> {
             modelAttributes.put("publicClient", false);
             modelAttributes.put("directAccessGrantsEnabled", true);
             modelAttributes.put("standardFlowEnabled", false);
         });
     }
 
-    VirtualClientModel createVirtualModel(String clientId, String realmName, Consumer<Map<String, Object>> adjuster) {
+    VirtualClientModel createVirtualModel(String id, String clientId, RealmModel realm, Consumer<Map<String, Object>> adjuster) {
 
         Map<String, Object> modelAttributes = new HashMap<>();
-        modelAttributes.put("id", clientId);
+        modelAttributes.put("id", id);
+        if (clientId == null) {
+            clientId = "f:virtual:" + id.substring(id.lastIndexOf(':') + 1);
+        }
         modelAttributes.put("clientId", clientId);
         modelAttributes.put("name", "virtual-" + clientId);
-        modelAttributes.put("realmName", realmName);
+        modelAttributes.put("realmName", realm.getName());
+        modelAttributes.put("realm", realm);
         modelAttributes.put("enabled", true);
         modelAttributes.put("protocol", OIDCLoginProtocol.LOGIN_PROTOCOL);
         modelAttributes.put("protocolMappers", DEFAULT_PROTOCOL_MAPPERS);
@@ -62,7 +87,8 @@ public class VirtualClientModelGenerator {
         modelAttributes.put("scopeMappings", Collections.<RoleModel>emptySet());
         modelAttributes.put("defaultRoles", Collections.emptyList());
         modelAttributes.put("registeredNodes", Collections.emptyMap());
-        modelAttributes.put("secret", clientId);
+        modelAttributes.put("serviceAccountsEnabled", true);
+        modelAttributes.put("secret", "secret");
 
         adjuster.accept(modelAttributes);
 
@@ -121,6 +147,10 @@ public class VirtualClientModelGenerator {
                 return getDynamicClientScope((String) args[0]);
             }
 
+            if (methodName.equals("getProtocolMapperByName") && method.getParameterCount() == 2) {
+                return getProtocolMapperByName((String) args[0], (String) args[1]);
+            }
+
 
             if (methodName.startsWith("get") && method.getParameterCount() == 0) {
                 String attribute = Introspector.decapitalize(methodName.substring(3));
@@ -146,6 +176,23 @@ public class VirtualClientModelGenerator {
 
             if (Integer.class.equals(method.getReturnType()) || int.class.equals(method.getReturnType())) {
                 return 0;
+            }
+
+            return null;
+        }
+
+        private ProtocolMapper getProtocolMapperByName(String protocol, String name) {
+
+            if (OIDCLoginProtocol.LOGIN_PROTOCOL.equals(protocol)) {
+
+                if (ServiceAccountConstants.CLIENT_ID_PROTOCOL_MAPPER.equals(name)) {
+                    // to indirect fulfill check for service accounts in TokenEndpoint#clientCredentialsGrant
+                    return new UserSessionNoteMapper();
+                }
+
+                if (DynamicClaimMapper.PROVIDER_ID.equals(name)) {
+                    return new DynamicClaimMapper();
+                }
             }
 
             return null;

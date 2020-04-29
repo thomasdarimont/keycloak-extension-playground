@@ -38,8 +38,7 @@ public class VirtualClientStorageProviderFactory implements ClientStorageProvide
 
     @Override
     public ClientStorageProvider create(KeycloakSession session, ComponentModel config) {
-        ClientStorageProviderModel providerModel = createProviderModel(config);
-        return new VirtualClientStorageProvider(session, providerModel);
+        return new VirtualClientStorageProvider(session, createProviderModel(config));
     }
 
     @Override
