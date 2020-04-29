@@ -15,6 +15,7 @@ import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.representations.IDToken;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,7 @@ public class DynamicClaimMapper extends AbstractOIDCProtocolMapper implements OI
 
     @Override
     public List<ProviderConfigProperty> getConfigProperties() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
