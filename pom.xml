@@ -34,6 +34,7 @@
         <module>smallrye-health-extension</module>
         <module>auth-require-access-policy-extension</module>
         <module>auth-check-authz-policy-extension</module>
+        <module>tenant-selection-form-extension</module>
     </modules>
 
     <properties>

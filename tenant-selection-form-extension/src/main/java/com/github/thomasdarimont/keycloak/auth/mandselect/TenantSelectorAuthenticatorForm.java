@@ -12,7 +12,7 @@ import javax.ws.rs.core.Response;
 
 public class TenantSelectorAuthenticatorForm implements Authenticator {
 
-    private static final Logger LOG = Logger.getLogger(MandantSelectorAuthenticatorForm.class);
+    private static final Logger LOG = Logger.getLogger(TenantSelectorAuthenticatorForm.class);
 
     public TenantSelectorAuthenticatorForm() {
     }

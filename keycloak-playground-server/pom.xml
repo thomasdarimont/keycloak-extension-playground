@@ -37,6 +37,12 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <artifactId>tenant-selection-form-extension</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!--        <dependency>-->
         <!--            <groupId>com.github.thomasdarimont.keycloak</groupId>-->
         <!--            <artifactId>jaxrs-request-filter-extension</artifactId>-->
