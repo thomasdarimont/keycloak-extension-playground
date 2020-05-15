@@ -35,6 +35,7 @@
         <module>auth-require-access-policy-extension</module>
         <module>auth-check-authz-policy-extension</module>
         <module>tenant-selection-form-extension</module>
+        <module>thirdparty-mfa-auth-extension</module>
     </modules>
 
     <properties>
