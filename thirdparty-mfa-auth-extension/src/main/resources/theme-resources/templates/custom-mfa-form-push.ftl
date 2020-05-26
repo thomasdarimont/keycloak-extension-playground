@@ -23,6 +23,8 @@
         <form action="${url.loginAction}" class="${properties.kcFormClass!}" id="kc-u2f-login-form" method="post">
             <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}"
                    type="submit" name="useOtp" value="${customMsg("use_otp")}"/>
+            <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}"
+                   type="submit" name="cancel" value="${msg("doCancel")}"/>
         </form>
 
         <script>
