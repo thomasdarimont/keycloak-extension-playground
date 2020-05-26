@@ -8,8 +8,8 @@ import org.keycloak.models.AuthenticationExecutionModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
+import org.keycloak.provider.ProviderConfigurationBuilder;
 
-import java.util.Collections;
 import java.util.List;
 
 @AutoService(AuthenticatorFactory.class)
@@ -53,7 +53,27 @@ public class SessionPropagationAuthenticatorFactory implements AuthenticatorFact
 
     @Override
     public List<ProviderConfigProperty> getConfigProperties() {
-        return Collections.emptyList();
+        return ProviderConfigurationBuilder
+                .create()
+                .property().name(SessionPropagationAuthenticator.ENCRYPTION_KEY)
+                .type(ProviderConfigProperty.PASSWORD)
+                .label("Encryption Key")
+                .defaultValue("changeme")
+                .helpText("Encryption key")
+                .add()
+                .property().name(SessionPropagationAuthenticator.SESSION_REFERENCE_MAX_AGE_SECONDS)
+                .type(ProviderConfigProperty.STRING_TYPE)
+                .label("Session Reference Mag Age")
+                .defaultValue("30")
+                .helpText("Maximum age of session reference in seconds")
+                .add().property().name(SessionPropagationAuthenticator.SESSION_VALIDATION_SERVICE_URL)
+                .type(ProviderConfigProperty.STRING_TYPE)
+                .label("Session Validation URL")
+                .defaultValue("")
+                .helpText("Url to validate the encrypted session token against. " +
+                        "The URI placeholder {sessionHandle} will be replaced witht he actual sessionHandle. " +
+                        "An example URI can look like this: http://myserver/myapp/sessions/keycloak?sessionHandle={sessionHandle}")
+                .add().build();
     }
 
     @Override
