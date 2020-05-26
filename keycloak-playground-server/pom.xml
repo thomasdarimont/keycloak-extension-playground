@@ -26,133 +26,133 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>auth-check-authz-policy-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>auth-require-access-policy-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>auth-session-propagation-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>auth-dynamic-idp-redirector-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>tenant-selection-form-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <!--        <dependency>-->
-        <!--            <groupId>com.github.thomasdarimont.keycloak</groupId>-->
+        <!--            <groupId>${project.groupId}</groupId>-->
         <!--            <artifactId>jaxrs-request-filter-extension</artifactId>-->
         <!--            <version>${project.version}</version>-->
         <!--        </dependency>-->
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>virtual-client-storage-provider-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>reset-password-after-login-eventlistener-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>auth-require-role-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>auth-require-group-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>simple-realm-rest-resource</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>simple-event-listener</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>simple-auth-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>simple-auth-form-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>simple-custom-saml-protocol</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>simple-oidc-mapper</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>simple-saml-mapper</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>simple-formaction-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>auth-identity-first-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>adhoc-keycloak-extensions</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>simple-javascript-extensions</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>smallrye-metrics-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
