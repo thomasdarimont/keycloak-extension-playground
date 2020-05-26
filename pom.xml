@@ -36,6 +36,7 @@
         <module>auth-check-authz-policy-extension</module>
         <module>tenant-selection-form-extension</module>
         <module>thirdparty-mfa-auth-extension</module>
+        <module>auth-login-notify-email-extension</module>
     </modules>
 
     <properties>
