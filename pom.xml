@@ -50,7 +50,7 @@
         <!-- dependency versions -->
         <lombok.version>1.18.12</lombok.version>
 
-        <keycloak.version>10.0.1</keycloak.version>
+        <keycloak.version>10.0.2</keycloak.version>
         <auto-service.version>1.0-rc6</auto-service.version>
         <jackson.version>2.10.2</jackson.version>
     </properties>
