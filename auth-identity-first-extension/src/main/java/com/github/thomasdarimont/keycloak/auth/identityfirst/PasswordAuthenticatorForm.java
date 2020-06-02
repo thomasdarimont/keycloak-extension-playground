@@ -15,6 +15,7 @@ import org.keycloak.models.UserModel;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.messages.Messages;
+import org.keycloak.sessions.AuthenticationSessionModel;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -86,7 +87,8 @@ public class PasswordAuthenticatorForm extends AbstractIdentityFirstUsernameForm
 
     private boolean validatePasswordForm(AuthenticationFlowContext context, MultivaluedMap<String, String> formData) {
 
-        String username = context.getAuthenticationSession().getAuthNote(AbstractUsernameFormAuthenticator.ATTEMPTED_USERNAME);
+        AuthenticationSessionModel authSession = context.getAuthenticationSession();
+        String username = authSession.getAuthNote(AbstractUsernameFormAuthenticator.ATTEMPTED_USERNAME);
         UserModel user = lookupUser(context, username);
         if (username == null || user == null) {
             failWithUserNotFound(context);
@@ -110,6 +112,14 @@ public class PasswordAuthenticatorForm extends AbstractIdentityFirstUsernameForm
         if (!context.getSession().userCredentialManager().isValid(context.getRealm(), user, credentials)) {
             failWithInvalidCredentials(context, user);
             return false;
+        }
+
+        String rememberMe = formData.getFirst("rememberMe");
+        if (rememberMe != null && rememberMe.equalsIgnoreCase("on")) {
+            authSession.setAuthNote(Details.REMEMBER_ME, "true");
+            context.getEvent().detail(Details.REMEMBER_ME, "true");
+        } else {
+            authSession.removeAuthNote(Details.REMEMBER_ME);
         }
 
         context.setUser(user);
