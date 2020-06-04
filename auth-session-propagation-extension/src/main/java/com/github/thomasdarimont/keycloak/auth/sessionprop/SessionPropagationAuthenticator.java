@@ -57,11 +57,10 @@ public class SessionPropagationAuthenticator implements Authenticator {
         log.infof("Attempting user session propagation...");
 
         // TODO use encryption key from env variable to avoid exposing this via the admin-console
-        String encryptionKey = getConfigProperty(context, ENCRYPTION_KEY, "changeme");
+        String sharedEncryptionKey = getConfigProperty(context, ENCRYPTION_KEY, "changeme");
         String sessionReferenceData;
-        String key = encryptionKey + encryptedSessionReferenceSalt;
         try {
-            sessionReferenceData = CryptoUtil.decrypt(encryptedSessionReferenceData, key);
+            sessionReferenceData = CryptoUtil.decrypt(encryptedSessionReferenceData, encryptionKeyFrom(sharedEncryptionKey, encryptedSessionReferenceSalt));
         } catch (Exception ex) {
             context.failure(AuthenticationFlowError.INVALID_CREDENTIALS);
             log.infof("Reject session propagation. Reason: bad encryptedSessionReferenceData.");
@@ -87,7 +86,7 @@ public class SessionPropagationAuthenticator implements Authenticator {
 
         String sessionHandle = items[1];
 
-        KeycloakSessionInfo keycloakSessionInfo = resolveKeycloakSessionId(sessionHandle, key, getConfigProperty(context, SESSION_VALIDATION_SERVICE_URL, null));
+        KeycloakSessionInfo keycloakSessionInfo = resolveKeycloakSessionId(sessionHandle, sharedEncryptionKey, encryptedSessionReferenceSalt, getConfigProperty(context, SESSION_VALIDATION_SERVICE_URL, null));
         if (keycloakSessionInfo == null) {
             context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
             log.infof("Reject session propagation. Reason: Remote session not found.");
@@ -133,9 +132,13 @@ public class SessionPropagationAuthenticator implements Authenticator {
         return config.getOrDefault(key, defaultValue);
     }
 
-    private KeycloakSessionInfo resolveKeycloakSessionId(String sessionHandle, String key, String sessionValidationServiceUrl) {
+    private KeycloakSessionInfo resolveKeycloakSessionId(String sessionHandle, String sharedEncryptionKey, String encryptionKeySalt, String sessionValidationServiceUrl) {
 
-        URI targetUri = UriBuilder.fromUri(sessionValidationServiceUrl).build(sessionHandle);
+        String encryptionKey = encryptionKeyFrom(sharedEncryptionKey, encryptionKeySalt);
+
+        String encryptedSessionHandle = CryptoUtil.encrypt(sessionHandle, encryptionKey);
+
+        URI targetUri = UriBuilder.fromUri(sessionValidationServiceUrl).build(encryptedSessionHandle, encryptionKeySalt);
         SimpleHttp httpCall = SimpleHttp.doGet(targetUri.toString(), session);
         try {
             log.errorf("About to retrieve keycloak session id from backend.");
@@ -143,7 +146,7 @@ public class SessionPropagationAuthenticator implements Authenticator {
             log.infof("Retrieved keycloak session id from backend.");
 
             String encryptedJson = response.asString();
-            String json = CryptoUtil.decrypt(encryptedJson, key);
+            String json = CryptoUtil.decrypt(encryptedJson, encryptionKey);
 
             return JsonSerialization.readValue(json, KeycloakSessionInfo.class);
         } catch (IOException e) {
@@ -151,6 +154,10 @@ public class SessionPropagationAuthenticator implements Authenticator {
         }
 
         return null;
+    }
+
+    private String encryptionKeyFrom(String sharedEncryptionKey, String encryptionKeySalt) {
+        return sharedEncryptionKey + encryptionKeySalt;
     }
 
     @Override

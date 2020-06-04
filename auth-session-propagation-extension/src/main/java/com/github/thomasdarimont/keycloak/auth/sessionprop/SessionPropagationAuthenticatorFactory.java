@@ -71,8 +71,9 @@ public class SessionPropagationAuthenticatorFactory implements AuthenticatorFact
                 .label("Session Validation URL")
                 .defaultValue("")
                 .helpText("Url to validate the encrypted session token against. " +
-                        "The URI placeholder {sessionHandle} will be replaced witht he actual sessionHandle. " +
-                        "An example URI can look like this: http://myserver/myapp/sessions/keycloak?sessionHandle={sessionHandle}")
+                        "The URI placeholder {sessionHandle} will be replaced with the encrypted sessionHandle. " +
+                        "The URI placeholder {sessionHandleSalt} will be replaced with the salt used for the encrypted sessionHandle. " +
+                        "An example URI can look like this: http://myserver/myapp/sessions/keycloak?sessionHandle={sessionHandle}&sessionHandleSalt={sessionHandleSalt}")
                 .add().build();
     }
 
