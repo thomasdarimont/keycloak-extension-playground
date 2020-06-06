@@ -19,7 +19,7 @@ public class ThirdPartyMfaAuthenticatorFactory implements AuthenticatorFactory {
 
     @Override
     public String getDisplayType() {
-        return "Thirdparty MFA Authenticator";
+        return "Third-party MFA Authenticator";
     }
 
     @Override
@@ -48,7 +48,7 @@ public class ThirdPartyMfaAuthenticatorFactory implements AuthenticatorFactory {
 
     @Override
     public String getHelpText() {
-        return "Ad-hoc authenticator.  Just passes through and is hardcoded to a specific user";
+        return "Authenticator that supports MFA with a third-party service.";
     }
 
     @Override

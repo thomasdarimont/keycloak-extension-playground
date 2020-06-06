@@ -30,6 +30,8 @@ public class ThirdPartyMfaAuthenticator implements Authenticator {
     public static final String MFA_CHALLENGE = "mfaChallenge";
     public static final String MFA_CHALLENGE_START = "mfaChallengeStart";
 
+    public static final String MFA_SESSION_MARKER_KEY = "mfa";
+
     private final MfaClient mfaClient;
     private final KeycloakSession session;
 
@@ -41,9 +43,32 @@ public class ThirdPartyMfaAuthenticator implements Authenticator {
     @Override
     public void authenticate(AuthenticationFlowContext context) {
 
+        RealmModel realm = context.getRealm();
         UserModel user = context.getUser();
         String username = user.getUsername();
+
         log.infof("Request MFA for User. username=%s", username);
+
+        String existingMfaSessionMarker = session.sessions().getUserSessions(realm, user).stream()
+                // TODO ensure user comes from the same device
+                .filter(us -> us.getNote(MFA_SESSION_MARKER_KEY) != null)
+                .map(us -> us.getNote(MFA_SESSION_MARKER_KEY))
+                .findFirst()
+                .orElse(null);
+
+        if (existingMfaSessionMarker != null) {
+            // There is already an existing user session that was authenticated via MFA
+
+            // TODO check max time since last mfa validation
+            String[] items = existingMfaSessionMarker.split(";");
+            long mfaAuthTime = Long.parseLong(items[0]);
+            MfaMethod mfaMethod = MfaMethod.valueOf(items[1]);
+
+            log.infof("MFA already valid for this session, skipping mfa check. realm=%s username=%s mfa_method=%s mfa_challenge_timestamp=%s",
+                    realm.getName(), username, mfaMethod, mfaAuthTime);
+            context.success();
+            return;
+        }
 
         requestMfaChallenge(context, username, context.getAuthenticationSession());
     }
@@ -64,7 +89,7 @@ public class ThirdPartyMfaAuthenticator implements Authenticator {
             form.setAttribute("hint", firstTry ? "mfa_push_await_challenge_response" : "mfa_push_await_challenge_response");
         }
 
-        Locale locale = context.getSession().getContext().resolveLocale(context.getUser());
+        Locale locale = session.getContext().resolveLocale(context.getUser());
         form.setAttribute("customMsg", new MessageFormatterMethod(locale, MfaMessages.getMessages()));
 
         if (mfaResponse.getErrorCode() != null) {
@@ -137,9 +162,7 @@ public class ThirdPartyMfaAuthenticator implements Authenticator {
 
             log.infof("MFA authentication successful. realm=%s username=%s mfa_method=%s mfa_challenge_duration=%s", realm.getName(), username, mfaMethod, computeChallengeDuration(authSession));
 
-            authSession.removeAuthNote(MFA_CHALLENGE);
-            authSession.removeAuthNote(MFA_CHALLENGE_START);
-            context.success();
+            signalSuccessfulMfaAuthentication(context, authSession, mfaMethod);
             return;
         }
 
@@ -166,6 +189,15 @@ public class ThirdPartyMfaAuthenticator implements Authenticator {
         context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, response);
     }
 
+    private void signalSuccessfulMfaAuthentication(AuthenticationFlowContext context, AuthenticationSessionModel authSession, MfaMethod mfaMethod) {
+
+        authSession.removeAuthNote(MFA_CHALLENGE);
+        authSession.removeAuthNote(MFA_CHALLENGE_START);
+
+        authSession.setUserSessionNote(MFA_SESSION_MARKER_KEY, System.currentTimeMillis() + ";" + mfaMethod);
+        context.success();
+    }
+
     private void requestMfaChallenge(AuthenticationFlowContext context, String username, AuthenticationSessionModel authSession) {
 
         MfaChallengeRequest mfaRequest = createMfaChallengeRequest(username, authSession);
@@ -174,7 +206,8 @@ public class ThirdPartyMfaAuthenticator implements Authenticator {
         MfaMethod mfaMethod = mfaRequest.getMfaMethod();
         if (mfaResponse.isCompleted()) {
             log.infof("MFA Challenge immediately completed. username=%s challengeId=%s mfa_method=%s mfa_challenge_duration=%s", username, mfaResponse.getChallengeId(), mfaMethod, computeChallengeDuration(authSession));
-            context.success();
+
+            signalSuccessfulMfaAuthentication(context, authSession, mfaMethod);
             return;
         }
 

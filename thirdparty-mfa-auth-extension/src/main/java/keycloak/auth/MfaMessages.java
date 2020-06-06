@@ -12,7 +12,7 @@ public class MfaMessages {
     static {
         MESSAGES = new Properties();
         try {
-            MESSAGES.load(MfaMessages.class.getClassLoader().getResourceAsStream("messages.properties"));
+            MESSAGES.load(MfaMessages.class.getClassLoader().getResourceAsStream("mfa-messages.properties"));
         } catch (Exception ex) {
             log.warnf("Could not load message properties");
         }
