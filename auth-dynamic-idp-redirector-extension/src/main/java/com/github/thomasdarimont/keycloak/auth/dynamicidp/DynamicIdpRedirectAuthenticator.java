@@ -19,6 +19,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 @JBossLog
 public class DynamicIdpRedirectAuthenticator implements Authenticator {
@@ -26,6 +28,8 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
     public static final String TARGET_IDP_ATTRIBUTE = "targetIdp";
 
     static final String EMAIL_TO_IDP_MAPPING_CONFIG_PROPERTY = "email-to-idp-mapping";
+
+    static final String FALLBACK_TO_AUTHFLOW_CONFIG_PROPERTY = "fallback-to-authflow";
 
     private final KeycloakSession session;
 
@@ -43,16 +47,21 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
         }
 
         String targetIdp = determineTargetIdp(user, context);
-
-        if (targetIdp == null) {
-            context.getEvent().error(Errors.UNKNOWN_IDENTITY_PROVIDER);
-            context.failure(AuthenticationFlowError.IDENTITY_PROVIDER_NOT_FOUND);
-            context.cancelLogin();
-            context.resetFlow();
+        if (targetIdp != null) {
+            redirect(context, targetIdp);
             return;
         }
 
-        redirect(context, targetIdp);
+        boolean fallbackToAuthFlow = getConfigValueOrDefault(context.getAuthenticatorConfig(), FALLBACK_TO_AUTHFLOW_CONFIG_PROPERTY, "true", Boolean::parseBoolean);
+        if (fallbackToAuthFlow) {
+            context.attempted();
+            return;
+        }
+
+        context.getEvent().error(Errors.UNKNOWN_IDENTITY_PROVIDER);
+        context.failure(AuthenticationFlowError.IDENTITY_PROVIDER_NOT_FOUND);
+        context.cancelLogin();
+        context.resetFlow();
     }
 
     private void redirect(AuthenticationFlowContext context, String providerId) {
@@ -124,8 +133,7 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
             return null;
         }
 
-        AuthenticatorConfigModel configModel = context.getAuthenticatorConfig();
-        String mappingString = configModel.getConfig().get(EMAIL_TO_IDP_MAPPING_CONFIG_PROPERTY);
+        String mappingString = getConfigValueOrDefault(context.getAuthenticatorConfig(), EMAIL_TO_IDP_MAPPING_CONFIG_PROPERTY, "", String::valueOf);
         String[] mappings = mappingString.split(";");
         for (String mapping : mappings) {
             String[] emailSuffixPatternToIdpId = mapping.split("/");
@@ -138,6 +146,20 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
         }
 
         return null;
+    }
+
+    private <T> T getConfigValueOrDefault(AuthenticatorConfigModel configModel, String key, String defaultValue, Function<String, T> converter) {
+
+        if (configModel == null) {
+            return converter.apply(defaultValue);
+        }
+
+        Map<String, String> config = configModel.getConfig();
+        if (config == null || config.isEmpty()) {
+            return converter.apply(defaultValue);
+        }
+
+        return converter.apply(config.getOrDefault(key, defaultValue));
     }
 
     @Override

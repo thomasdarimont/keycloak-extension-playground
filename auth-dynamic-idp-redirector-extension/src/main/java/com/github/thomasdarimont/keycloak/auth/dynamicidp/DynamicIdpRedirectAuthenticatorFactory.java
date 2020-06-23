@@ -17,8 +17,6 @@ public class DynamicIdpRedirectAuthenticatorFactory implements AuthenticatorFact
 
     private static final String PROVIDER_ID = "auth-dynamic-idp-redirector";
 
-
-
     @Override
     public String getDisplayType() {
         return "Dynamic IDP Redirector";
@@ -35,7 +33,7 @@ public class DynamicIdpRedirectAuthenticatorFactory implements AuthenticatorFact
     }
 
     public static final AuthenticationExecutionModel.Requirement[] REQUIREMENT_CHOICES = {
-            AuthenticationExecutionModel.Requirement.REQUIRED, AuthenticationExecutionModel.Requirement.DISABLED
+            AuthenticationExecutionModel.Requirement.REQUIRED, AuthenticationExecutionModel.Requirement.ALTERNATIVE, AuthenticationExecutionModel.Requirement.DISABLED
     };
 
     @Override
@@ -62,7 +60,14 @@ public class DynamicIdpRedirectAuthenticatorFactory implements AuthenticatorFact
         emailToIdpMapping.setLabel("Email IDP Mapping");
         emailToIdpMapping.setHelpText("Email Suffix pattern to IDP Mapping. email-suffix/idp-id, multiple patterns can be delimited via ';', c.f.: example.com/idp1;.*foo.com/idp2;.*bar.(com|de)/idp3");
 
-        return Arrays.asList(emailToIdpMapping);
+        ProviderConfigProperty fallbackToAuthFlow = new ProviderConfigProperty();
+        fallbackToAuthFlow.setType(ProviderConfigProperty.BOOLEAN_TYPE);
+        fallbackToAuthFlow.setName(DynamicIdpRedirectAuthenticator.FALLBACK_TO_AUTHFLOW_CONFIG_PROPERTY);
+        fallbackToAuthFlow.setLabel("Fallback to Authflow");
+        fallbackToAuthFlow.setHelpText("Fall back to Authflow if no target IdP could be identified.");
+        fallbackToAuthFlow.setDefaultValue("true");
+
+        return Arrays.asList(emailToIdpMapping, fallbackToAuthFlow);
     }
 
     @Override
