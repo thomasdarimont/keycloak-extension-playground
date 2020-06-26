@@ -27,9 +27,9 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
 
     public static final String TARGET_IDP_ATTRIBUTE = "targetIdp";
 
-    static final String EMAIL_TO_IDP_MAPPING_CONFIG_PROPERTY = "email-to-idp-mapping";
+    public static final String EMAIL_TO_IDP_MAPPING_CONFIG_PROPERTY = "email-to-idp-mapping";
 
-    static final String FALLBACK_TO_AUTHFLOW_CONFIG_PROPERTY = "fallback-to-authflow";
+    public static final String FALLBACK_TO_AUTHFLOW_CONFIG_PROPERTY = "fallback-to-authflow";
 
     private final KeycloakSession session;
 
@@ -64,7 +64,7 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
         context.resetFlow();
     }
 
-    private void redirect(AuthenticationFlowContext context, String providerId) {
+    protected void redirect(AuthenticationFlowContext context, String providerId) {
 
         IdentityProviderModel identityProviderModel = selectIdp(context, providerId);
         if (identityProviderModel == null || !identityProviderModel.isEnabled()) {
@@ -103,7 +103,7 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
     }
 
 
-    private String determineTargetIdp(UserModel user, AuthenticationFlowContext context) {
+    protected String determineTargetIdp(UserModel user, AuthenticationFlowContext context) {
 
         String targetIdp = determineTargetIdpFromUrlParameter(context);
         if (targetIdp != null) {
@@ -118,15 +118,15 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
         return determineTargetIdpViaUserEmail(user, context);
     }
 
-    private String determineTargetIdpFromUrlParameter(AuthenticationFlowContext context) {
+    protected String determineTargetIdpFromUrlParameter(AuthenticationFlowContext context) {
         return context.getUriInfo().getQueryParameters().getFirst(AdapterConstants.KC_IDP_HINT);
     }
 
-    private String determineTargetIdpViaAttribute(UserModel user) {
+    protected String determineTargetIdpViaAttribute(UserModel user) {
         return user.getFirstAttribute(TARGET_IDP_ATTRIBUTE);
     }
 
-    private String determineTargetIdpViaUserEmail(UserModel user, AuthenticationFlowContext context) {
+    protected String determineTargetIdpViaUserEmail(UserModel user, AuthenticationFlowContext context) {
 
         String email = user.getEmail();
         if (email == null) {
@@ -148,7 +148,7 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
         return null;
     }
 
-    private <T> T getConfigValueOrDefault(AuthenticatorConfigModel configModel, String key, String defaultValue, Function<String, T> converter) {
+    protected <T> T getConfigValueOrDefault(AuthenticatorConfigModel configModel, String key, String defaultValue, Function<String, T> converter) {
 
         if (configModel == null) {
             return converter.apply(defaultValue);
