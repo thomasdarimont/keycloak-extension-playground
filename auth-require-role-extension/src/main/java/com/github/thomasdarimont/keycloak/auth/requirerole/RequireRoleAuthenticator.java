@@ -22,7 +22,7 @@ import static org.keycloak.models.utils.KeycloakModelUtils.getRoleFromString;
  */
 public class RequireRoleAuthenticator implements Authenticator {
 
-    private static final Logger LOG = Logger.getLogger(RequireRoleAuthenticator.class);
+    protected static final Logger LOG = Logger.getLogger(RequireRoleAuthenticator.class);
 
     @Override
     public void authenticate(AuthenticationFlowContext context) {
@@ -50,7 +50,7 @@ public class RequireRoleAuthenticator implements Authenticator {
      * @param roleName
      * @return true if roleName is in any of all user role mappings including all groups of user
      */
-    private boolean userHasRole(RealmModel realm, UserModel user, String roleName) {
+    protected boolean userHasRole(RealmModel realm, UserModel user, String roleName) {
 
         if (roleName == null) {
             return false;
@@ -78,7 +78,7 @@ public class RequireRoleAuthenticator implements Authenticator {
 
     @Override
     public boolean requiresUser() {
-        return false;
+        return true;
     }
 
     @Override
