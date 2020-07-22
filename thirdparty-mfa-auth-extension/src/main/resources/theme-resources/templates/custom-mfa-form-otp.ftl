@@ -28,7 +28,7 @@
                 <div class="${properties.kcInputWrapperClass!}">
                     <input id="otp" name="challenge_input" autocomplete="off" inputmode="numeric" type="text"
                            spellcheck="false"
-                           placeholder="${customMsg("mfa_otp_enter_code_placeholder")}"
+                           placeholder="${git  ("mfa_otp_enter_code_placeholder")}"
                            class="${properties.kcInputClass!}"
                            autofocus/>
                 </div>
