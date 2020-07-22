@@ -29,8 +29,7 @@ public class VirtualClientStorageProvider implements ClientStorageProvider {
     }
 
     @Override
-    public ClientModel getClientById(String id, RealmModel realm) {
-
+    public ClientModel getClientById(RealmModel realm, String id) {
         if (!"virtual-clients".equals(realm.getName())) {
             return null;
         }
@@ -39,8 +38,7 @@ public class VirtualClientStorageProvider implements ClientStorageProvider {
     }
 
     @Override
-    public ClientModel getClientByClientId(String clientId, RealmModel realm) {
-
+    public ClientModel getClientByClientId(RealmModel realm, String clientId) {
         // Fetch clients from remote location...
 
         if (!"virtual-clients".equals(realm.getName())) {
@@ -56,7 +54,7 @@ public class VirtualClientStorageProvider implements ClientStorageProvider {
             return null;
         }
 
-        String generatedId = internalClientId + clientId.substring(clientId.lastIndexOf(':')+1);
+        String generatedId = internalClientId + clientId.substring(clientId.lastIndexOf(':') + 1);
 
         // dynamically generate dummy clients for testing...
         VirtualClientModel virtualModel = this.virtualClientModelGenerator.createVirtualModel(generatedId, generatedId, realm);
@@ -75,6 +73,11 @@ public class VirtualClientStorageProvider implements ClientStorageProvider {
         return virtualModel;
     }
 
+    @Override
+    public List<ClientModel> searchClientsByClientId(RealmModel realm, String clientId, Integer firstResult, Integer maxResults) {
+        return Collections.emptyList();
+    }
+
     private UserModel createServiceAccountUser(RealmModel realm, ClientModel clientModel) {
 
         UserModel newServiceAccount = session.userLocalStorage().addUser(realm, "service-account-" + clientModel.getClientId());
@@ -82,11 +85,5 @@ public class VirtualClientStorageProvider implements ClientStorageProvider {
         newServiceAccount.setServiceAccountClientLink(clientModel.getId());
 
         return newServiceAccount;
-    }
-
-
-    @Override
-    public List<ClientModel> searchClientsByClientId(String clientId, Integer firstResult, Integer maxResults, RealmModel realm) {
-        return Collections.emptyList();
     }
 }

@@ -1,22 +1,11 @@
 package demo.keycloak.auth;
 
 import org.jboss.logging.Logger;
-import org.jboss.resteasy.spi.HttpRequest;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.keycloak.authentication.AuthenticationFlowContext;
-import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
-import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
-import org.keycloak.models.utils.FormMessage;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.Response;
-import java.util.Map;
 
 public class AdHocAuthenticator implements Authenticator {
 
