@@ -1,6 +1,6 @@
 !keycloak-playground-server/data/.gitkeep
 keycloak-playground-server/data/
-
+*.jfr
 
 # Created by https://www.gitignore.io/api/osx,java,maven,gradle,eclipse,intellij+all,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=osx,java,maven,gradle,eclipse,intellij+all,visualstudiocode
