@@ -37,6 +37,7 @@
         <module>tenant-selection-form-extension</module>
         <module>thirdparty-mfa-auth-extension</module>
         <module>auth-login-notify-email-extension</module>
+        <module>github-enterprise-identity-provider</module>
     </modules>
 
     <properties>
