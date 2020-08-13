@@ -15,8 +15,10 @@ cp target/*.jar /path/to/keycloak/standalone/deployments
 
 # Setup
 
-To setup an oauth client in Github Enterprise for the Keycloak login
-See: https://plugins.miniorange.com/oauth-openid-login-using-github-enterprise
+To setup an oauth client in Github Enterprise for the Keycloak login, take a look at:
+- [Miniorange Guide to oauth-openid-login-using-github-enterprise](https://plugins.miniorange.com/oauth-openid-login-using-github-enterprise)
+- [Github authorizing-oauth-apps](https://docs.github.com/en/enterprise/2.21/user/developers/apps/authorizing-oauth-apps)
+
 
 To setup the Github Enterprise IdP in Keycloak goto:
 1) Identity Providers
