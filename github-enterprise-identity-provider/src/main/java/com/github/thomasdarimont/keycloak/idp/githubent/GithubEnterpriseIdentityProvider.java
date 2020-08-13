@@ -33,7 +33,7 @@ public class GithubEnterpriseIdentityProvider extends GitHubIdentityProvider {
     }
 
 
-    // needed to copy those methods as there did not allow proper extension...
+    // needed to copy those methods from GitHubIdentityProvider as there were private and did not allow proper extension...
     @Override
     protected BrokeredIdentityContext doGetFederatedIdentity(String accessToken) {
         try {
