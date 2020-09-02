@@ -15,6 +15,13 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>auth-forgot-username-extension</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>github-enterprise-identity-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
