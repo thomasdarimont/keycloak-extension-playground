@@ -30,9 +30,8 @@ public class KeycloakMetricsEventListenerFactory implements EventListenerProvide
 
     @Override
     public void init(Config.Scope config) {
-
-        MetricRegistry metricsRegistry = lookupMetricsRegistry();
-        this.keycloakMetrics = new KeycloakMetrics(metricsRegistry);
+        log.info("Initializing Keycloak Metrics Registry");
+        this.keycloakMetrics = new KeycloakMetrics(lookupMetricsRegistry());
     }
 
     @Override

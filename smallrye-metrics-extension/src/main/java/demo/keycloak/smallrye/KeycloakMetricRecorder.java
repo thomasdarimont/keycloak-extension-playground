@@ -13,4 +13,8 @@ public interface KeycloakMetricRecorder {
     void recordRegistration(KeycloakEvent keycloakEvent);
 
     void recordRegistrationError(KeycloakEvent keycloakEvent);
+
+    void recordTokenRefresh(KeycloakEvent keycloakEvent);
+
+    void recordTokenRefreshError(KeycloakEvent keycloakEvent);
 }

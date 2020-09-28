@@ -1,22 +1,31 @@
 package demo.keycloak.smallrye;
-
+import lombok.RequiredArgsConstructor;
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.events.Event;
 import org.keycloak.events.EventListenerProvider;
+import org.keycloak.events.EventType;
 import org.keycloak.events.admin.AdminEvent;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 
+import java.util.Set;
+
+import static org.keycloak.events.EventType.LOGIN;
+import static org.keycloak.events.EventType.LOGIN_ERROR;
+import static org.keycloak.events.EventType.REFRESH_TOKEN;
+import static org.keycloak.events.EventType.REFRESH_TOKEN_ERROR;
+import static org.keycloak.events.EventType.REGISTER;
+import static org.keycloak.events.EventType.REGISTER_ERROR;
+
 @JBossLog
+@RequiredArgsConstructor
 public class KeycloakMetricsEventListener implements EventListenerProvider {
 
     private final KeycloakSession session;
     private final KeycloakMetricRecorder metricsRecorder;
 
-    public KeycloakMetricsEventListener(KeycloakSession session, KeycloakMetricRecorder metricsRecorder) {
-        this.session = session;
-        this.metricsRecorder = metricsRecorder;
-    }
+    static final Set<EventType> CUSTOM_HANDLED_EVENT_TYPES =
+            Set.of(LOGIN, LOGIN_ERROR, REGISTER, REGISTER_ERROR, REFRESH_TOKEN, REFRESH_TOKEN_ERROR);
 
     @Override
     public void onEvent(Event event) {
@@ -28,14 +37,20 @@ public class KeycloakMetricsEventListener implements EventListenerProvider {
             case LOGIN:
                 metricsRecorder.recordLogin(keycloakEvent);
                 break;
+            case LOGIN_ERROR:
+                metricsRecorder.recordLoginError(keycloakEvent);
+                break;
             case REGISTER:
                 metricsRecorder.recordRegistration(keycloakEvent);
                 break;
             case REGISTER_ERROR:
                 metricsRecorder.recordRegistrationError(keycloakEvent);
                 break;
-            case LOGIN_ERROR:
-                metricsRecorder.recordLoginError(keycloakEvent);
+            case REFRESH_TOKEN:
+                metricsRecorder.recordTokenRefresh(keycloakEvent);
+                break;
+            case REFRESH_TOKEN_ERROR:
+                metricsRecorder.recordTokenRefreshError(keycloakEvent);
                 break;
             default:
                 metricsRecorder.recordGenericEvent(keycloakEvent);
