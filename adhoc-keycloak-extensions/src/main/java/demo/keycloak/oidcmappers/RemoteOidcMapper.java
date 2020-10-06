@@ -5,6 +5,7 @@ import lombok.extern.jbosslog.JBossLog;
 import org.jboss.logging.Logger;
 import org.keycloak.broker.provider.util.SimpleHttp;
 import org.keycloak.models.ClientSessionContext;
+import org.keycloak.models.KeycloakContext;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.ProtocolMapperModel;
 import org.keycloak.models.UserModel;
@@ -19,6 +20,7 @@ import org.keycloak.protocol.oidc.mappers.UserPropertyMapper;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.provider.ProviderConfigurationBuilder;
 import org.keycloak.representations.IDToken;
+import org.keycloak.services.Urls;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
@@ -101,7 +103,17 @@ public class RemoteOidcMapper extends AbstractOIDCProtocolMapper implements OIDC
     @Override
     protected void setClaim(IDToken token, ProtocolMapperModel mappingModel, UserSessionModel userSession, KeycloakSession keycloakSession, ClientSessionContext clientSessionCtx) {
 
-        Object claimValue = fetchRemoteClaims(mappingModel, userSession, keycloakSession, token.getIssuer(), token.getIssuedFor());
+        KeycloakContext context = keycloakSession.getContext();
+        boolean userInfoEndpointRequest = context.getUri().getPath().endsWith("/userinfo");
+
+        String issuer = token.getIssuedFor();
+        String clientId = token.getIssuedFor();
+        if (userInfoEndpointRequest) {
+            clientId = context.getClient().getClientId();
+            issuer = Urls.realmIssuer(context.getUri().getBaseUri(), context.getRealm().getName());
+        }
+
+        Object claimValue = fetchRemoteClaims(mappingModel, userSession, keycloakSession, issuer, clientId);
 
         LOGGER.infof("setClaim %s=%s", mappingModel.getName(), claimValue);
 
