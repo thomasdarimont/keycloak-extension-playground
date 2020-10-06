@@ -15,10 +15,15 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>auth-forgot-username-extension</artifactId>
+            <artifactId>token-validation-ui-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>auth-forgot-username-extension</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>

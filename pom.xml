@@ -39,6 +39,7 @@
         <module>auth-login-notify-email-extension</module>
         <module>github-enterprise-identity-provider</module>
         <module>auth-forgot-username-extension</module>
+        <module>token-validation-ui-extension</module>
     </modules>
 
     <properties>
