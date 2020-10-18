@@ -3,6 +3,7 @@ package demo.keycloak.oidcmappers;
 import com.google.auto.service.AutoService;
 import lombok.extern.jbosslog.JBossLog;
 import org.jboss.logging.Logger;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.keycloak.broker.provider.util.SimpleHttp;
 import org.keycloak.models.ClientSessionContext;
 import org.keycloak.models.KeycloakContext;
@@ -22,6 +23,7 @@ import org.keycloak.provider.ProviderConfigurationBuilder;
 import org.keycloak.representations.IDToken;
 import org.keycloak.services.Urls;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.util.List;
@@ -102,6 +104,9 @@ public class RemoteOidcMapper extends AbstractOIDCProtocolMapper implements OIDC
 
     @Override
     protected void setClaim(IDToken token, ProtocolMapperModel mappingModel, UserSessionModel userSession, KeycloakSession keycloakSession, ClientSessionContext clientSessionCtx) {
+
+        HttpServletRequest httpRequest = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
+        // extract information from httpRequest
 
         KeycloakContext context = keycloakSession.getContext();
         boolean userInfoEndpointRequest = context.getUri().getPath().endsWith("/userinfo");
