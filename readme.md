@@ -60,6 +60,7 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile.feature.admin_fine_grained_authz=enabled
 -Dkeycloak.theme.welcomeTheme=keycloak
 -Dkeycloak.theme.dir=../simple-theme/target/theme/
+-Dresources=../simple-theme/target/theme/
 ```
 
 ### Developing with a PostgreSQL database
@@ -91,6 +92,7 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile.feature.admin_fine_grained_authz=enabled
 -Dkeycloak.theme.welcomeTheme=keycloak
 -Dkeycloak.theme.dir=../simple-theme/target/theme/
+-Dresources=../simple-theme/target/theme/
 ```
 
 ## Developing a Keycloak extension
