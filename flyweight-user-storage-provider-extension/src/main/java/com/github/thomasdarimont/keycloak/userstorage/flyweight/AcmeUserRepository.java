@@ -48,13 +48,13 @@ class AcmeUserRepository {
     }
 
     public AcmeUser findUserById(String id) {
-        return acmeUsers.stream().filter(acmeUser -> acmeUser.getId().equals(id)).findFirst().get();
+        return acmeUsers.stream().filter(acmeUser -> acmeUser.getId().equals(id)).findFirst().orElse(null);
     }
 
     public AcmeUser findUserByUsernameOrEmail(String username) {
         return acmeUsers.stream()
                 .filter(acmeUser -> acmeUser.getUsername().equalsIgnoreCase(username) || acmeUser.getEmail().equalsIgnoreCase(username))
-                .findFirst().get();
+                .findFirst().orElse(null);
     }
 
     public List<AcmeUser> findUsers(String query) {
