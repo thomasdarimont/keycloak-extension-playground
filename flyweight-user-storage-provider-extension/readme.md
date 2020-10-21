@@ -20,7 +20,8 @@ mvn clean package
 1) Copy the resulting jar into the standalone/deployments folder in the Keycloak distribution home.
 2) Start Keycloak
 3) Sign into the Keycloak-Admin console
-4) Create a new federation provider of type `flyweight-acme-user` in a realm
+4) Create a new federation provider of type `flyweight-acme-user` in a realm. 
+   Note: This federation provider does not support caching, so you need to configure the NO_CACHE caching mode.  
 
 You should now be able to list all the users in provided by the custom federation.
 
