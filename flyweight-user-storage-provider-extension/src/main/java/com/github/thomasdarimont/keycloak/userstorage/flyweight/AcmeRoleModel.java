@@ -18,15 +18,15 @@ import java.util.Set;
 @NoArgsConstructor
 public class AcmeRoleModel implements RoleModel {
 
-    String id;
+    private String id;
 
-    String name;
+    private String name;
 
-    String description;
+    private String description;
 
-    boolean composite;
+    private boolean composite;
 
-    RoleContainerModel roleContainer;
+    private RoleContainerModel roleContainer;
 
     public AcmeRoleModel(String id, String name, String description, boolean composite, RoleContainerModel roleContainer) {
         this.id = id;
@@ -38,12 +38,12 @@ public class AcmeRoleModel implements RoleModel {
 
     @Override
     public void addCompositeRole(RoleModel role) {
-        // NOOP
+        throw new UnsupportedOperationException("addCompositeRole");
     }
 
     @Override
     public void removeCompositeRole(RoleModel role) {
-// NOOP
+        throw new UnsupportedOperationException("removeCompositeRole");
     }
 
     @Override
@@ -73,17 +73,17 @@ public class AcmeRoleModel implements RoleModel {
 
     @Override
     public void setSingleAttribute(String name, String value) {
-        // NOOP
+        throw new UnsupportedOperationException("setSingleAttribute");
     }
 
     @Override
     public void setAttribute(String name, Collection<String> values) {
-        // NOOP
+        throw new UnsupportedOperationException("setAttribute");
     }
 
     @Override
     public void removeAttribute(String name) {
-        // NOOP
+        throw new UnsupportedOperationException("removeAttribute");
     }
 
     @Override

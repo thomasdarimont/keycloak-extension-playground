@@ -40,7 +40,7 @@
         <module>github-enterprise-identity-provider</module>
         <module>auth-forgot-username-extension</module>
         <module>token-validation-ui-extension</module>
-        <module>flyweight-acmeUser-storage-provider-extension</module>
+        <module>flyweight-user-storage-provider-extension</module>
     </modules>
 
     <properties>

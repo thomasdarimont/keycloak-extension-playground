@@ -17,7 +17,6 @@ import org.keycloak.models.credential.PasswordCredentialModel;
 import org.keycloak.storage.StorageId;
 import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.federated.UserAttributeFederatedStorage;
-import org.keycloak.storage.federated.UserFederatedStorageProvider;
 import org.keycloak.storage.federated.UserRoleMappingsFederatedStorage;
 import org.keycloak.storage.user.UserLookupProvider;
 import org.keycloak.storage.user.UserQueryProvider;
@@ -139,24 +138,8 @@ public class FlyweightAcmeUserStorageProvider implements
     protected UserModel createAdapter(RealmModel realm, AcmeUser acmeUser) {
 
         AcmeUserAdapter acmeUserAdapter = new AcmeUserAdapter(session, realm, storageComponentModel, acmeUser);
-
-        // TODO check for h2 exception
-        // Caused by: org.h2.jdbc.JdbcSQLException: Timeout trying to lock table ; SQL statement:
-        // delete from FED_USER_ATTRIBUTE where USER_ID=? and NAME=? and REALM_ID=? [50200-197]
-        // Caused by: org.h2.jdbc.JdbcSQLException: Concurrent update in table "FED_USER_ATTRIBUTE": another transaction has updated or deleted the same row [90131-197]
-//        propagateUserAttributesToKeycloak(realm, acmeUser, acmeUserAdapter);
-
         return acmeUserAdapter;
     }
-
-//    protected void propagateUserAttributesToKeycloak(RealmModel realm, AcmeUser acmeUser, AcmeUserAdapter acmeUserAdapter) {
-//        UserFederatedStorageProvider userFederatedStorageProvider = session.userFederatedStorage();
-//        for (Map.Entry<String, List<String>> attributeValues : acmeUser.getAttributes().entrySet()) {
-//            String attribute = attributeValues.getKey();
-//            List<String> value = attributeValues.getValue();
-//            userFederatedStorageProvider.setAttribute(realm, acmeUserAdapter.getId(), attribute, value);
-//        }
-//    }
 
     @Override
     public UserModel getUserByEmail(String email, RealmModel realm) {
@@ -259,9 +242,9 @@ public class FlyweightAcmeUserStorageProvider implements
 
         String externalUserId = StorageId.externalId(userId);
 
-        Set<String> roles = repository.getRolesByUserId(externalUserId);
+        Set<AcmeRole> roles = repository.getGlobalRolesByUserId(externalUserId);
         Set<RoleModel> externalRoles = roles.stream()
-                .map(role -> new AcmeRoleModel(role, role, role, false, realm))
+                .map(role -> new AcmeRoleModel(role.getId(), role.getName(), role.getDescription(), false, realm))
                 .collect(Collectors.toSet());
 
         for (ClientModel client : realm.getClients()) {
@@ -269,10 +252,10 @@ public class FlyweightAcmeUserStorageProvider implements
             String clientId = client.getClientId();
             // potentially filter for acme clients...
 
-            Set<String> clientRolesByUserId = repository.getClientRolesByUserId(clientId, externalUserId);
+            Set<AcmeRole> clientRolesByUserId = repository.getClientRolesByUserId(clientId, externalUserId);
             if (clientRolesByUserId != null) {
                 Set<RoleModel> externalClientRoles = clientRolesByUserId.stream()
-                        .map(role -> new AcmeRoleModel(role, role, role, false, client))
+                        .map(role -> new AcmeRoleModel(role.getId(), role.getName(), role.getDescription(), false, client))
                         .collect(Collectors.toSet());
                 externalRoles.addAll(externalClientRoles);
             }
@@ -285,6 +268,8 @@ public class FlyweightAcmeUserStorageProvider implements
     public void deleteRoleMapping(RealmModel realm, String userId, RoleModel role) {
         log.infov("delete role mapping: realm={0} userId={1} role={2}", realm.getId(), userId, role.getName());
     }
+
+    /* UserRoleMappingsFederatedStorage end */
 
     @Override
     public void setSingleAttribute(RealmModel realm, String userId, String name, String value) {

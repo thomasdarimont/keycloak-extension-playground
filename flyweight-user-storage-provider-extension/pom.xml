@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>flyweight-acmeUser-storage-provider-extension</artifactId>
+    <artifactId>flyweight-user-storage-provider-extension</artifactId>
 
     <dependencies>
         <dependency>

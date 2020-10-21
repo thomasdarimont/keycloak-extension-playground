@@ -15,7 +15,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>flyweight-acmeUser-storage-provider-extension</artifactId>
+            <artifactId>flyweight-user-storage-provider-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 

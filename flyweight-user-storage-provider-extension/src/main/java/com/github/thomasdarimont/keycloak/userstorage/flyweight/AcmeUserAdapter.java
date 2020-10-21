@@ -1,5 +1,6 @@
 package com.github.thomasdarimont.keycloak.userstorage.flyweight;
 
+import org.keycloak.common.util.MultivaluedHashMap;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakSession;
@@ -9,6 +10,9 @@ import org.keycloak.storage.StorageId;
 import org.keycloak.storage.adapter.AbstractUserAdapterFederatedStorage;
 import org.keycloak.storage.federated.UserFederatedStorageProvider;
 
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class AcmeUserAdapter extends AbstractUserAdapterFederatedStorage {
@@ -111,27 +115,50 @@ public class AcmeUserAdapter extends AbstractUserAdapterFederatedStorage {
         // super.setEnabled(enabled);
     }
 
-    //    @Override
-//    public Map<String, List<String>> getAttributes() {
-//        return super.getAttributes();
-//    }
+    @Override
+    public Map<String, List<String>> getAttributes() {
+        MultivaluedHashMap<String, String> attributes = new MultivaluedHashMap<>(acmeUser.getAttributes());
+        return attributes;
+    }
 
+    @Override
+    public void setAttribute(String name, List<String> values) {
+//        super.setAttribute(name, values);
+        // NOOP
+    }
+
+    @Override
+    public void setSingleAttribute(String name, String value) {
+//        super.setSingleAttribute(name, value);
+        // NOOP
+    }
 
     @Override
     public Set<RoleModel> getRoleMappings() {
-        Set<RoleModel> roleMappings = super.getRoleMappings();
 
+        Set<RoleModel> roleMappings = new LinkedHashSet<>();
 
+        // fetch keycloak internal role mappings
+        Set<RoleModel> internalRoleMappings = super.getRoleMappings();
+        roleMappings.addAll(internalRoleMappings);
+
+        // add external roleMappings
         FlyweightAcmeUserStorageProvider externalUserStorageProvider = getExternalUserStorageProvider();
         Set<RoleModel> externalRoleMappings = externalUserStorageProvider.getRoleMappings(realm, getId());
-
         roleMappings.addAll(externalRoleMappings);
 
         return roleMappings;
     }
 
     @Override
+    public Set<RoleModel> getRealmRoleMappings() {
+        // delegates to getRoleMappings
+        return super.getRealmRoleMappings();
+    }
+
+    @Override
     public Set<RoleModel> getClientRoleMappings(ClientModel app) {
+        // delegates to getRoleMappings
         return super.getClientRoleMappings(app);
     }
 }
