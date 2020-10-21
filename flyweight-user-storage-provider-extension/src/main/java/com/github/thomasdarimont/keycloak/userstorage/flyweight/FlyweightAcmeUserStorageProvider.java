@@ -20,6 +20,7 @@ import org.keycloak.storage.federated.UserAttributeFederatedStorage;
 import org.keycloak.storage.federated.UserRoleMappingsFederatedStorage;
 import org.keycloak.storage.user.UserLookupProvider;
 import org.keycloak.storage.user.UserQueryProvider;
+import org.keycloak.storage.user.UserRegistrationProvider;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,16 +30,21 @@ import java.util.stream.Collectors;
 
 @JBossLog
 public class FlyweightAcmeUserStorageProvider implements
-        UserStorageProvider,
-        UserLookupProvider,
-        UserQueryProvider,
+        UserStorageProvider
+        , UserLookupProvider
+        , UserQueryProvider
 
-        UserAttributeFederatedStorage,
+        , UserRegistrationProvider
 
-        CredentialInputUpdater,
-        CredentialInputValidator,
+        , UserAttributeFederatedStorage
 
-        UserRoleMappingsFederatedStorage {
+        , CredentialInputUpdater
+        , CredentialInputValidator
+
+        , UserRoleMappingsFederatedStorage
+
+//        ,OnUserCache
+{
 
     private final KeycloakSession session;
     private final ComponentModel storageComponentModel;
@@ -136,6 +142,10 @@ public class FlyweightAcmeUserStorageProvider implements
     }
 
     protected UserModel createAdapter(RealmModel realm, AcmeUser acmeUser) {
+
+        if (acmeUser == null) {
+            return null;
+        }
 
         AcmeUserAdapter acmeUserAdapter = new AcmeUserAdapter(session, realm, storageComponentModel, acmeUser);
         return acmeUserAdapter;
@@ -303,5 +313,31 @@ public class FlyweightAcmeUserStorageProvider implements
         log.infov("get users by user attribute: realm={0} name={1} value={2}", realm.getId(), value);
 
         return List.of();
+    }
+
+//    @Override
+//    public void onCache(RealmModel realm, CachedUserModel user, UserModel delegate) {
+//
+//        user.getDelegateForUpdate();
+//
+//        log.infov("on cache: realm={0} username={1}", realm.getId(), user.getUsername());
+//    }
+
+    @Override
+    public UserModel addUser(RealmModel realm, String username) {
+
+        log.infov("add user: realm={0} username={1}", realm.getId(), username);
+
+        // this is not supported
+        return null;
+    }
+
+    @Override
+    public boolean removeUser(RealmModel realm, UserModel user) {
+
+        log.infov("remove user: realm={0} username={1}", realm.getId(), user.getUsername());
+
+        // this is not supported
+        return false;
     }
 }
