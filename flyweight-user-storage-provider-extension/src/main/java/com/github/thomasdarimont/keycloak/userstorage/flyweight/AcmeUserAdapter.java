@@ -134,6 +134,11 @@ public class AcmeUserAdapter extends AbstractUserAdapterFederatedStorage {
     }
 
     @Override
+    public List<String> getAttribute(String name) {
+        return acmeUser.getAttribute(name);
+    }
+
+    @Override
     public Set<RoleModel> getRoleMappings() {
 
         Set<RoleModel> roleMappings = new LinkedHashSet<>();
