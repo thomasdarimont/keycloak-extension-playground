@@ -9,7 +9,7 @@ since the required library `keycloak-testsuite-utils` is not distributed to mave
 ## Building Keycloak  
 ```
 # The Keycloak version referenced in the pom.xml 
-KC_VERSION=11.0.2
+KC_VERSION=11.0.3
 git clone https://github.com/keycloak/keycloak
 git fetch origin --tags
 git checkout $KC_VERSION
