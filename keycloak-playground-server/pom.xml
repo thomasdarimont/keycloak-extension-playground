@@ -15,6 +15,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>simple-session-access-resource</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>flyweight-user-storage-provider-extension</artifactId>
             <version>${project.version}</version>
         </dependency>

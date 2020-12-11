@@ -41,6 +41,8 @@
         <module>auth-forgot-username-extension</module>
         <module>token-validation-ui-extension</module>
         <module>flyweight-user-storage-provider-extension</module>
+        <module>keycloak-admin-client-example</module>
+        <module>simple-session-access-resource</module>
     </modules>
 
     <properties>
