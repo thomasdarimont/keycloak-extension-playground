@@ -36,12 +36,12 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 ```
 -Dkeycloak.bind.address=127.0.0.1
 -Djava.net.preferIPv4Stack=true
--Dkeycloak.connectionsJpa.url=jdbc:h2:file:./data/keycloak_4_x_master;DB_CLOSE_ON_EXIT=FALSE
+-Dkeycloak.connectionsJpa.url=jdbc:h2:file:./data/keycloak_master;DB_CLOSE_ON_EXIT=FALSE
 -Dkeycloak.connectionsJpa.driver=org.h2.Driver
 -Dkeycloak.connectionsJpa.driverDialect=org.hibernate.dialect.H2Dialect
 -Dkeycloak.connectionsJpa.user=sa
 -Dkeycloak.connectionsJpa.password=
--Dkeycloak.connectionsJpa.showSql=true
+-Dkeycloak.connectionsJpa.showSql=false
 -Dkeycloak.connectionsJpa.formatSql=true
 -Dprofile=COMMUNITY
 -Dproduct.default-profile=COMMUNITY
@@ -53,6 +53,7 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dproduct.name=keycloak
 -Dproduct.version=11.0.x
 -Dkeycloak.profile=preview
+-Dkeycloak.hostname.frontendUrl=http://localhost:8081/auth
 -Dkeycloak.profile.feature.account2=enabled
 -Dkeycloak.profile.feature.account_api=enabled
 -Dkeycloak.profile.feature.scripts=enabled
@@ -60,7 +61,6 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile.feature.admin_fine_grained_authz=enabled
 -Dkeycloak.theme.welcomeTheme=keycloak
 -Dkeycloak.theme.dir=../simple-theme/target/theme/
--Dresources=../simple-theme/target/theme/
 ```
 
 ### Developing with a PostgreSQL database
