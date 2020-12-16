@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Getter
 @Setter
@@ -47,8 +49,8 @@ public class AcmeRoleModel implements RoleModel {
     }
 
     @Override
-    public Set<RoleModel> getComposites() {
-        return Collections.emptySet();
+    public Stream<RoleModel> getCompositesStream() {
+        return Stream.empty();
     }
 
     @Override
@@ -77,7 +79,7 @@ public class AcmeRoleModel implements RoleModel {
     }
 
     @Override
-    public void setAttribute(String name, Collection<String> values) {
+    public void setAttribute(String name, List<String> values) {
         throw new UnsupportedOperationException("setAttribute");
     }
 
@@ -87,13 +89,8 @@ public class AcmeRoleModel implements RoleModel {
     }
 
     @Override
-    public String getFirstAttribute(String name) {
-        return null;
-    }
-
-    @Override
-    public List<String> getAttribute(String name) {
-        return null;
+    public Stream<String> getAttributeStream(String name) {
+        return Stream.empty();
     }
 
     @Override

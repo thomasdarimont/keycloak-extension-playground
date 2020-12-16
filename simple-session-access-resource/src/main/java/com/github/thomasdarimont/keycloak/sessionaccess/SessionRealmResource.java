@@ -41,7 +41,7 @@ public class SessionRealmResource {
 
         RealmModel realm = session.getContext().getRealm();
         // Authorization Header is ACCESS_TOKEN
-        this.auth = new AppAuthManager().authenticateBearerToken(session, realm);
+        this.auth = new AppAuthManager.BearerTokenAuthenticator(session).authenticate();
 
         EventBuilder event = new EventBuilder(realm, session, session.getContext().getConnection());
         // Form Body MUST contain client_id, client_secret, client MUST be a confidential client

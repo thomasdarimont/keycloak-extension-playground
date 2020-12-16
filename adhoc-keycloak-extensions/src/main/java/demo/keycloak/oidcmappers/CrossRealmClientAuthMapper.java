@@ -129,8 +129,9 @@ public class CrossRealmClientAuthMapper extends AbstractOIDCProtocolMapper imple
         authSession.setProtocol(OIDCLoginProtocol.LOGIN_PROTOCOL);
         authSession.setClientNote(OIDCLoginProtocol.ISSUER, Urls.realmIssuer(session.getContext().getUri().getBaseUri(), targetRealm.getName()));
         authSession.setClientNote(OIDCLoginProtocol.SCOPE_PARAM, "openid profile roles");
-        UserSessionModel serviceAccountUserSession = session.sessions().createUserSession(authSession.getParentSession().getId(), targetRealm, serviceAccountUser, serviceAccountUser.getUsername(),
-                loopback, ServiceAccountConstants.CLIENT_AUTH, false, null, null);
+        UserSessionModel serviceAccountUserSession = session.sessions().createUserSession(
+                authSession.getParentSession().getId(), targetRealm, serviceAccountUser, serviceAccountUser.getUsername(),
+                loopback, ServiceAccountConstants.CLIENT_AUTH, false, null, null, UserSessionModel.SessionPersistenceState.TRANSIENT);
         AuthenticationManager.setClientScopesInSession(authSession);
         ClientSessionContext clientSessionContext = TokenManager.attachAuthenticationSession(session, serviceAccountUserSession, authSession);
 

@@ -1,9 +1,9 @@
 package com.github.thomasdarimont.keycloak.simple;
 
 import lombok.RequiredArgsConstructor;
+import org.keycloak.authorization.util.Tokens;
 import org.keycloak.models.KeycloakSession;
-import org.keycloak.services.managers.AppAuthManager;
-import org.keycloak.services.managers.AuthenticationManager;
+import org.keycloak.representations.AccessToken;
 
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
@@ -24,11 +24,11 @@ import java.util.Map;
 public class SimpleRealmResource {
 
     private final KeycloakSession session;
-    private final AuthenticationManager.AuthResult auth;
+    private final AccessToken token;
 
     public SimpleRealmResource(KeycloakSession session) {
         this.session = session;
-        this.auth = new AppAuthManager().authenticateBearerToken(session, session.getContext().getRealm());
+        this.token = Tokens.getAccessToken(session);
     }
 
     @GET
@@ -38,7 +38,7 @@ public class SimpleRealmResource {
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("realm", session.getContext().getRealm().getName());
-        payload.put("user", auth == null ? "anonymous" : auth.getUser().getUsername());
+        payload.put("user", token == null ? "anonymous" : token.getPreferredUsername());
         payload.put("timestamp", System.currentTimeMillis());
 
         return Response.ok(payload).build();
@@ -46,11 +46,11 @@ public class SimpleRealmResource {
 
     private void checkRealmAdmin() {
 
-        if (auth == null) {
+        if (token == null) {
             throw new NotAuthorizedException("Bearer");
         }
 
-        if (auth.getToken().getRealmAccess() == null || !auth.getToken().getRealmAccess().isUserInRole("admin")) {
+        if (token.getRealmAccess() == null || !token.getRealmAccess().isUserInRole("admin")) {
             throw new ForbiddenException("Does not have realm admin role");
         }
     }

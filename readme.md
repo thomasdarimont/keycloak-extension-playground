@@ -7,9 +7,12 @@ Note that you might need to build the [keycloak project](https://github.com/keyc
 since the required library `keycloak-testsuite-utils` is not distributed to maven central.
 
 ## Building Keycloak  
+
+To build the Keycloak Project simply clone it into a directory like 
+
 ```
 # The Keycloak version referenced in the pom.xml 
-KC_VERSION=11.0.3
+KC_VERSION=12.0.0
 git clone https://github.com/keycloak/keycloak
 git fetch origin --tags
 git checkout $KC_VERSION

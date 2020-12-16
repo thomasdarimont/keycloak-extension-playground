@@ -7,8 +7,7 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.storage.client.ClientStorageProvider;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.stream.Stream;
 
 public class VirtualClientStorageProvider implements ClientStorageProvider {
 
@@ -74,8 +73,9 @@ public class VirtualClientStorageProvider implements ClientStorageProvider {
     }
 
     @Override
-    public List<ClientModel> searchClientsByClientId(RealmModel realm, String clientId, Integer firstResult, Integer maxResults) {
-        return Collections.emptyList();
+    public Stream<ClientModel> searchClientsByClientIdStream(RealmModel realm, String clientId, Integer firstResult, Integer maxResults) {
+        // TODO implement search for clients by clientId
+        return Stream.empty();
     }
 
     private UserModel createServiceAccountUser(RealmModel realm, ClientModel clientModel) {

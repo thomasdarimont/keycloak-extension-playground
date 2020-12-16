@@ -57,7 +57,7 @@
         <!-- dependency versions -->
         <lombok.version>1.18.12</lombok.version>
 
-        <keycloak.version>11.0.3</keycloak.version>
+        <keycloak.version>12.0.0-SNAPSHOT</keycloak.version>
         <auto-service.version>1.0-rc7</auto-service.version>
         <jackson.version>2.10.2</jackson.version>
         <resteasy-jaxrs.version>3.12.1.Final</resteasy-jaxrs.version>
