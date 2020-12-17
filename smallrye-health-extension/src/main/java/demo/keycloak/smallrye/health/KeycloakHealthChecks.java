@@ -17,6 +17,8 @@ import java.sql.Connection;
 @ApplicationScoped
 public class KeycloakHealthChecks {
 
+    public static final int DB_CONNECTION_VALID_TIMEOUT_MILLIS = 1000;
+
     public static final HealthCheckResponseBuilder KEYCLOAK_SERVER_HEALTH_CHECK = HealthCheckResponse.named("keycloak:server")
             .withData("version", Version.VERSION_KEYCLOAK)
             .withData("startupTimestamp", ManagementFactory.getRuntimeMXBean().getStartTime());
@@ -44,7 +46,7 @@ public class KeycloakHealthChecks {
     private boolean isDatabaseReady() {
 
         try (Connection connection = keycloakDatasource.getConnection()) {
-            return true;
+            return connection.isValid(DB_CONNECTION_VALID_TIMEOUT_MILLIS);
         } catch (Exception ex) {
             return false;
         }
