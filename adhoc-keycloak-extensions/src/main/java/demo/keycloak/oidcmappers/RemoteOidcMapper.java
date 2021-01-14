@@ -1,5 +1,8 @@
 package demo.keycloak.oidcmappers;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.auto.service.AutoService;
 import lombok.extern.jbosslog.JBossLog;
 import org.jboss.logging.Logger;
@@ -23,10 +26,13 @@ import org.keycloak.provider.ProviderConfigurationBuilder;
 import org.keycloak.representations.IDToken;
 import org.keycloak.services.Urls;
 
+import javax.management.ObjectName;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <pre>{@code
@@ -61,6 +67,8 @@ public class RemoteOidcMapper extends AbstractOIDCProtocolMapper implements OIDC
     private static final String REMOTE_URL_PROPERTY = "remoteUrl";
 
     public static final String DEFAULT_REMOTE_CLAIM_URL = "http://localhost:7777/claims?userId={userId}&username={username}&clientId={clientId}&issuer={issuer}";
+
+    public static final String ROOT_OBJECT = "$ROOT$";
 
     static {
 
@@ -119,8 +127,15 @@ public class RemoteOidcMapper extends AbstractOIDCProtocolMapper implements OIDC
         }
 
         Object claimValue = fetchRemoteClaims(mappingModel, userSession, keycloakSession, issuer, clientId);
-
         LOGGER.infof("setClaim %s=%s", mappingModel.getName(), claimValue);
+
+        String claimName = mappingModel.getConfig().get(OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME);
+        if (ROOT_OBJECT.equals(claimName) && claimValue instanceof ObjectNode) {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> values = mapper.convertValue(claimValue, new TypeReference<Map<String, Object>>(){});
+            token.getOtherClaims().putAll(values);
+            return;
+        }
 
         OIDCAttributeMapperHelper.mapClaim(token, mappingModel, claimValue);
     }
