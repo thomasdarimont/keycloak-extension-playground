@@ -44,6 +44,7 @@
         <module>keycloak-admin-client-example</module>
         <module>simple-session-access-resource</module>
         <module>personalinfo-auth-form-extension</module>
+        <module>provisioning-event-listener-extension</module>
     </modules>
 
     <properties>
