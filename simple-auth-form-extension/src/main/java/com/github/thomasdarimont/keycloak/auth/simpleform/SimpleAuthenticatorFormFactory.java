@@ -45,7 +45,7 @@ public class SimpleAuthenticatorFormFactory implements AuthenticatorFactory {
 
     @Override
     public String getHelpText() {
-        return "Simple from authenticator.";
+        return "Simple Form authenticator.";
     }
 
     @Override
