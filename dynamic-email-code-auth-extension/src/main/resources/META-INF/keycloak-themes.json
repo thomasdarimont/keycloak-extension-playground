@@ -1,0 +1,10 @@
+{
+  "themes": [
+    {
+      "name": "email-code-theme",
+      "types": [
+        "email"
+      ]
+    }
+  ]
+}
