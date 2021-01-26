@@ -101,7 +101,7 @@ public class AccessPolicy {
         realmRolesAllowed.removeAll(clientRolesAllowed);
 
         // Check for realmRole
-        Set<RoleModel> expandedRealmRoleMappings = RoleUtils.expandCompositeRoles(user.getRealmRoleMappings());
+        Set<RoleModel> expandedRealmRoleMappings = RoleUtils.expandCompositeRoles(RoleUtils.getDeepUserRoleMappings(user));
 
         if (!realmRolesAllowed.isEmpty()) {
 
