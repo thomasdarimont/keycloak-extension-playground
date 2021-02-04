@@ -15,6 +15,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>custom-required-action</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>dynamic-email-code-auth-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
