@@ -13,6 +13,14 @@
 
     <dependencies>
 
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>custom-ldapattribute-import-mapper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>custom-required-action</artifactId>

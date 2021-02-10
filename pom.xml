@@ -49,6 +49,7 @@
         <module>external-client-storage-extension</module>
         <module>dynamic-email-code-auth-extension</module>
         <module>custom-required-action</module>
+        <module>custom-ldapattribute-import-mapper</module>
     </modules>
 
     <properties>
