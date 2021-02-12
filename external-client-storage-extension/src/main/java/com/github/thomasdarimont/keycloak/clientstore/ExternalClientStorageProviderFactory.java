@@ -39,6 +39,10 @@ public class ExternalClientStorageProviderFactory implements ClientStorageProvid
         KeycloakModelUtils.runJobInTransaction(factory, session -> {
             RealmModel realm = session.realms().getRealm("external-clients");
 
+            if (realm == null) {
+                return;
+            }
+
             ComponentModel externalClientStorageModel = new ComponentModel();
             externalClientStorageModel.setName(ExternalClientStorageProvider.ID);
             externalClientStorageModel.setParentId(realm.getId());
