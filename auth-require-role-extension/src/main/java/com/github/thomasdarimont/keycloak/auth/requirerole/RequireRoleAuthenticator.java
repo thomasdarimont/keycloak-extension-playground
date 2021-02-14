@@ -5,14 +5,15 @@ import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.events.Errors;
 import org.keycloak.models.AuthenticatorConfigModel;
+import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserModel;
-import org.keycloak.models.utils.FormMessage;
 import org.keycloak.models.utils.RoleUtils;
-import org.keycloak.services.messages.Messages;
 
+import javax.ws.rs.core.Response;
+import java.util.Map;
 import java.util.Set;
 
 import static org.keycloak.models.utils.KeycloakModelUtils.getRoleFromString;
@@ -24,16 +25,29 @@ public class RequireRoleAuthenticator implements Authenticator {
 
     protected static final Logger LOG = Logger.getLogger(RequireRoleAuthenticator.class);
 
+    public static final String CLIENT_ID_PLACEHOLDER = "${clientId}";
+
     @Override
     public void authenticate(AuthenticationFlowContext context) {
 
-        AuthenticatorConfigModel configModel = context.getAuthenticatorConfig();
-
-        String roleName = configModel.getConfig().get(RequireRoleAuthenticatorFactory.ROLE);
         RealmModel realm = context.getRealm();
         UserModel user = context.getUser();
+        ClientModel client = context.getAuthenticationSession().getClient();
+        AuthenticatorConfigModel authenticatorConfig = context.getAuthenticatorConfig();
 
-        if (userHasRole(realm, user, roleName)) {
+        String roleName = resolveRoleName(authenticatorConfig.getConfig(), client);
+        if (roleName == null) {
+            context.success();
+            return;
+        }
+
+        RoleModel requiredRole = resolveRequiredRole(roleName, realm, client);
+        if (requiredRole == null) {
+            context.success();
+            return;
+        }
+
+        if (isUserInRole(user, requiredRole)) {
             context.success();
             return;
         }
@@ -41,27 +55,59 @@ public class RequireRoleAuthenticator implements Authenticator {
         LOG.debugf("Access denied because of missing role. realm=%s username=%s role=%s", realm.getName(), user.getUsername(), roleName);
         context.getEvent().user(user);
         context.getEvent().error(Errors.NOT_ALLOWED);
-        context.forkWithErrorMessage(new FormMessage(Messages.NO_ACCESS));
+
+        ClientModel fallbackClientForBackling = realm.getClientByClientId("account");
+
+        Response errorForm = context.form()
+                .setError("Access Denied")
+                .createErrorPage(Response.Status.FORBIDDEN);
+
+        context.forceChallenge(errorForm);
+    }
+
+    protected RoleModel resolveRequiredRole(String roleName, RealmModel realm, ClientModel client) {
+        return getRoleFromString(realm, roleName);
+    }
+
+    protected String resolveRoleName(Map<String, String> config, ClientModel client) {
+
+        if (config == null) {
+            return null;
+        }
+
+        String roleName = config.get(RequireRoleAuthenticatorFactory.ROLE);
+        if (roleName == null) {
+            return null;
+        }
+
+        roleName = roleName.trim();
+
+        if (roleName.isBlank()) {
+            return null;
+        }
+
+        if (roleName.startsWith(CLIENT_ID_PLACEHOLDER)) {
+            roleName = roleName.replace(CLIENT_ID_PLACEHOLDER, client.getClientId());
+        }
+
+        return roleName;
     }
 
     /**
-     * @param realm
      * @param user
-     * @param roleName
-     * @return true if roleName is in any of all user role mappings including all groups of user
+     * @param requiredRole
+     * @return true if requiredRole is in any of all user role mappings including all groups of user
      */
-    protected boolean userHasRole(RealmModel realm, UserModel user, String roleName) {
+    protected boolean isUserInRole(UserModel user, RoleModel requiredRole) {
 
-        if (roleName == null) {
-            return false;
+        if (requiredRole == null) {
+            return true;
         }
 
-        LOG.debugf("Checking if user=%s has role=%s", user.getUsername(), roleName);
-        RoleModel requiredRole = getRoleFromString(realm, roleName);
+        LOG.debugf("Checking if user=%s has role=%s", user.getUsername(), requiredRole.getName());
 
         // First perform cheap role check for direct or composite roles
-        Set<RoleModel> directAssignedRoles = user.getRoleMappings();
-        if (RoleUtils.hasRole(directAssignedRoles, requiredRole)) {
+        if (RoleUtils.hasRole(user.getRoleMappingsStream(), requiredRole)) {
             return true;
         }
 

@@ -11,8 +11,6 @@ import org.keycloak.provider.ProviderConfigProperty;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.keycloak.provider.ProviderConfigProperty.ROLE_TYPE;
-
 public class RequireRoleAuthenticatorFactory implements AuthenticatorFactory {
 
     private static final String PROVIDER_ID = "require-role";
@@ -59,10 +57,13 @@ public class RequireRoleAuthenticatorFactory implements AuthenticatorFactory {
     public List<ProviderConfigProperty> getConfigProperties() {
 
         ProviderConfigProperty role = new ProviderConfigProperty();
-        role.setType(ROLE_TYPE);
+        role.setType(ProviderConfigProperty.STRING_TYPE);
         role.setName(ROLE);
-        role.setLabel("Role");
-        role.setHelpText("Require role.");
+        role.setLabel("Role name");
+        role.setHelpText("Required role name that a user needs to have to proceed with the authentication. " +
+                "This can be a realm or a client role name. Client roles have the form clientId.roleName. " +
+                "One can use the expression ${clientId}.roleName to check for the same role across many different clients. " +
+                "If the given role is not found / defined for a client the authenticator will be marked as successful. ");
 
         return Arrays.asList(role);
     }

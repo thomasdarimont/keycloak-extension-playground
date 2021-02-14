@@ -4,6 +4,7 @@ import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.models.AuthenticatorConfigModel;
+import org.keycloak.models.ClientModel;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserModel;
@@ -20,13 +21,24 @@ public class RequireRoleDirectGrantAuthenticator extends RequireRoleAuthenticato
     @Override
     public void authenticate(AuthenticationFlowContext context) {
 
-        AuthenticatorConfigModel configModel = context.getAuthenticatorConfig();
-
-        String roleName = configModel.getConfig().get(RequireRoleDirectGrantAuthenticatorFactory.ROLE);
         RealmModel realm = context.getRealm();
         UserModel user = context.getUser();
+        ClientModel client = context.getAuthenticationSession().getClient();
+        AuthenticatorConfigModel authenticatorConfig = context.getAuthenticatorConfig();
 
-        if (userHasRole(realm, user, roleName)) {
+        String roleName = resolveRoleName(authenticatorConfig.getConfig(), client);
+        if (roleName == null) {
+            context.success();
+            return;
+        }
+
+        RoleModel requiredRole = resolveRequiredRole(roleName, realm, client);
+        if (requiredRole == null) {
+            context.success();
+            return;
+        }
+
+        if (isUserInRole(user, requiredRole)) {
             context.success();
             return;
         }
