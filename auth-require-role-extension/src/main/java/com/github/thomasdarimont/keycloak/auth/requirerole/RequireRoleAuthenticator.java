@@ -4,6 +4,7 @@ import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.events.Errors;
+import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.AuthenticatorConfigModel;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakSession;
@@ -56,10 +57,16 @@ public class RequireRoleAuthenticator implements Authenticator {
         context.getEvent().user(user);
         context.getEvent().error(Errors.NOT_ALLOWED);
 
-        ClientModel fallbackClientForBackling = realm.getClientByClientId("account");
+        // TODO make fallback client configurable
+        // ClientModel fallbackClientForBacklink = realm.getClientByClientId("account");
 
-        Response errorForm = context.form()
-                .setError("Access Denied")
+        LoginFormsProvider loginFormsProvider = context.form();
+        /* TODO set an attribute here to allow overriding fallback client URL.
+            Note that this requires a custom a custom error.ftl.
+         */
+
+        Response errorForm = loginFormsProvider
+                .setError("Access Denied: " + client.getClientId())
                 .createErrorPage(Response.Status.FORBIDDEN);
 
         context.forceChallenge(errorForm);
