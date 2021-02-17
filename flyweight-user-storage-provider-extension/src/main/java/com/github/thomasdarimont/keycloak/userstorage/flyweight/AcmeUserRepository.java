@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class AcmeUserRepository {
 
@@ -57,9 +58,12 @@ class AcmeUserRepository {
                 .findFirst().orElse(null);
     }
 
-    public List<AcmeUser> findUsers(String query) {
-        return acmeUsers.stream()
-                .filter(acmeUser -> acmeUser.getUsername().contains(query) || acmeUser.getEmail().contains(query))
+    public List<AcmeUser> findUsers(String query, int firstResult, int maxResult) {
+        return paginated(acmeUsers.stream()
+                .filter(acmeUser -> acmeUser.getUsername().contains(query)
+                        || acmeUser.getEmail().contains(query)
+                        || acmeUser.getFirstName().contains(query)
+                        || acmeUser.getLastName().contains(query)), firstResult, maxResult)
                 .collect(Collectors.toList());
     }
 
@@ -85,5 +89,23 @@ class AcmeUserRepository {
 
     public Set<AcmeRole> getClientRolesByUserId(String clientId, String userId) {
         return userRoles.get(clientId + ":" + userId);
+    }
+
+    public List<String> findUsersByAttribute(String name, String value, int firstResult, int maxResult) {
+        return paginated(acmeUsers.stream()
+                .filter(u -> u.getAttribute(name).contains(value))
+                .map(AcmeUser::getId), firstResult, maxResult)
+                .collect(Collectors.toList());
+    }
+
+    protected <T> Stream<T> paginated(Stream<T> stream, int firstResult, int maxResult) {
+
+        Stream result = stream.skip(firstResult);
+
+        if (maxResult != -1) {
+            result = result.limit(maxResult);
+        }
+
+        return result;
     }
 }
