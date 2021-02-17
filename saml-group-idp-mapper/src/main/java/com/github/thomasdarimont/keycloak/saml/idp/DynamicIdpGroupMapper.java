@@ -1,7 +1,7 @@
 package com.github.thomasdarimont.keycloak.saml.idp;
 
 import com.google.auto.service.AutoService;
-import org.jboss.logging.Logger;
+import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.broker.provider.AbstractIdentityProviderMapper;
 import org.keycloak.broker.provider.BrokeredIdentityContext;
 import org.keycloak.broker.provider.IdentityProviderMapper;
@@ -20,23 +20,27 @@ import org.keycloak.provider.ProviderConfigProperty;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+@JBossLog
 @AutoService(IdentityProviderMapper.class)
 public class DynamicIdpGroupMapper extends AbstractIdentityProviderMapper {
 
-    private static final Logger LOG = Logger.getLogger(DynamicIdpGroupMapper.class);
-
     public static final String[] COMPATIBLE_PROVIDERS = {SAMLIdentityProviderFactory.PROVIDER_ID};
 
-    public static final String GROUP_ATTRIBUTE = "http://schemas.microsoft.com/ws/2008/06/identity/claims/groups";
+    public static final String GROUP_ATTRIBUTE_NAME = "groupAttributeName";
 
-    private static final List<ProviderConfigProperty> configProperties = new ArrayList<ProviderConfigProperty>();
+    public static final String DEFAULT_GROUP_ATTRIBUTE = "http://schemas.microsoft.com/ws/2008/06/identity/claims/groups";
+
+    private static final List<ProviderConfigProperty> CONFIG_PROPERTIES;
 
 //    public static final String ATTRIBUTE_NAME = "attribute.name";
 //    public static final String ATTRIBUTE_FRIENDLY_NAME = "attribute.friendly.name";
@@ -44,14 +48,19 @@ public class DynamicIdpGroupMapper extends AbstractIdentityProviderMapper {
 
     private static final Set<IdentityProviderSyncMode> IDENTITY_PROVIDER_SYNC_MODES = new HashSet<>(Arrays.asList(IdentityProviderSyncMode.values()));
 
-//    static {
-//        ProviderConfigProperty property;
-//        property = new ProviderConfigProperty();
-//        property.setName(ATTRIBUTE_NAME);
-//        property.setLabel("Attribute Name");
-//        property.setHelpText("Name of attribute to search for in assertion.  You can leave this blank and specify a friendly name instead.");
-//        property.setType(ProviderConfigProperty.STRING_TYPE);
-//        configProperties.add(property);
+    static {
+
+        List<ProviderConfigProperty> configProperties = new ArrayList<>();
+
+        ProviderConfigProperty property;
+        property = new ProviderConfigProperty();
+        property.setName(GROUP_ATTRIBUTE_NAME);
+        property.setLabel("Group Attribute Name");
+        property.setHelpText("Name of group attribute to search for in assertion.  You can leave this blank and specify a friendly name instead.");
+        property.setType(ProviderConfigProperty.STRING_TYPE);
+        property.setDefaultValue(DEFAULT_GROUP_ATTRIBUTE);
+        configProperties.add(property);
+
 //        property = new ProviderConfigProperty();
 //        property.setName(ATTRIBUTE_FRIENDLY_NAME);
 //        property.setLabel("Friendly Name");
@@ -70,7 +79,10 @@ public class DynamicIdpGroupMapper extends AbstractIdentityProviderMapper {
 ////        property.setHelpText("Role to grant to user.  Click 'Select Role' button to browse roles, or just type it in the textbox.  To reference a client role the syntax is clientname.clientrole, i.e. myclient.myrole");
 ////        property.setType(ProviderConfigProperty.ROLE_TYPE);
 ////        configProperties.add(property);
-//    }
+
+
+        CONFIG_PROPERTIES = Collections.unmodifiableList(configProperties);
+    }
 
     public static final String PROVIDER_ID = "demo-saml-group-idp-mapper";
 
@@ -81,7 +93,7 @@ public class DynamicIdpGroupMapper extends AbstractIdentityProviderMapper {
 
     @Override
     public List<ProviderConfigProperty> getConfigProperties() {
-        return configProperties;
+        return CONFIG_PROPERTIES;
     }
 
     @Override
@@ -163,36 +175,60 @@ public class DynamicIdpGroupMapper extends AbstractIdentityProviderMapper {
 
     @Override
     public void importNewUser(KeycloakSession session, RealmModel realm, UserModel user, IdentityProviderMapperModel mapperModel, BrokeredIdentityContext context) {
-        createOrJoinGroups(realm, user, context);
+        createOrJoinGroups(realm, user, mapperModel, context);
     }
 
     @Override
     public void updateBrokeredUser(KeycloakSession session, RealmModel realm, UserModel user, IdentityProviderMapperModel mapperModel, BrokeredIdentityContext context) {
-      createOrJoinGroups(realm, user, context);
+        createOrJoinGroups(realm, user, mapperModel, context);
     }
 
 
-    protected void createOrJoinGroups(RealmModel realm, UserModel user, BrokeredIdentityContext context) {
-        List<String> groupNames = findAttributeValuesInContext(GROUP_ATTRIBUTE, context);
+    protected void createOrJoinGroups(RealmModel realm, UserModel user, IdentityProviderMapperModel mapperModel, BrokeredIdentityContext context) {
+
+        String groupAttributeName = mapperModel.getConfig().getOrDefault(GROUP_ATTRIBUTE_NAME, DEFAULT_GROUP_ATTRIBUTE);
+
+        List<String> groupNames = findAttributeValuesInContext(groupAttributeName, context);
 
         if (groupNames == null || groupNames.isEmpty()) {
             return;
         }
 
-        for (String groupName : groupNames) {
-            List<GroupModel> existingGroups = realm.searchForGroupByNameStream(groupName, 0, 100)
-                    .filter(group -> group.getName().equals(groupName)).collect(Collectors.toList());
+        Map<String, GroupModel> realmGroupMap = new HashMap<>();
+        realm.getGroupsStream().forEach(g -> realmGroupMap.put(g.getName(), g));
 
-            GroupModel group = existingGroups.isEmpty() ? null : existingGroups.get(0);
-            if (group == null) {
-                // create new group
-                LOG.infof("Create new group for IdP brokered user. group=%s userId=%s user=%s", groupName, user.getId(), user.getUsername());
-                GroupModel newGroup = realm.createGroup(groupName);
-                user.joinGroup(newGroup);
+//        Set<String> tokenGroups = new HashSet<>();
+
+        for (String groupName : groupNames) {
+//            tokenGroups.add(groupName);
+
+            if (realmGroupMap.containsKey(groupName)) {
+                log.infof("Found group for IdP brokered user. group=%s userId=%s user=%s", groupName, user.getId(), user.getUsername());
+                GroupModel group = realmGroupMap.get(groupName);
+                if (!user.isMemberOf(group)) {
+                    user.joinGroup(group);
+                }
             } else {
-                // join existing group
-                user.joinGroup(group);
+//                // create new group dynamically
+//                LOG.infof("Create new group for IdP brokered user. group=%s userId=%s user=%s", groupName, user.getId(), user.getUsername());
+//                try {
+//                    GroupModel newGroup = realm.createGroup(groupName);
+//                    user.joinGroup(newGroup);
+//                } catch (Exception e) {
+//                    LOG.infof("Create new group throws exception. group=%s userId=%s user=%s", groupName, user.getId(), user.getUsername());
+//                }
+
+                log.infof("Failed to assign group to user. realm=%s group=%s userId=%s", realm.getId(), groupName, user.getId());
             }
         }
+
+        // remove user from groups not provided by the IdP
+//        for (GroupModel g : user.getGroups()) {
+//            String gName = g.getName();
+//            if (!tokenGroups.contains(gName)) {
+//                user.leaveGroup(g);
+//            }
+//        }
     }
+
 }
