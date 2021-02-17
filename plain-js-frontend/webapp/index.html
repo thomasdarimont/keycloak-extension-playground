@@ -1,13 +1,109 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Plain JS Profile</title>
 
-    <link rel="stylesheet" type="text/css" href="styles.css"/>
+    <title>Keycloak JS Demo</title>
 
-    <script src="http://localhost:8081/auth/js/keycloak.js"></script>
-    <script src="app.js"></script>
+    <style>
+        body {
+            background-color: #eaeaea;
+            font-family: sans-serif;
+            font-size: 30px;
+        }
+
+        button {
+            font-family: sans-serif;
+            font-size: 30px;
+            width: 250px;
+
+            background-color: #0085cf;
+            background-image: linear-gradient(to bottom, #00a8e1 0%, #0085cf 100%);
+            background-repeat: repeat-x;
+
+            border: 2px solid #ccc;
+            color: #fff;
+
+            text-transform: uppercase;
+
+            -webkit-box-shadow: 2px 2px 10px 0px rgba(0, 0, 0, 0.5);
+            -moz-box-shadow: 2px 2px 10px 0px rgba(0, 0, 0, 0.5);
+            box-shadow: 2px 2px 10px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        button:hover {
+            background-color: #006ba6;
+            background-image: none;
+            -webkit-box-shadow: none;
+            -moz-box-shadow: none;
+            box-shadow: none;
+        }
+
+        hr {
+            border: none;
+            background-color: #eee;
+            height: 10px;
+        }
+
+        .menu {
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            background-color: #eee;
+            border: 1px solid #ccc;
+            padding: 10px;
+
+            -webkit-box-shadow: 2px 2px 10px 0px rgba(0, 0, 0, 0.5);
+            -moz-box-shadow: 2px 2px 10px 0px rgba(0, 0, 0, 0.5);
+            box-shadow: 2px 2px 10px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        .content .message {
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            font-size: 40px;
+        }
+
+        #token-content {
+            font-size: 20px;
+            padding: 5px;
+            white-space: pre;
+            text-transform: none;
+        }
+
+        .wrapper {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            bottom: 10px;
+            right: 10px;
+        }
+
+        .error {
+            color: #a21e22;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        tr.even {
+            background-color: #eee;
+        }
+
+        td {
+            padding: 5px;
+        }
+
+        td.label {
+            font-weight: bold;
+            width: 250px;
+        }
+
+    </style>
 </head>
 
 <body style="display: none;">
@@ -27,8 +123,10 @@
         <button name="profileBtn" onclick="showProfile()">Profile</button>
         <button name="tokenBtn" onclick="showToken()">AccessToken</button>
         <button name="idTokenBtn" onclick="showIdToken()">IDToken</button>
-        <button name="logoutBtn" onclick="keycloak.logout()">Logout</button>
         <button name="accountBtn" onclick="keycloak.accountManagement()">Account</button>
+        <button name="changePasswordBtn" onclick="changePassword()">Password</button>
+        <button name="reauthBtn" onclick="enforceCurrentAuth()">ReAuth</button>
+        <button name="logoutBtn" onclick="keycloak.logout()">Logout</button>
     </div>
 
     <div class="content">
@@ -41,10 +139,6 @@
                 <tr class="even">
                     <td class="label">Last name</td>
                     <td><span id="lastName"></span></td>
-                </tr>
-                <tr>
-                    <td class="label">Username</td>
-                    <td><span id="username"></span></td>
                 </tr>
                 <tr class="even">
                     <td class="label">Email</td>
@@ -60,8 +154,10 @@
         <button onclick="showProfile()">Profile</button>
         <button onclick="showToken()">AccessToken</button>
         <button onclick="showIdToken()">IDToken</button>
+        <button name="accountBtn" onclick="keycloak.accountManagement()">Account</button>
+        <button name="changePasswordBtn" onclick="changePassword()">Password</button>
+        <button name="reauthBtn" onclick="enforceCurrentAuth()">ReAuth</button>
         <button onclick="keycloak.logout()">Logout</button>
-        <button onclick="keycloak.accountManagement()">Account</button>
     </div>
 
     <div class="content">
@@ -74,8 +170,10 @@
         <button onclick="showProfile()">Profile</button>
         <button onclick="showToken()">AccessToken</button>
         <button onclick="showIdToken()">IDToken</button>
+        <button name="accountBtn" onclick="keycloak.accountManagement()">Account</button>
+        <button name="changePasswordBtn" onclick="changePassword()">Password</button>
+        <button name="reauthBtn" onclick="enforceCurrentAuth()">ReAuth</button>
         <button onclick="keycloak.logout()">Logout</button>
-        <button onclick="keycloak.accountManagement()">Account</button>
     </div>
 
     <div class="content">
@@ -83,6 +181,126 @@
     </div>
 </div>
 
+
+<script>
+    let keycloakUrl = "http://localhost:8081/auth"
+
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = keycloakUrl + "/js/keycloak.js";
+
+    document.getElementsByTagName('head')[0].appendChild(script);
+
+    window.onload = function () {
+
+        window.keycloak = new Keycloak({
+            url: keycloakUrl,
+            // realm: 'demo',
+            // clientId: 'keycloak-js-demo'
+
+            realm: 'requirerole',
+            clientId: 'app-frontend-plainjs'
+        });
+
+// Workaround for KEYCLOAK-14414
+        window.keycloak._login = window.keycloak.login;
+        window.keycloak.login = function (options) {
+            if (options) {
+                //options.scope="openid email name";
+                options.scope = "openid";
+            }
+            return window.keycloak._login.apply(window.keycloak, [options]);
+        };
+
+
+        keycloak.init({
+            onLoad: 'login-required',
+            checkLoginIframe: true,
+            checkLoginIframeInterval: 1,
+            pkceMethod: 'S256'
+        })
+            .success(function () {
+
+                if (keycloak.authenticated) {
+                    showProfile();
+                } else {
+                    welcome();
+                }
+
+                document.body.style.display = 'block';
+            });
+
+        keycloak.onAuthLogout = welcome;
+    };
+
+    function welcome() {
+        show('welcome');
+    }
+
+    function getTimeSinceLastAuth() {
+        let timeSinceAuthSeconds = Math.floor((Date.now() - (keycloak.tokenParsed.auth_time * 1000)) / 1000);
+        return timeSinceAuthSeconds;
+    }
+
+    function enforceCurrentAuth() {
+
+        let timeSinceAuthSeconds = getTimeSinceLastAuth();
+        console.log("time since auth: " + timeSinceAuthSeconds);
+
+        if (timeSinceAuthSeconds < 10) {
+            console.log("auth is still file")
+            return;
+        } else {
+            console.log("trigger reauth")
+        }
+
+        keycloak.login({
+            loginHint: keycloak.tokenParsed.preferred_username,
+            maxAge: 20
+        });
+    }
+
+    function changePassword() {
+        keycloak.login({
+            action: "UPDATE_PASSWORD"
+        });
+    }
+
+    function showProfile() {
+
+        if (keycloak.tokenParsed['given_name']) {
+            document.getElementById('firstName').innerHTML = keycloak.tokenParsed['given_name'];
+        }
+        if (keycloak.tokenParsed['family_name']) {
+            document.getElementById('lastName').innerHTML = keycloak.tokenParsed['family_name'];
+        }
+        if (keycloak.tokenParsed['email']) {
+            document.getElementById('email').innerHTML = keycloak.tokenParsed['email'];
+        }
+
+        show('profile');
+    }
+
+    function showToken() {
+        document.getElementById('token-content').innerHTML = JSON.stringify(keycloak.tokenParsed, null, '    ');
+        show('token');
+    }
+
+    function showIdToken() {
+        document.getElementById('token-content').innerHTML = JSON.stringify(keycloak.idTokenParsed, null, '    ');
+        show('token');
+    }
+
+    function show(id) {
+        document.getElementById('welcome').style.display = 'none';
+        document.getElementById('profile').style.display = 'none';
+        document.getElementById('token').style.display = 'none';
+        document.getElementById('idToken').style.display = 'none';
+        document.getElementById(id).style.display = 'block';
+    }
+
+
+</script>
 </body>
 
 </html>
