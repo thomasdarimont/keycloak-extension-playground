@@ -5,6 +5,7 @@ import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Liveness;
 import org.eclipse.microprofile.health.Readiness;
+import org.jboss.logging.Logger;
 import org.keycloak.common.Version;
 
 import javax.annotation.Resource;
@@ -17,13 +18,15 @@ import java.sql.Connection;
 @ApplicationScoped
 public class KeycloakHealthChecks {
 
+    private static final Logger LOG = Logger.getLogger(KeycloakHealthChecks.class);
+
     public static final int DB_CONNECTION_VALID_TIMEOUT_MILLIS = 1000;
 
     public static final HealthCheckResponseBuilder KEYCLOAK_SERVER_HEALTH_CHECK = HealthCheckResponse.named("keycloak:server")
             .withData("version", Version.VERSION_KEYCLOAK)
             .withData("startupTimestamp", ManagementFactory.getRuntimeMXBean().getStartTime());
 
-    @Resource(name = "KeycloakDS")
+    @Resource(lookup = "java:jboss/datasources/KeycloakDS")
     private DataSource keycloakDatasource;
 
     @Produces
@@ -38,15 +41,15 @@ public class KeycloakHealthChecks {
 
         HealthCheckResponseBuilder databaseHealth = HealthCheckResponse.named("keycloak:database");
 
-        boolean databaseReady = isDatabaseReady();
-
-        return () -> (databaseReady ? databaseHealth.up() : databaseHealth.down()).build();
+        return () -> ( isDatabaseReady() ? databaseHealth.up() : databaseHealth.down()).build();
     }
 
     private boolean isDatabaseReady() {
 
         try (Connection connection = keycloakDatasource.getConnection()) {
-            return connection.isValid(DB_CONNECTION_VALID_TIMEOUT_MILLIS);
+            boolean valid = connection.isValid(DB_CONNECTION_VALID_TIMEOUT_MILLIS);
+            LOG.debugf("Connection is Valid %s", valid);
+            return valid;
         } catch (Exception ex) {
             return false;
         }
