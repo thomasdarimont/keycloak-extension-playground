@@ -15,7 +15,9 @@ class AccessManagementController {
     Object getCustomClaims(@RequestParam String userId, @RequestParam String username, @RequestParam(required = false) String clientId, @RequestParam(required = false) String issuer) {
 
         Map<String, Object> claims = new HashMap<>();
-//        claims.put("roles", Map.of("dms", List.of("ROLE1", "ROLE2")));
+        claims.put("acme", Map.of("mandantId", 42));
+
+        claims.put("roles", Map.of("dms", List.of("ROLE1", "ROLE2")));
 
         Map<String, Map<String, List<String>>> clientRoleMapping = new HashMap<>(
                 Map.of(
@@ -34,8 +36,6 @@ class AccessManagementController {
 
         // realm roles
         claims.put("realm_access", Map.of("roles", List.of("user", "admin")));
-
-        claims.put("acme", Map.of("mandantId", 42));
 
         return claims;
     }
