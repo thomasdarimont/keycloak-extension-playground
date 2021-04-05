@@ -51,7 +51,6 @@
         <module>custom-required-action</module>
         <module>custom-ldapattribute-import-mapper</module>
         <module>auth-faceauth-extension</module>
-        <module>auth-recovery-codes-extension</module>
     </modules>
 
     <properties>
