@@ -1,0 +1,10 @@
+{
+  "themes": [
+    {
+      "name": "faceauth-theme",
+      "types": [
+        "login"
+      ]
+    }
+  ]
+}

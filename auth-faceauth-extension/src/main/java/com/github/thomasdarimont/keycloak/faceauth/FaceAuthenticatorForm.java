@@ -2,6 +2,7 @@ package com.github.thomasdarimont.keycloak.faceauth;
 
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.authentication.AuthenticationFlowContext;
+import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.authenticators.browser.UsernameForm;
 import org.keycloak.broker.provider.util.SimpleHttp;
@@ -12,6 +13,7 @@ import org.keycloak.models.utils.KeycloakModelUtils;
 import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.util.JsonSerialization;
 
+import javax.ws.rs.RedirectionException;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -30,12 +32,8 @@ public class FaceAuthenticatorForm implements Authenticator {
 
     @Override
     public void authenticate(AuthenticationFlowContext context) {
-
-        // Note that you can use the `session` to access Keycloaks services.
-
         Response response = context.form()
                 .createForm("faceauth-form.ftl");
-
         context.challenge(response);
     }
 
@@ -60,22 +58,26 @@ public class FaceAuthenticatorForm implements Authenticator {
                 inputData.putSingle(AuthenticationManager.FORM_USERNAME, username);
                 boolean validUser = usernameForm.validateUser(context, inputData);
                 if (validUser) {
-
-                    UserModel user = KeycloakModelUtils.findUserByNameOrEmail(session, context.getRealm(), username);
-                    context.setUser(user);
+//                    UserModel user = KeycloakModelUtils.findUserByNameOrEmail(session, context.getRealm(), username);
                     context.success();
+
+//                    throw new RedirectionException(Response.Status.FOUND,context.getRefreshExecutionUrl());
                     return;
                 }
+
+//                context.failure(AuthenticationFlowError.INVALID_USER);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-//        context.attempted();
+        context.attempted();
         Response response = context.form()
                 .setError("Could not detect face")
                 .createErrorPage(Response.Status.BAD_REQUEST);
         context.challenge(response);
+
+//        context.failure(AuthenticationFlowError.INVALID_USER);
     }
 
     @Override

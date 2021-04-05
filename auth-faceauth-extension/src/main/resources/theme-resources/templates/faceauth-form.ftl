@@ -10,15 +10,16 @@
             <video onloadedmetadata="onPlay(this)" id="inputVideo" autoplay muted playsinline>
                 Loading Face Auth...
             </video>
-<#--            <canvas id="overlay"></canvas>-->
+            <#--            <canvas id="overlay"></canvas>-->
         </div>
 
-        <script src="http://localhost:3000/face-api.js"></script>
+    <#--        <script src="http://localhost:3000/face-api.js"></script>-->
+
+        <script src="${url.resourcesPath}/../faceauth-theme/js/face-api.js" defer></script>
 
         <script defer>
 
             const SSD_MOBILENETV1 = 'ssd_mobilenetv1'
-            const TINY_FACE_DETECTOR = 'tiny_face_detector'
 
             let selectedFaceDetector = SSD_MOBILENETV1
 
@@ -30,18 +31,11 @@
             let scoreThreshold = 0.5
 
             function getFaceDetectorOptions() {
-                return selectedFaceDetector === SSD_MOBILENETV1
-                    ? new faceapi.SsdMobilenetv1Options({ minConfidence })
-                    : new faceapi.TinyFaceDetectorOptions({ inputSize, scoreThreshold })
+                return new faceapi.SsdMobilenetv1Options({minConfidence});
             }
 
             function getCurrentFaceDetectionNet() {
-                if (selectedFaceDetector === SSD_MOBILENETV1) {
-                    return faceapi.nets.ssdMobilenetv1
-                }
-                if (selectedFaceDetector === TINY_FACE_DETECTOR) {
-                    return faceapi.nets.tinyFaceDetector
-                }
+                return faceapi.nets.ssdMobilenetv1
             }
 
             function isFaceDetectionModelLoaded() {
@@ -104,7 +98,7 @@
                 let faceBlob = await toBlob(faceCanvas);
 
                 let dataUrl = await readAsDataURL(faceBlob);
-                let faceAuthData = { faceImage: dataUrl };
+                let faceAuthData = {faceImage: dataUrl};
 
                 let loginActionUrl = document.getElementById("kc-u2f-login-form").action;
 
@@ -114,6 +108,7 @@
                 let faceAuthResponse = await fetch(loginActionUrl, {
                     method: "post",
                     redirect: 'manual',
+                    credentials: "include",
                     body: JSON.stringify(faceAuthData),
                     headers: {
                         'Content-Type': 'application/json'
@@ -126,27 +121,31 @@
                 //     return;
                 // }
 
-                if (faceAuthResponse.status === 302 || faceAuthResponse.type ==="opaqueredirect") {
+                if (faceAuthResponse.status === 302 || faceAuthResponse.type === "opaqueredirect") {
                     window.location.href = faceAuthResponse.url;
+                    // console.log("Redirect URI: " + faceAuthResponse.url);
+                    // window.location.href = "http://localhost:8081/auth/realms/faceauth/account/";
                     return;
                 }
 
-                // let faceAuthResponseJson = await faceAuthResponse.json();
-                // console.log(faceAuthResponseJson);
-                //
-                // if (faceAuthResponseJson.username === "unknown") {
+                if (faceAuthResponse.status === 200) {
+                    let responseText = await faceAuthResponse.text();
+                    document.querySelector("body").parentElement.innerHTML = responseText;
 
-                    window.faceResult = null;
-                    analyzingFace = false;
+                    // run scripts that were not execute after body replacement
+                    // setTimeout(() => {
+                    //     console.log("run scripts");
+                    //     runScripts(document.documentElement);
+                    // }, 250);
+                    return;
+                }
 
-                    console.log("try again");
-                    setTimeout(() => onPlay(), 1000);
-                    // return;
-                // }
 
-                // console.log("done");
+                window.faceResult = null;
+                analyzingFace = false;
 
-                // setTimeout(() => onPlay());
+                console.log("try again");
+                setTimeout(() => onPlay(), 1000);
             }
 
             async function toBlob(canvas) {
@@ -171,23 +170,121 @@
                 // changeInputSize(128)
 
                 if (!isFaceDetectionModelLoaded()) {
-                    await getCurrentFaceDetectionNet().load('http://localhost:3000/')
+                    // await getCurrentFaceDetectionNet().load('http://localhost:3000/')
+                    <#--await getCurrentFaceDetectionNet().load('http://localhost:8081${url.resourcesPath}/../faceauth-theme/js/')-->
+                    await getCurrentFaceDetectionNet().load('${url.resourcesPath}/../faceauth-theme/js/')
+
                 }
 
                 // try to access users webcam and stream the images
                 // to the video element
-                const stream = await navigator.mediaDevices.getUserMedia({ video: {} })
+                const stream = await navigator.mediaDevices.getUserMedia({video: {}})
                 $inputVideo.srcObject = stream
             }
 
-            startFaceDetection();
+            function runScripts(element) {
+                var list, scripts, index;
+
+                // Get the scripts
+                list = element.getElementsByTagName("script");
+                scripts = [];
+                for (index = 0; index < list.length; ++index) {
+                    scripts[index] = list[index];
+                }
+                list = undefined;
+
+                // Run them in sequence
+                continueLoading();
+
+                function continueLoading() {
+                    var script, newscript;
+
+                    // While we have a script to load...
+                    while (scripts.length) {
+                        // Get it and remove it from the DOM
+                        script = scripts[0];
+                        script.parentNode.removeChild(script);
+                        scripts.splice(0, 1);
+
+                        console.log("Running script: " + script.src);
+
+                        // Create a replacement for it
+                        newscript = document.createElement('script');
+
+                        // External?
+                        if (script.src) {
+                            // Yes, we'll have to wait until it's loaded before continuing
+                            newscript.onerror = continueLoadingOnError;
+                            newscript.onload = continueLoadingOnLoad;
+                            newscript.onreadystatechange = continueLoadingOnReady;
+                            newscript.src = script.src;
+                        } else {
+                            // No, we can do it right away
+                            newscript.text = script.text;
+                        }
+
+                        // Start the script
+                        document.documentElement.appendChild(newscript);
+
+                        // If it's external, wait
+                        if (script.src) {
+                            return;
+                        }
+                    }
+
+                    // All scripts loaded
+                    newscript = undefined;
+
+                    // Callback on most browsers when a script is loaded
+
+                    function continueLoadingOnLoad() {
+                        // Defend against duplicate calls
+                        if (this === newscript) {
+                            continueLoading();
+                        }
+                    }
+
+                    // Callback on most browsers when a script fails to load
+
+                    function continueLoadingOnError() {
+                        // Defend against duplicate calls
+                        if (this === newscript) {
+                            continueLoading();
+                        }
+                    }
+
+                    // Callback on IE when a script's loading status changes
+
+                    function continueLoadingOnReady() {
+
+                        // Defend against duplicate calls and check whether the
+                        // script is complete (complete = loaded or error)
+                        if (this === newscript && this.readyState === "complete") {
+                            continueLoading();
+                        }
+                    }
+                }
+            }
+
+            let waitForFaceApi = function () {
+                if (window.faceapi) {
+                    console.log("faceapi loaded...")
+                    startFaceDetection();
+                } else {
+                    console.log("waiting for faceapi to load...")
+                    setTimeout(waitForFaceApi, 500);
+                }
+            }
+
+            setTimeout(waitForFaceApi, 1000);
+
         </script>
 
         <form id="kc-u2f-login-form" class="${properties.kcFormClass!}" action="${url.loginAction}" method="post">
             <div class="${properties.kcFormGroupClass!}">
                 <div id="kc-form-buttons" class="${properties.kcFormButtonsClass!}">
-<#--                    <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}"-->
-<#--                           type="submit" value="${msg("doSubmit")}"/>-->
+                    <#--                    <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}"-->
+                    <#--                           type="submit" value="${msg("doSubmit")}"/>-->
                     <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}"
                            type="submit" name="cancel" value="${msg("doCancel")}"/>
                 </div>
