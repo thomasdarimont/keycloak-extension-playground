@@ -12,6 +12,13 @@
     <artifactId>keycloak-playground-server</artifactId>
 
     <dependencies>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>auth-custom-registration-create-user</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>auth-faceauth-extension</artifactId>

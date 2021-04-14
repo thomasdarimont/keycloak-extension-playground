@@ -17,7 +17,8 @@
                         />
 
                         <#if messagesPerField.existsError('username')>
-                            <span id="input-error-username" class="${properties.kcInputErrorMessageClass!}" aria-live="polite">
+                            <span id="input-error-username" class="${properties.kcInputErrorMessageClass!}"
+                                  aria-live="polite">
                                 ${kcSanitize(messagesPerField.get('username'))?no_esc}
                             </span>
                         </#if>
@@ -54,7 +55,8 @@
                     />
 
                     <#if messagesPerField.existsError('firstName')>
-                        <span id="input-error-firstname" class="${properties.kcInputErrorMessageClass!}" aria-live="polite">
+                        <span id="input-error-firstname" class="${properties.kcInputErrorMessageClass!}"
+                              aria-live="polite">
                             ${kcSanitize(messagesPerField.get('firstName'))?no_esc}
                         </span>
                     </#if>
@@ -72,7 +74,8 @@
                     />
 
                     <#if messagesPerField.existsError('lastName')>
-                        <span id="input-error-lastname" class="${properties.kcInputErrorMessageClass!}" aria-live="polite">
+                        <span id="input-error-lastname" class="${properties.kcInputErrorMessageClass!}"
+                              aria-live="polite">
                             ${kcSanitize(messagesPerField.get('lastName'))?no_esc}
                         </span>
                     </#if>
@@ -91,7 +94,8 @@
                         />
 
                         <#if messagesPerField.existsError('password')>
-                            <span id="input-error-password" class="${properties.kcInputErrorMessageClass!}" aria-live="polite">
+                            <span id="input-error-password" class="${properties.kcInputErrorMessageClass!}"
+                                  aria-live="polite">
                                 ${kcSanitize(messagesPerField.get('password'))?no_esc}
                             </span>
                         </#if>
@@ -110,10 +114,36 @@
                         />
 
                         <#if messagesPerField.existsError('password-confirm')>
-                            <span id="input-error-password-confirm" class="${properties.kcInputErrorMessageClass!}" aria-live="polite">
+                            <span id="input-error-password-confirm" class="${properties.kcInputErrorMessageClass!}"
+                                  aria-live="polite">
                                 ${kcSanitize(messagesPerField.get('password-confirm'))?no_esc}
                             </span>
                         </#if>
+                    </div>
+                </div>
+            </#if>
+
+            <#if acceptTermsRequired??>
+
+                <div class="${properties.kcFormGroupClass!}">
+
+                    <div id="kc-terms-text">
+                        ${msg("termsTitle")}
+                        <div>
+                            ${kcSanitize(msg("termsText"))?no_esc}
+                        </div>
+                    </div>
+
+                    <script defer>
+                        document.getElementById("termsLink").setAttribute("target", "_blank");
+                    </script>
+                    <div class="${properties.kcLabelWrapperClass!}">
+                        <label for="acceptTerms" class="${properties.kcLabelClass!}">${msg("acceptTerms")}</label>
+
+                        <input type="checkbox" id="acceptTerms" name="terms" class="${properties.kcCheckboxInputClass!}"
+                               value="${(register.formData.acceptTerms!'')}"
+                               aria-invalid="<#if messagesPerField.existsError('terms')>true</#if>"
+                        />
                     </div>
                 </div>
             </#if>
@@ -134,8 +164,10 @@
                 </div>
 
                 <div id="kc-form-buttons" class="${properties.kcFormButtonsClass!}">
-                    <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}" type="submit" value="${msg("doRegister")}"/>
-                    <input class="${properties.kcButtonClass!} ${properties.kcButtonSecondaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}" name="cancel" id="kc-cancel" type="submit" value="${msg("doCancel")}"/>
+                    <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}"
+                           type="submit" value="${msg("doRegister")}"/>
+                    <input class="${properties.kcButtonClass!} ${properties.kcButtonSecondaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}"
+                           name="cancel" id="kc-cancel" type="submit" value="${msg("doCancel")}"/>
                 </div>
             </div>
         </form>

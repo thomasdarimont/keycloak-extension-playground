@@ -51,6 +51,7 @@
         <module>custom-required-action</module>
         <module>custom-ldapattribute-import-mapper</module>
         <module>auth-faceauth-extension</module>
+        <module>auth-custom-registration-create-user</module>
     </modules>
 
     <properties>
@@ -69,6 +70,8 @@
         <jackson.version>2.10.2</jackson.version>
         <resteasy-jaxrs.version>3.12.1.Final</resteasy-jaxrs.version>
         <jboss-servlet-api.version>2.0.0.Final</jboss-servlet-api.version>
+        <testcontainers-keycloak.version>1.6.0</testcontainers-keycloak.version>
+        <assertj-core.version>3.9.1</assertj-core.version>
     </properties>
 
     <dependencyManagement>
