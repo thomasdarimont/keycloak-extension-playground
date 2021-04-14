@@ -8,6 +8,8 @@ and add the handling for terms acceptance validation.
 
 We also store the timestamp of the acceptance in the user attribute `terms_accepted`.
 
+![Accept Terms in Registration Form](accept-terms-error.png)
+
 # Customize the Registration Flow
 
 In the admin-console, copy the `registration` flow to `registration-custom` and replace the
