@@ -52,6 +52,7 @@
         <module>custom-ldapattribute-import-mapper</module>
         <module>auth-faceauth-extension</module>
         <module>auth-custom-registration-create-user</module>
+        <module>simple-realm-resource-with-form-example</module>
     </modules>
 
     <properties>

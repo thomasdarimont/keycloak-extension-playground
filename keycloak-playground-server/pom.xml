@@ -15,6 +15,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>simple-realm-resource-with-form-example</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>auth-custom-registration-create-user</artifactId>
             <version>${project.version}</version>
         </dependency>
