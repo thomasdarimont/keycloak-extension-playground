@@ -105,7 +105,7 @@ public class PasswordAuthenticatorForm extends AbstractIdentityFirstUsernameForm
         credentials.add(UserCredentialModel.password(password));
 
 
-        if (isTemporarilyDisabledByBruteForce(context, user)) {
+        if (isDisabledByBruteForce(context, user)) {
             return false;
         }
 

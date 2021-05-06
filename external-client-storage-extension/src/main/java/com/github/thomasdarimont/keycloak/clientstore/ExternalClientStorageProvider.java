@@ -3,12 +3,14 @@ package com.github.thomasdarimont.keycloak.clientstore;
 import org.keycloak.broker.provider.util.SimpleHttp;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.models.ClientModel;
+import org.keycloak.models.ClientScopeModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.storage.client.ClientStorageProvider;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -122,6 +124,12 @@ public class ExternalClientStorageProvider implements ClientStorageProvider {
     public Stream<ClientModel> searchClientsByClientIdStream(RealmModel realm, String clientId, Integer firstResult, Integer maxResults) {
         // TODO implement search for clients by clientId
         return Stream.empty();
+    }
+
+    @Override
+    public Map<String, ClientScopeModel> getClientScopes(RealmModel realm, ClientModel client, boolean defaultScopes) {
+        // TODO fix dynamic client scope resolution
+        return Collections.emptyMap();
     }
 
     private UserModel createServiceAccountUser(RealmModel realm, ClientModel clientModel) {

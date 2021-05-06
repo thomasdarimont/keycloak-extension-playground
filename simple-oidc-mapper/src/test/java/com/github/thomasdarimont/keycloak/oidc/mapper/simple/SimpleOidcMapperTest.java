@@ -15,9 +15,7 @@ import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.core.StringStartsWith.startsWith;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SimpleOidcMapperTest {
 
@@ -57,8 +55,8 @@ public class SimpleOidcMapperTest {
             AccessToken accessToken = verifier.getToken();
             String customClaimValue = (String) accessToken.getOtherClaims().get(SimpleOidcMapper.CLAIM_NAME);
             System.out.printf("Custom Claim name %s=%s", SimpleOidcMapper.CLAIM_NAME, customClaimValue);
-            assertThat(customClaimValue, notNullValue());
-            assertThat(customClaimValue, startsWith("testdata:"));
+            assertThat(customClaimValue).isNotNull();
+            assertThat(customClaimValue).startsWith("testdata:");
         }
     }
 

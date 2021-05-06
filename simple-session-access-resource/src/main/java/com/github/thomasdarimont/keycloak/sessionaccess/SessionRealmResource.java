@@ -1,6 +1,7 @@
 package com.github.thomasdarimont.keycloak.sessionaccess;
 
 import lombok.RequiredArgsConstructor;
+import org.jboss.resteasy.spi.HttpRequest;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.models.ClientModel;
@@ -10,6 +11,7 @@ import org.keycloak.models.UserSessionModel;
 import org.keycloak.protocol.oidc.utils.AuthorizeClientUtil;
 import org.keycloak.services.managers.AppAuthManager;
 import org.keycloak.services.managers.AuthenticationManager;
+import org.keycloak.services.resources.Cors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.ForbiddenException;
@@ -17,6 +19,7 @@ import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -33,19 +36,12 @@ public class SessionRealmResource {
 
     private final KeycloakSession session;
     private final AuthenticationManager.AuthResult auth;
-    private final ClientModel client;
+
 
     public SessionRealmResource(KeycloakSession session) {
-
         this.session = session;
-
-        RealmModel realm = session.getContext().getRealm();
         // Authorization Header is ACCESS_TOKEN
         this.auth = new AppAuthManager.BearerTokenAuthenticator(session).authenticate();
-
-        EventBuilder event = new EventBuilder(realm, session, session.getContext().getConnection());
-        // Form Body MUST contain client_id, client_secret, client MUST be a confidential client
-        this.client = AuthorizeClientUtil.authorizeClient(session, event).getClient();
     }
 
     /**
@@ -108,7 +104,16 @@ public class SessionRealmResource {
     @Path("session")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response patch(MultivaluedMap<String, String> formParams) {
+    public Response patch(MultivaluedMap<String, String> formParams, @Context HttpRequest request) {
+
+        // checkRealmAdmin();
+
+        RealmModel realm = session.getContext().getRealm();
+        EventBuilder event = new EventBuilder(realm, session, session.getContext().getConnection());
+        Cors cors = Cors.add(request).auth().allowedMethods("PATCH").auth().exposedHeaders(Cors.ACCESS_CONTROL_ALLOW_METHODS);
+
+        // Form Body MUST contain client_id, client_secret, client MUST be a confidential client
+        AuthorizeClientUtil.authorizeClient(session, event, cors);
 
         // TODO check if client is allowed to propagate values to the user session
 

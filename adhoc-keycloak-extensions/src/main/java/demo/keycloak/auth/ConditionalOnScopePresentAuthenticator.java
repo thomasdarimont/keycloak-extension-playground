@@ -31,7 +31,7 @@ public class ConditionalOnScopePresentAuthenticator implements ConditionalAuthen
         String requiredScopeName = config != null ? config.get(CLIENT_SCOPE_NAME) : null;
 
         ClientModel client = context.getSession().getContext().getClient();
-        Map<String, ClientScopeModel> clientScopes = client.getClientScopes(true, true);
+        Map<String, ClientScopeModel> clientScopes = client.getClientScopes(true);
 
         return clientScopes != null && clientScopes.containsKey(requiredScopeName);
     }

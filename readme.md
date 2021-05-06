@@ -12,7 +12,7 @@ To build the Keycloak Project simply clone it into a directory like
 
 ```
 # The Keycloak version referenced in the pom.xml 
-KC_VERSION=12.0.4
+KC_VERSION=13.0.0
 git clone https://github.com/keycloak/keycloak
 git fetch origin --tags
 git checkout $KC_VERSION
@@ -54,7 +54,7 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile=COMMUNITY
 -Dkeycloak.product.name=keycloak
 -Dproduct.name=keycloak
--Dproduct.version=12.0.x
+-Dproduct.version=13.0.x
 -Dkeycloak.profile=preview
 -Dkeycloak.hostname.frontendUrl=http://localhost:8081/auth
 -Dkeycloak.profile.feature.account2=enabled
@@ -86,7 +86,7 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile=COMMUNITY
 -Dkeycloak.product.name=keycloak
 -Dproduct.name=keycloak
--Dproduct.version=12.0.x
+-Dproduct.version=13.0.x
 -Dkeycloak.profile=preview
 -Dkeycloak.profile.feature.account2=enabled
 -Dkeycloak.profile.feature.account_api=enabled
