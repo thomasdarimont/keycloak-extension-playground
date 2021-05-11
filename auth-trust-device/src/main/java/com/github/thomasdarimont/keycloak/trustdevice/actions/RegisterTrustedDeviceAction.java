@@ -88,7 +88,7 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
         UserModel user = context.getUser();
         RealmModel realm = context.getRealm();
 
-        registerTrustedDevice(deviceName, session, user, realm, deviceToken.getDeviceId());
+        registerTrustedDevice(deviceToken.getDeviceId(), deviceName, session, realm, user);
 
         String deviceTokenString = session.tokens().encode(deviceToken);
 
@@ -102,7 +102,7 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
         context.success();
     }
 
-    private void registerTrustedDevice(String deviceName, KeycloakSession session, UserModel user, RealmModel realm, String deviceId) {
+    private void registerTrustedDevice(String deviceId, String deviceName, KeycloakSession session, RealmModel realm, UserModel user) {
         TrustedDeviceRepository repo = new TrustedDeviceRepository(session);
         repo.registerTrustedDevice(realm.getId(), user.getId(), deviceId, deviceName);
     }
