@@ -60,8 +60,11 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile.feature.account2=enabled
 -Dkeycloak.profile.feature.account_api=enabled
 -Dkeycloak.profile.feature.scripts=enabled
--Dkeycloak.profile.feature.token_exchange=enabled
--Dkeycloak.profile.feature.admin_fine_grained_authz=enabled
+-Dkeycloak.profile.feature.device_activity=enabled
+-Dkeycloak.profile.feature.tokenexchange=enabled
+-Dkeycloak.profile.feature.ciba=enabled
+-Dkeycloak.profile.feature.client_policies=enabled
+-Dkeycloak.profile.feature.map_storage=enabled
 -Dkeycloak.theme.welcomeTheme=keycloak
 -Dkeycloak.theme.dir=../simple-theme/target/theme/
 ```
@@ -91,8 +94,11 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile.feature.account2=enabled
 -Dkeycloak.profile.feature.account_api=enabled
 -Dkeycloak.profile.feature.scripts=enabled
--Dkeycloak.profile.feature.token_exchange=enabled
--Dkeycloak.profile.feature.admin_fine_grained_authz=enabled
+-Dkeycloak.profile.feature.device_activity=enabled
+-Dkeycloak.profile.feature.tokenexchange=enabled
+-Dkeycloak.profile.feature.ciba=enabled
+-Dkeycloak.profile.feature.client_policies=enabled
+-Dkeycloak.profile.feature.map_storage=enabled
 -Dkeycloak.theme.welcomeTheme=keycloak
 -Dkeycloak.theme.dir=../simple-theme/target/theme/
 -Dresources=../simple-theme/target/theme/

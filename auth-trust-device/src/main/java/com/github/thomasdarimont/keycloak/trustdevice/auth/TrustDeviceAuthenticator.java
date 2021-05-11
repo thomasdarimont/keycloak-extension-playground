@@ -1,0 +1,75 @@
+package com.github.thomasdarimont.keycloak.trustdevice.auth;
+
+import com.github.thomasdarimont.keycloak.trustdevice.DeviceCookie;
+import com.github.thomasdarimont.keycloak.trustdevice.DeviceToken;
+import com.github.thomasdarimont.keycloak.trustdevice.model.jpa.TrustedDeviceEntity;
+import com.github.thomasdarimont.keycloak.trustdevice.model.jpa.TrustedDeviceRepository;
+import org.jboss.resteasy.spi.HttpRequest;
+import org.keycloak.authentication.AuthenticationFlowContext;
+import org.keycloak.authentication.Authenticator;
+import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.RealmModel;
+import org.keycloak.models.UserModel;
+
+public class TrustDeviceAuthenticator implements Authenticator {
+
+    public static final String ID = "auth-trust-device";
+
+    @Override
+    public void authenticate(AuthenticationFlowContext context) {
+
+        if (isTrustedDevice(context)) {
+            System.out.println("Found trusted device.");
+        } else {
+            System.out.println("Unknown device detected!");
+        }
+
+        context.success();
+    }
+
+    private boolean isTrustedDevice(AuthenticationFlowContext context) {
+
+        HttpRequest httpRequest = context.getHttpRequest();
+        KeycloakSession session = context.getSession();
+        UserModel user = context.getAuthenticationSession().getAuthenticatedUser();
+        if (user == null) {
+            return false;
+        }
+
+        DeviceToken deviceToken = DeviceCookie.readDeviceTokenFromCookie(httpRequest, session);
+        if (deviceToken == null) {
+            return false;
+        }
+
+        TrustedDeviceRepository repo = new TrustedDeviceRepository(session);
+        TrustedDeviceEntity trustedDeviceEntity = repo.lookupTrustedDevice(
+                context.getRealm().getId(), context.getUser().getId(), deviceToken.getDeviceId());
+
+        return trustedDeviceEntity != null;
+    }
+
+    @Override
+    public void action(AuthenticationFlowContext context) {
+        // NOOP as this authenticator is headless
+    }
+
+    @Override
+    public boolean requiresUser() {
+        return true;
+    }
+
+    @Override
+    public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) {
+        return true;
+    }
+
+    @Override
+    public void setRequiredActions(KeycloakSession session, RealmModel realm, UserModel user) {
+        // NOOP
+    }
+
+    @Override
+    public void close() {
+        // NOOP
+    }
+}

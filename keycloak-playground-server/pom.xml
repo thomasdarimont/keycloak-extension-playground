@@ -243,6 +243,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.github.thomasdarimont.keycloak</groupId>
+            <artifactId>auth-trust-device</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jaxrs</artifactId>
         </dependency>
