@@ -5,8 +5,6 @@ import com.github.thomasdarimont.keycloak.trustdevice.DeviceToken;
 import com.github.thomasdarimont.keycloak.trustdevice.model.jpa.TrustedDeviceRepository;
 import lombok.extern.jbosslog.JBossLog;
 import org.jboss.resteasy.spi.HttpRequest;
-import org.jboss.resteasy.spi.HttpResponse;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.keycloak.authentication.InitiatedActionSupport;
 import org.keycloak.authentication.RequiredActionContext;
 import org.keycloak.authentication.RequiredActionProvider;
@@ -20,7 +18,6 @@ import ua_parser.UserAgent;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -68,12 +65,48 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
     public void processAction(RequiredActionContext context) {
 
         MultivaluedMap<String, String> params = context.getHttpRequest().getDecodedFormParameters();
-        if (!params.containsKey("trust-device")) {
-            log.info("Skip trusted device registration");
+
+        if (params.containsKey("remove-all-devices")) {
+            log.info("Remove all trusted device registrations");
+            removeTrustedDevices(context);
+            DeviceCookie.removeDeviceCookie(context.getSession(), context.getRealm());
+
             context.getUser().removeRequiredAction(ID);
             context.success();
             return;
         }
+
+        if (params.containsKey("dont-trust-device")) {
+            log.info("Skip trusted device registration");
+
+            DeviceCookie.removeDeviceCookie(context.getSession(), context.getRealm());
+
+            context.getUser().removeRequiredAction(ID);
+            context.success();
+            return;
+        }
+
+        if (params.containsKey("trust-device")) {
+
+            KeycloakSession session = context.getSession();
+            DeviceToken deviceToken = createDeviceToken();
+
+            UserModel user = context.getUser();
+            RealmModel realm = context.getRealm();
+
+            String deviceName = sanitizeDeviceName(params);
+            registerTrustedDevice(deviceToken.getDeviceId(), deviceName, session, realm, user);
+            String deviceTokenString = session.tokens().encode(deviceToken);
+
+            DeviceCookie.addDeviceCookie(deviceTokenString, session, realm);
+            log.info("Registered Trusted device");
+        }
+
+        context.getUser().removeRequiredAction(ID);
+        context.success();
+    }
+
+    private String sanitizeDeviceName(MultivaluedMap<String, String> params) {
 
         String deviceName = params.getFirst("device");
         if (deviceName == null || deviceName.isEmpty()) {
@@ -81,25 +114,20 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
         } else if (deviceName.length() > 32) {
             deviceName = deviceName.substring(0, 32);
         }
+        return deviceName;
+    }
 
+    private void removeTrustedDevices(RequiredActionContext context) {
         KeycloakSession session = context.getSession();
-        DeviceToken deviceToken = createDeviceToken();
 
-        UserModel user = context.getUser();
         RealmModel realm = context.getRealm();
+        UserModel user = context.getUser();
 
-        registerTrustedDevice(deviceToken.getDeviceId(), deviceName, session, realm, user);
-
-        String deviceTokenString = session.tokens().encode(deviceToken);
-
-        NewCookie newCookie = DeviceCookie.generateTrustedDeviceCookie(deviceTokenString, session, realm);
-        HttpResponse httpResponse = ResteasyProviderFactory.getContextData(HttpResponse.class);
-        httpResponse.addNewCookie(newCookie);
-
-        log.info("Registered Trusted device");
-
-        context.getUser().removeRequiredAction(ID);
-        context.success();
+        TrustedDeviceRepository repo = new TrustedDeviceRepository(session);
+        int deleted = repo.deleteTrustedDevicesForUser(realm.getId(), user.getId());
+        if (deleted > 0) {
+            log.infof("Deleted trusted devices for user. realm=%s userId=%s devices=%s", realm.getId(), user.getId(), deleted);
+        }
     }
 
     private void registerTrustedDevice(String deviceId, String deviceName, KeycloakSession session, RealmModel realm, UserModel user) {

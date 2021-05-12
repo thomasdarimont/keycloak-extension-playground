@@ -12,7 +12,9 @@
             <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}"
                    type="submit" name="trust-device" value="${msg("yes")}"/>
             <input class="${properties.kcButtonClass!} ${properties.kcButtonSecondaryClass!} ${properties.kcButtonLargeClass!}"
-                   type="submit" value="${msg("no")}"/>
+                   type="submit" name="dont-trust-device" value="${msg("no")}"/>
+            <input class="${properties.kcButtonClass!} ${properties.kcButtonSecondaryClass!} ${properties.kcButtonLargeClass!}"
+                   type="submit" name="remove-all-devices" value="Remove all Trusted devices"/>
         </form>
     </#if>
 </@layout.registrationLayout>
