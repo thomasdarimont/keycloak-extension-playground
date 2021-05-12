@@ -12,13 +12,13 @@ import org.keycloak.provider.ProviderConfigProperty;
 import java.util.List;
 
 @AutoService(AuthenticatorFactory.class)
-public class TrustDeviceAuthenticatorFactory implements AuthenticatorFactory {
+public class TrustedDeviceAuthenticatorFactory implements AuthenticatorFactory {
 
-    private static final TrustDeviceAuthenticator INSTANCE = new TrustDeviceAuthenticator();
+    private static final TrustedDeviceAuthenticator INSTANCE = new TrustedDeviceAuthenticator();
 
     @Override
     public String getId() {
-        return TrustDeviceAuthenticator.ID;
+        return TrustedDeviceAuthenticator.ID;
     }
 
     @Override

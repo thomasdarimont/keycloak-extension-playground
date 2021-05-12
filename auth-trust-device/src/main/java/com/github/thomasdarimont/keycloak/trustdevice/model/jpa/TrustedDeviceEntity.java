@@ -35,6 +35,13 @@ import java.util.Objects;
         "   and tde.userId = :userId " +
         "   and tde.createdAt < :minCreatedAt "
 )
+@NamedQuery(name = "deleteTrustedDeviceForUser", query = "" +
+        "delete " +
+        "  from TrustedDeviceEntity tde " +
+        " where tde.realmId = :realmId " +
+        "   and tde.userId = :userId " +
+        "   and tde.deviceId = :deviceId "
+)
 @Table(name = "custom_trusted_device")
 public class TrustedDeviceEntity {
 

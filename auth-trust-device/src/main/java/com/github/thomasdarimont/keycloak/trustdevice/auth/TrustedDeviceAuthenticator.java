@@ -13,7 +13,7 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 
 @JBossLog
-public class TrustDeviceAuthenticator implements Authenticator {
+public class TrustedDeviceAuthenticator implements Authenticator {
 
     public static final String ID = "auth-trust-device";
 
@@ -29,7 +29,7 @@ public class TrustDeviceAuthenticator implements Authenticator {
         }
     }
 
-    static boolean isTrustedDevice(AuthenticationFlowContext context) {
+    public static boolean isTrustedDevice(AuthenticationFlowContext context) {
 
         HttpRequest httpRequest = context.getHttpRequest();
         KeycloakSession session = context.getSession();
@@ -43,9 +43,10 @@ public class TrustDeviceAuthenticator implements Authenticator {
             return false;
         }
 
+        RealmModel realm = context.getRealm();
         TrustedDeviceRepository repo = new TrustedDeviceRepository(session);
         TrustedDeviceEntity trustedDeviceEntity = repo.lookupTrustedDevice(
-                context.getRealm().getId(), context.getUser().getId(), deviceToken.getDeviceId());
+                realm.getId(), user.getId(), deviceToken.getDeviceId());
 
         return trustedDeviceEntity != null;
     }

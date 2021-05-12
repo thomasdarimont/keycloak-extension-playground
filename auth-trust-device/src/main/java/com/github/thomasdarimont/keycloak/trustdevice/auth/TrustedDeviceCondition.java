@@ -20,7 +20,7 @@ public class TrustedDeviceCondition implements ConditionalAuthenticator {
 
         boolean negated = isNegated(context);
 
-        boolean trusted = TrustDeviceAuthenticator.isTrustedDevice(context);
+        boolean trusted = TrustedDeviceAuthenticator.isTrustedDevice(context);
         if (negated) {
             trusted = !trusted;
         }

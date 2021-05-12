@@ -57,9 +57,9 @@ public class TrustedDeviceConditionFactory implements ConditionalAuthenticatorFa
 
         ProviderConfigProperty inverted = new ProviderConfigProperty();
         inverted.setType(ProviderConfigProperty.BOOLEAN_TYPE);
-        inverted.setName("inverted");
-        inverted.setLabel("Invert");
-        inverted.setHelpText("If this is on, the matching logic is inverted.");
+        inverted.setName("negated");
+        inverted.setLabel("Negated");
+        inverted.setHelpText("If this is on, the matching logic is negated.");
 
         return Arrays.asList(inverted);
     }
