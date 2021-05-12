@@ -13,8 +13,13 @@
                    type="submit" name="trust-device" value="${msg("yes")}"/>
             <input class="${properties.kcButtonClass!} ${properties.kcButtonSecondaryClass!} ${properties.kcButtonLargeClass!}"
                    type="submit" name="dont-trust-device" value="${msg("no")}"/>
-            <input class="${properties.kcButtonClass!} ${properties.kcButtonSecondaryClass!} ${properties.kcButtonLargeClass!}"
-                   type="submit" name="remove-all-devices" value="Remove all Trusted devices"/>
+            <div class="checkbox">
+                <label for="removeOtherTrustedDevices" class="${properties.kcLabelClass!}">
+                    <input type="checkbox" id="removeOtherTrustedDevices" name="remove-other-trusted-devices" class="${properties.kcCheckboxInputClass!}"
+                           value=""/>
+                    Remove all Trusted devices
+                </label>
+            </div>
         </form>
     </#if>
 </@layout.registrationLayout>

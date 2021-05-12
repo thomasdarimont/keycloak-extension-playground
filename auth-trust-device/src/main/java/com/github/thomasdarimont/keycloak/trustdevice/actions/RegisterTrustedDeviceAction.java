@@ -43,12 +43,7 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
 
     @Override
     public void evaluateTriggers(RequiredActionContext context) {
-
-        //        String authNote = context.getAuthenticationSession().getAuthNote("trust-device");
-//
-//        if ("on".equals(authNote)) {
-//            context.getUser().addRequiredAction(ID);
-//        }
+        // NOOP
     }
 
     public InitiatedActionSupport initiatedActionSupport() {
@@ -57,7 +52,6 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
 
     @Override
     public void requiredActionChallenge(RequiredActionContext context) {
-        // Show form
         context.challenge(createForm(context, null));
     }
 
@@ -66,28 +60,18 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
 
         MultivaluedMap<String, String> params = context.getHttpRequest().getDecodedFormParameters();
 
-        if (params.containsKey("remove-all-devices")) {
+        if (params.containsKey("remove-other-trusted-devices")) {
             log.info("Remove all trusted device registrations");
             removeTrustedDevices(context);
-            DeviceCookie.removeDeviceCookie(context.getSession(), context.getRealm());
-
-            context.getUser().removeRequiredAction(ID);
-            context.success();
-            return;
         }
 
         if (params.containsKey("dont-trust-device")) {
             log.info("Skip trusted device registration");
-
             DeviceCookie.removeDeviceCookie(context.getSession(), context.getRealm());
-
-            context.getUser().removeRequiredAction(ID);
-            context.success();
-            return;
         }
 
         if (params.containsKey("trust-device")) {
-
+            log.info("Register trusted device");
             KeycloakSession session = context.getSession();
             DeviceToken deviceToken = createDeviceToken();
 
@@ -99,9 +83,10 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
             String deviceTokenString = session.tokens().encode(deviceToken);
 
             DeviceCookie.addDeviceCookie(deviceTokenString, session, realm);
-            log.info("Registered Trusted device");
+            log.info("Registered trusted device");
         }
 
+        // remove required action if present
         context.getUser().removeRequiredAction(ID);
         context.success();
     }
