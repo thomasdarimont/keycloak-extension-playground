@@ -60,6 +60,8 @@ public class TrustedDeviceRepository {
 
         EntityManager em = jpa.getEntityManager();
         Query query = em.createNamedQuery("findTrustedDevicesForUser", TrustedDeviceEntity.class);
+        query.setParameter("realmId", realmId);
+        query.setParameter("userId", userId);
         List<TrustedDeviceEntity> result = (List<TrustedDeviceEntity>) query.getResultList().stream().collect(Collectors.toList());
         return result;
     }
@@ -78,6 +80,34 @@ public class TrustedDeviceRepository {
         try {
             tx.begin();
             Query query = em.createNamedQuery("deleteTrustedDevicesByUser");
+            query.setParameter("realmId", realmId);
+            query.setParameter("userId", userId);
+            result = query.executeUpdate();
+            tx.commit();
+        } finally {
+            em.close();
+        }
+
+        return result;
+    }
+
+    public int deleteTrustedDevicesForUser(String realmId, String userId, int minCreatedAt) {
+
+        if (realmId == null || userId == null) {
+            return 0;
+        }
+
+        JpaConnectionProvider jpa = session.getProvider(JpaConnectionProvider.class);
+        EntityManagerFactory emf = jpa.getEntityManager().getEntityManagerFactory();
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        int result = -1;
+        try {
+            tx.begin();
+            Query query = em.createNamedQuery("deleteTrustedDevicesByUserOlderThan");
+            query.setParameter("realmId", realmId);
+            query.setParameter("userId", userId);
+            query.setParameter("minCreatedAt", minCreatedAt);
             result = query.executeUpdate();
             tx.commit();
         } finally {

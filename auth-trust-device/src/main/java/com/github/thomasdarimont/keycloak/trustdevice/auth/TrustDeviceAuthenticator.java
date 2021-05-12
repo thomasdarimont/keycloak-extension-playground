@@ -4,6 +4,7 @@ import com.github.thomasdarimont.keycloak.trustdevice.DeviceCookie;
 import com.github.thomasdarimont.keycloak.trustdevice.DeviceToken;
 import com.github.thomasdarimont.keycloak.trustdevice.model.jpa.TrustedDeviceEntity;
 import com.github.thomasdarimont.keycloak.trustdevice.model.jpa.TrustedDeviceRepository;
+import lombok.extern.jbosslog.JBossLog;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.Authenticator;
@@ -11,6 +12,7 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 
+@JBossLog
 public class TrustDeviceAuthenticator implements Authenticator {
 
     public static final String ID = "auth-trust-device";
@@ -19,15 +21,15 @@ public class TrustDeviceAuthenticator implements Authenticator {
     public void authenticate(AuthenticationFlowContext context) {
 
         if (isTrustedDevice(context)) {
-            System.out.println("Found trusted device.");
+            log.info("Found trusted device.");
+            context.success();
         } else {
-            System.out.println("Unknown device detected!");
+            log.info("Unknown device detected!");
+            context.attempted();
         }
-
-        context.success();
     }
 
-    private boolean isTrustedDevice(AuthenticationFlowContext context) {
+    static boolean isTrustedDevice(AuthenticationFlowContext context) {
 
         HttpRequest httpRequest = context.getHttpRequest();
         KeycloakSession session = context.getSession();

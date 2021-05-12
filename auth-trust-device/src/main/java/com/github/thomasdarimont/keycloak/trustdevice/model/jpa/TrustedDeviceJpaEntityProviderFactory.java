@@ -10,9 +10,11 @@ import org.keycloak.models.KeycloakSessionFactory;
 @AutoService(JpaEntityProviderFactory.class)
 public class TrustedDeviceJpaEntityProviderFactory implements JpaEntityProviderFactory {
 
+    private static final TrustedDeviceJpaEntityProvider INSTANCE = new TrustedDeviceJpaEntityProvider();
+
     @Override
     public JpaEntityProvider create(KeycloakSession session) {
-        return new TrustedDeviceJpaEntityProvider(session);
+        return INSTANCE;
     }
 
     @Override
