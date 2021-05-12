@@ -38,7 +38,7 @@ public class TrustedDeviceAuthenticator implements Authenticator {
             return false;
         }
 
-        DeviceToken deviceToken = DeviceCookie.readDeviceTokenFromCookie(httpRequest, session);
+        DeviceToken deviceToken = DeviceCookie.parseDeviceTokenFromCookie(httpRequest, session);
         if (deviceToken == null) {
             return false;
         }

@@ -3,7 +3,7 @@ package com.github.thomasdarimont.keycloak.trustdevice;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.jboss.resteasy.spi.HttpResponse;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
-import org.keycloak.common.util.Time;
+import org.keycloak.common.ClientConnection;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 
@@ -17,48 +17,40 @@ public class DeviceCookie {
 
     public static void removeDeviceCookie(KeycloakSession session, RealmModel realm) {
 
-        UriBuilder baseUriBuilder = session.getContext().getUri().getBaseUriBuilder();
-        String realmPath = baseUriBuilder.path("realms").path(realm.getName()).path("/").build().getPath();
-
-        NewCookie cookie = new NewCookie(COOKIE_NAME, ""
-                , realmPath
-                , null // domain
-                , null // comment
-                , 0
-                , false // secure FIXME: true
-                , true // httponly
-        );
+        NewCookie cookie = generateCookie("", session, realm, 0);
 
         HttpResponse httpResponse = ResteasyProviderFactory.getContextData(HttpResponse.class);
         httpResponse.addNewCookie(cookie);
     }
 
-    public static void addDeviceCookie(String deviceTokenString, KeycloakSession session, RealmModel realm) {
+    public static void addDeviceCookie(String deviceTokenString, int maxAge, KeycloakSession session, RealmModel realm) {
 
-        NewCookie newCookie = DeviceCookie.generateTrustedDeviceCookie(deviceTokenString, session, realm);
+        NewCookie cookie = generateCookie(deviceTokenString, session, realm, maxAge);
+
         HttpResponse httpResponse = ResteasyProviderFactory.getContextData(HttpResponse.class);
-        httpResponse.addNewCookie(newCookie);
+        httpResponse.addNewCookie(cookie);
     }
 
-    public static NewCookie generateTrustedDeviceCookie(String deviceTokenString, KeycloakSession session, RealmModel realm) {
+    private static NewCookie generateCookie(String deviceTokenString, KeycloakSession session, RealmModel realm, int maxAge) {
 
         UriBuilder baseUriBuilder = session.getContext().getUri().getBaseUriBuilder();
-        String realmPath = baseUriBuilder.path("realms").path(realm.getName()).path("/").build().getPath();
+        // TODO think about narrowing the cookie-path to only contain the /auth path.
+        String path = baseUriBuilder.path("realms").path(realm.getName()).path("/").build().getPath();
 
-        int numberOfDaysToTrustDevice = 120; //FIXME make name of days to remember deviceToken configurable
-        NewCookie cookie = new NewCookie(COOKIE_NAME, deviceTokenString
-                , realmPath
+        ClientConnection connection = session.getContext().getConnection();
+        boolean secure = realm.getSslRequired().isRequired(connection);
+
+        return new NewCookie(COOKIE_NAME, deviceTokenString
+                , path
                 , null // domain
                 , null // comment
-                , Time.currentTime() + numberOfDaysToTrustDevice * 24 * 60 + 60 // max age
-                , false // secure FIXME: true
+                , maxAge // max age
+                , secure
                 , true // httponly
         );
-
-        return cookie;
     }
 
-    public static DeviceToken readDeviceTokenFromCookie(HttpRequest httpRequest, KeycloakSession session) {
+    public static DeviceToken parseDeviceTokenFromCookie(HttpRequest httpRequest, KeycloakSession session) {
 
         Cookie deviceCookie = httpRequest.getHttpHeaders().getCookies().get(COOKIE_NAME);
         if (deviceCookie == null) {
@@ -66,8 +58,6 @@ public class DeviceCookie {
         }
 
         // decodes and validates device cookie
-        DeviceToken deviceToken = session.tokens().decode(deviceCookie.getValue(), DeviceToken.class);
-
-        return deviceToken;
+        return session.tokens().decode(deviceCookie.getValue(), DeviceToken.class);
     }
 }

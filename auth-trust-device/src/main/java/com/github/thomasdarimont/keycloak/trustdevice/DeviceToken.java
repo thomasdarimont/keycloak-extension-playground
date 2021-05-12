@@ -2,9 +2,9 @@ package com.github.thomasdarimont.keycloak.trustdevice;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.keycloak.TokenCategory;
-import org.keycloak.representations.AccessToken;
+import org.keycloak.representations.JsonWebToken;
 
-public class DeviceToken extends AccessToken {
+public class DeviceToken extends JsonWebToken {
 
     @Override
     public TokenCategory getCategory() {

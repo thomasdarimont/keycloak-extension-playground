@@ -58,31 +58,34 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
     @Override
     public void processAction(RequiredActionContext context) {
 
-        MultivaluedMap<String, String> params = context.getHttpRequest().getDecodedFormParameters();
+        HttpRequest httpRequest = context.getHttpRequest();
+        MultivaluedMap<String, String> formParams = httpRequest.getDecodedFormParameters();
 
-        if (params.containsKey("remove-other-trusted-devices")) {
+        if (formParams.containsKey("remove-other-trusted-devices")) {
             log.info("Remove all trusted device registrations");
             removeTrustedDevices(context);
         }
 
-        if (params.containsKey("dont-trust-device")) {
+        if (formParams.containsKey("dont-trust-device")) {
             log.info("Skip trusted device registration");
             DeviceCookie.removeDeviceCookie(context.getSession(), context.getRealm());
         }
 
-        if (params.containsKey("trust-device")) {
+        if (formParams.containsKey("trust-device")) {
             log.info("Register trusted device");
             KeycloakSession session = context.getSession();
-            DeviceToken deviceToken = createDeviceToken();
+            DeviceToken deviceToken = createDeviceToken(httpRequest);
 
             UserModel user = context.getUser();
             RealmModel realm = context.getRealm();
 
-            String deviceName = sanitizeDeviceName(params);
+            String deviceName = sanitizeDeviceName(formParams);
             registerTrustedDevice(deviceToken.getDeviceId(), deviceName, session, realm, user);
-            String deviceTokenString = session.tokens().encode(deviceToken);
 
-            DeviceCookie.addDeviceCookie(deviceTokenString, session, realm);
+            int numberOfDaysToTrustDevice = 120; //FIXME make name of days to remember deviceToken configurable
+            int maxAge = numberOfDaysToTrustDevice * 24 * 60 * 60;
+            String deviceTokenString = session.tokens().encode(deviceToken);
+            DeviceCookie.addDeviceCookie(deviceTokenString, maxAge, session, realm);
             log.info("Registered trusted device");
         }
 
@@ -120,7 +123,9 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
         repo.registerTrustedDevice(realm.getId(), user.getId(), deviceId, deviceName);
     }
 
-    private DeviceToken createDeviceToken() {
+    protected DeviceToken createDeviceToken(HttpRequest httpRequest) {
+
+        // TODO enhance generated device id with information from httpRequest, e.g. browser fingerprint
 
         // generate a unique but short device id
         String deviceId = BigInteger.valueOf(new SecureRandom().nextLong()).toString(36);
@@ -149,12 +154,12 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
 
         String userAgentString = request.getHttpHeaders().getHeaderString(HttpHeaders.USER_AGENT);
         String name = "Browser";
-        // TODO generate a better device name based on the user agent
 
         if (USER_AGENT_PARSER == null) {
             return name;
         }
 
+        // TODO generate a better device name based on the user agent
         UserAgent userAgent = USER_AGENT_PARSER.parseUserAgent(userAgentString);
         return name + " " + userAgent.family;
     }
