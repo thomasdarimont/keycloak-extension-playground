@@ -1,9 +1,9 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayInfo=true; section>
     <#if section = "title">
-        Register trusted device form
+        Register Trusted Device
     <#elseif section = "header">
-        Register trusted device form
+        Register Trusted Device
     <#elseif section = "form">
         <p>Do you trust this device?</p>
         <form action="${url.loginAction}" class="${properties.kcFormClass!}" id="kc-u2f-login-form" method="post">

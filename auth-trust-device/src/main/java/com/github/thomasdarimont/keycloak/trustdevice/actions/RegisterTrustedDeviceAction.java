@@ -13,6 +13,8 @@ import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
+import org.owasp.html.HtmlPolicyBuilder;
+import org.owasp.html.PolicyFactory;
 import ua_parser.Parser;
 import ua_parser.UserAgent;
 
@@ -29,7 +31,9 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
 
     public static final String ID = "register-trusted-device";
 
-    static final Parser USER_AGENT_PARSER;
+    private static final Parser USER_AGENT_PARSER;
+
+    private static final PolicyFactory TEXT_ONLY_SANITIZATION_POLICY = new HtmlPolicyBuilder().toFactory();
 
     static {
         Parser parser = null;
@@ -79,7 +83,7 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
             UserModel user = context.getUser();
             RealmModel realm = context.getRealm();
 
-            String deviceName = sanitizeDeviceName(formParams);
+            String deviceName = sanitizeDeviceName(formParams.getFirst("device"));
             registerTrustedDevice(deviceToken.getDeviceId(), deviceName, session, realm, user);
 
             int numberOfDaysToTrustDevice = 120; //FIXME make name of days to remember deviceToken configurable
@@ -94,14 +98,19 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
         context.success();
     }
 
-    private String sanitizeDeviceName(MultivaluedMap<String, String> params) {
+    private String sanitizeDeviceName(String deviceNameInput) {
 
-        String deviceName = params.getFirst("device");
+        String deviceName = deviceNameInput;
+
         if (deviceName == null || deviceName.isEmpty()) {
             deviceName = "Browser";
         } else if (deviceName.length() > 32) {
             deviceName = deviceName.substring(0, 32);
         }
+
+        deviceName = TEXT_ONLY_SANITIZATION_POLICY.sanitize(deviceName);
+        deviceName = deviceName.trim();
+
         return deviceName;
     }
 
