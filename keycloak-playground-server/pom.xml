@@ -249,6 +249,14 @@
         </dependency>
 
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>auth-backup-codes</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- add new extension here -->
+
+        <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jaxrs</artifactId>
         </dependency>

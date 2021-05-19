@@ -54,6 +54,7 @@
         <module>auth-custom-registration-create-user</module>
         <module>simple-realm-resource-with-form-example</module>
         <module>auth-trust-device</module>
+        <module>auth-backup-codes</module>
     </modules>
 
     <properties>
