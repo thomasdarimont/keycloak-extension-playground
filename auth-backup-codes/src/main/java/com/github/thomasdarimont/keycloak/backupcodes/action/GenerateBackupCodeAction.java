@@ -1,6 +1,8 @@
 package com.github.thomasdarimont.keycloak.backupcodes.action;
 
 import com.github.thomasdarimont.keycloak.backupcodes.BackupCode;
+import com.github.thomasdarimont.keycloak.backupcodes.BackupCodeConfig;
+import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.authentication.InitiatedActionSupport;
 import org.keycloak.authentication.RequiredActionContext;
 import org.keycloak.authentication.RequiredActionProvider;
@@ -8,17 +10,15 @@ import org.keycloak.common.util.RandomString;
 import org.keycloak.common.util.Time;
 import org.keycloak.credential.CredentialModel;
 import org.keycloak.credential.hash.PasswordHashProvider;
-import org.keycloak.credential.hash.Pbkdf2PasswordHashProviderFactory;
 import org.keycloak.forms.login.LoginFormsProvider;
+import org.keycloak.forms.login.freemarker.model.RealmBean;
+import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserCredentialManager;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.credential.PasswordCredentialModel;
-import org.keycloak.util.JsonSerialization;
 
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,9 +28,12 @@ import java.util.stream.Collectors;
  * keycloak.login({action: "generate-backup-codes"});
  * </pre>
  */
+@JBossLog
 public class GenerateBackupCodeAction implements RequiredActionProvider {
 
     public static final String ID = "generate-backup-codes";
+
+    private static final BackupCodeConfig BACKUP_CODE_CONFIG = new BackupCodeConfig();
 
     @Override
     public InitiatedActionSupport initiatedActionSupport() {
@@ -44,75 +47,95 @@ public class GenerateBackupCodeAction implements RequiredActionProvider {
 
     @Override
     public void requiredActionChallenge(RequiredActionContext context) {
+        context.challenge(createGenerateBackupCodesForm(context));
+    }
 
-        int backupCodeCount = 10;
-        int backupCodeLength = 8;
-        int backupCodeHashIterations = 100;
+    protected Response createGenerateBackupCodesForm(RequiredActionContext context) {
+        // use form from src/main/resources/theme-resources/templates/
+        LoginFormsProvider form = context.form();
+        form.setAttribute("username", context.getAuthenticationSession().getAuthenticatedUser().getUsername());
+        return form.createForm("backup-codes.ftl");
+    }
 
-        UserCredentialManager userCredentialManager = context.getSession().userCredentialManager();
-        RealmModel realm = context.getRealm();
-        UserModel user = context.getUser();
-        // TODO remove existing backup codes
+    protected List<BackupCode> createNewBackupCodes(BackupCodeConfig backupCodeConfig, RealmModel realm, UserModel user, KeycloakSession session) {
+
+        PasswordHashProvider passwordHashProvider = session.getProvider(PasswordHashProvider.class, backupCodeConfig.getHashingProviderId());
+        if (passwordHashProvider == null) {
+            log.errorf("Cloud not find hashProvider to hash backup codes. realm=%s user=%s providerId=%s",
+                    realm.getId(), user.getId(), backupCodeConfig.getHashingProviderId());
+            throw new RuntimeException("Cloud not find hashProvider to hash backup codes");
+        }
+        UserCredentialManager userCredentialManager = session.userCredentialManager();
+
+        List<BackupCode> backupCodes = new ArrayList<>();
+        long now = Time.currentTimeMillis();
+        for (int i = 1, count = backupCodeConfig.getBackupCodeCount(); i <= count; i++) {
+            String codeId = Integer.toString(i);
+            String code = RandomString.randomCode(backupCodeConfig.getBackupCodeLength());
+            BackupCode backupCode = new BackupCode(codeId, code, now);
+            try {
+                CredentialModel backupCodeModel = createBackupCodeCredentialModel(backupCodeConfig, passwordHashProvider, backupCode);
+                userCredentialManager.createCredential(realm, user, backupCodeModel);
+                backupCodes.add(backupCode);
+            } catch (Exception ex) {
+                log.warnf(ex, "Cloud not create backup code for user. realm=%s user=%s", realm.getId(), user.getId());
+            }
+        }
+        return backupCodes;
+    }
+
+    private CredentialModel createBackupCodeCredentialModel(BackupCodeConfig backupCodeConfig, PasswordHashProvider passwordHashProvider, BackupCode backupCode) {
+
+        CredentialModel backupCodeModel = new CredentialModel();
+        backupCodeModel.setType(BackupCode.CREDENTIAL_TYPE);
+        backupCodeModel.setCreatedDate(backupCode.getCreatedAt());
+        backupCodeModel.setUserLabel("Backup-Code: " + backupCode.getId());
+        PasswordCredentialModel encodedBackupCode = passwordHashProvider.encodedCredential(backupCode.getCode(), backupCodeConfig.getBackupCodeHashIterations());
+        backupCodeModel.setSecretData(encodedBackupCode.getSecretData());
+        backupCodeModel.setCredentialData(encodedBackupCode.getCredentialData());
+
+        return backupCodeModel;
+    }
+
+    protected void removeExistingBackupCodes(RealmModel realm, UserModel user, KeycloakSession session) {
+
+        UserCredentialManager userCredentialManager = session.userCredentialManager();
+        log.debugf("Removing existing backup codes. realm=%s user=%s", realm.getId(), user.getId());
         for (CredentialModel credential : userCredentialManager.getStoredCredentialsByTypeStream(realm, user, BackupCode.CREDENTIAL_TYPE).collect(Collectors.toList())) {
             userCredentialManager.removeStoredCredential(realm, user, credential.getId());
         }
-
-        PasswordHashProvider passwordHashProvider = context.getSession().getProvider(PasswordHashProvider.class, Pbkdf2PasswordHashProviderFactory.ID);
-
-        List<BackupCode> backupCodes = new ArrayList<>();
-        // TODO generate codes
-        for (int i = 1; i <= backupCodeCount; i++) {
-            String codeId = Integer.toString(i);
-            String code = RandomString.randomCode(backupCodeLength);
-
-            BackupCode backupCode = new BackupCode(codeId, code);
-            long now = Time.currentTimeMillis();
-
-            try {
-                PasswordCredentialModel backupCodePassword = passwordHashProvider.encodedCredential(code, backupCodeHashIterations);
-                backupCodePassword.getPasswordCredentialData().getAdditionalParameters().putSingle("codeId", codeId);
-                backupCodePassword.setType(BackupCode.CREDENTIAL_TYPE);
-                fillCredentialModelFields(backupCodePassword);
-                backupCodePassword.setCreatedDate(now);
-                backupCodePassword.setUserLabel("Backup-Code: " + codeId);
-
-                CredentialModel unusedCredential = userCredentialManager.createCredential(realm, user, backupCodePassword);
-                backupCodes.add(backupCode);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-
-        // remove required action
-        context.getUser().removeRequiredAction(ID);
-
-        // Show backup code download form
-        context.challenge(createDownloadForm(context, backupCodes));
-    }
-
-    private void fillCredentialModelFields(PasswordCredentialModel credentialModel) {
-        try {
-            credentialModel.setCredentialData(JsonSerialization.writeValueAsString(credentialModel.getPasswordCredentialData()));
-            credentialModel.setSecretData(JsonSerialization.writeValueAsString(credentialModel.getPasswordSecretData()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        log.debugf("Removed existing backup codes. realm=%s user=%s", realm.getId(), user.getId());
     }
 
     protected Response createDownloadForm(RequiredActionContext context, List<BackupCode> backupCodes) {
 
-        context.success();
-
         // use form from src/main/resources/theme-resources/templates/
         LoginFormsProvider form = context.form();
+        form.setAttribute("username", context.getAuthenticationSession().getAuthenticatedUser().getUsername());
+        form.setAttribute("createdAt", Time.currentTimeMillis());
+        form.setAttribute("realm", new RealmBean(context.getRealm()));
         form.setAttribute("backupCodes", backupCodes);
-        form.setMediaType(MediaType.TEXT_PLAIN_TYPE);
-        return form.createForm("backup-codes.ftl");
+        return form.createForm("backup-codes-download.ftl");
     }
 
     @Override
     public void processAction(RequiredActionContext context) {
+
+        KeycloakSession session = context.getSession();
+        RealmModel realm = context.getRealm();
+        UserModel user = context.getUser();
+
+        removeExistingBackupCodes(realm, user, session);
+
+        List<BackupCode> backupCodes = createNewBackupCodes(BACKUP_CODE_CONFIG, realm, user, session);
+
+        // remove required action
+        context.getUser().removeRequiredAction(ID);
+
         context.success();
+
+        // Show backup code download form
+        context.challenge(createDownloadForm(context, backupCodes));
     }
 
     @Override

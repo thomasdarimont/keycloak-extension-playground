@@ -96,10 +96,10 @@ public class BackupCodeCredentialProvider implements CredentialProvider<Credenti
         builder.category(CredentialTypeMetadata.Category.TWO_FACTOR);
         builder.createAction(GenerateBackupCodeAction.ID);
         builder.removeable(true);
-        builder.displayName("Backup Codes");
-        builder.helpText("Generate Backup Codes");
+        builder.displayName("Backup Codes"); // TODO i18n
+        builder.helpText("Backup Codes for MFA Recovery"); // TODO i18n
         // builder.updateAction(GenerateBackupCodeAction.ID);
-        builder.iconCssClass("backupCodes");
+        builder.iconCssClass("backupCodesClass"); // TODO fix css class
         CredentialTypeMetadata credentialTypeMetadata = builder.build(session);
 
         return credentialTypeMetadata;

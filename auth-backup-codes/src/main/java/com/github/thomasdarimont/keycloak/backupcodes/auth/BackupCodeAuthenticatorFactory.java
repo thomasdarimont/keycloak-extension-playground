@@ -1,5 +1,6 @@
 package com.github.thomasdarimont.keycloak.backupcodes.auth;
 
+import com.github.thomasdarimont.keycloak.backupcodes.BackupCode;
 import com.google.auto.service.AutoService;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.AuthenticatorFactory;
@@ -33,6 +34,11 @@ public class BackupCodeAuthenticatorFactory extends PasswordFormFactory {
     @Override
     public boolean isConfigurable() {
         return false;
+    }
+
+    @Override
+    public String getReferenceCategory() {
+        return BackupCode.CREDENTIAL_TYPE;
     }
 
     @Override

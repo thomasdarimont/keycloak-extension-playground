@@ -43,7 +43,7 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
     }
 
     protected boolean validateForm(AuthenticationFlowContext context, MultivaluedMap<String, String> formData) {
-        return validatePassword(context, context.getUser(), formData, false);
+        return validatePassword(context, context.getUser(), formData);
     }
 
     @Override
@@ -55,6 +55,7 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
     public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) {
 
         boolean otpConfigured = session.userCredentialManager().isConfiguredFor(realm, user, OTPCredentialModel.TYPE);
+        // only allow checking for backup codes if another MFA is registered
         if (!otpConfigured) {
             return false;
         }
@@ -69,16 +70,16 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
         user.addRequiredAction(GenerateBackupCodeAction.ID);
     }
 
-    public boolean validatePassword(AuthenticationFlowContext context, UserModel user, MultivaluedMap<String, String> inputData, boolean clearUser) {
+    public boolean validatePassword(AuthenticationFlowContext context, UserModel user, MultivaluedMap<String, String> inputData) {
 
         String backupCodeInput = inputData.getFirst(FIELD_BACKUP_CODE);
         if (backupCodeInput == null || backupCodeInput.isEmpty()) {
-            return badBackupCodeHandler(context, user, clearUser, true);
+            return badBackupCodeHandler(context, user, true);
         }
 
-        UserCredentialModel backupCode = BackupCode.toUserCredentialModel(backupCodeInput);
+        UserCredentialModel backupCode = new UserCredentialModel(null, BackupCode.CREDENTIAL_TYPE, backupCodeInput, false);
         if (!context.getSession().userCredentialManager().isValid(context.getRealm(), user, backupCode)) {
-            return badBackupCodeHandler(context, user, clearUser, false);
+            return badBackupCodeHandler(context, user, false);
         }
 
         return true;
@@ -101,23 +102,16 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
         return form.createForm("login-backup-codes.ftl");
     }
 
-    private boolean badBackupCodeHandler(AuthenticationFlowContext context, UserModel user, boolean clearUser, boolean isEmptyPassword) {
+    private boolean badBackupCodeHandler(AuthenticationFlowContext context, UserModel user, boolean emptyBackupCode) {
         context.getEvent().user(user);
         context.getEvent().error(Errors.INVALID_USER_CREDENTIALS);
-        Response challengeResponse = challenge(context, getDefaultChallengeMessage(context), FIELD_BACKUP_CODE);
-        if (isEmptyPassword) {
+        Response challengeResponse = challenge(context, Messages.INVALID_USER, FIELD_BACKUP_CODE);
+        if (emptyBackupCode) {
             context.forceChallenge(challengeResponse);
         } else {
             context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challengeResponse);
         }
-
-        if (clearUser) {
-            context.clearUser();
-        }
         return false;
     }
 
-    private String getDefaultChallengeMessage(AuthenticationFlowContext context) {
-        return Messages.INVALID_USER;
-    }
 }
