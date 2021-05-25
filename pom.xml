@@ -69,12 +69,12 @@
         <lombok.version>1.18.16</lombok.version>
 
         <keycloak.version>13.0.1</keycloak.version>
-        <auto-service.version>1.0-rc7</auto-service.version>
-        <jackson.version>2.10.2</jackson.version>
-        <resteasy-jaxrs.version>3.12.1.Final</resteasy-jaxrs.version>
+        <auto-service.version>1.0</auto-service.version>
+        <jackson.version>2.12.1</jackson.version>
+        <resteasy-jaxrs.version>3.15.1.Final</resteasy-jaxrs.version>
         <jboss-servlet-api.version>2.0.0.Final</jboss-servlet-api.version>
-        <testcontainers-keycloak.version>1.6.0</testcontainers-keycloak.version>
-        <assertj-core.version>3.9.1</assertj-core.version>
+        <testcontainers-keycloak.version>1.7.0</testcontainers-keycloak.version>
+        <assertj-core.version>3.19.0</assertj-core.version>
     </properties>
 
     <dependencyManagement>
