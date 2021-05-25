@@ -6,6 +6,7 @@ import org.keycloak.authentication.AbstractFormAuthenticator;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.events.Errors;
+import org.keycloak.events.EventBuilder;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
@@ -13,7 +14,6 @@ import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.credential.OTPCredentialModel;
 import org.keycloak.models.utils.FormMessage;
-import org.keycloak.services.messages.Messages;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -21,7 +21,10 @@ import javax.ws.rs.core.Response;
 public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
 
     public static final String ID = "auth-backup-code";
+
     public static final String FIELD_BACKUP_CODE = "backupCode";
+
+    public static final String MESSAGE_BACKUP_CODE_INVALID = "backup-code-invalid";
 
     @Override
     public void authenticate(AuthenticationFlowContext context) {
@@ -36,26 +39,21 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
             context.cancelLogin();
             return;
         }
-        if (!validateForm(context, formData)) {
-            return;
+        if (validateBackupCode(context, context.getUser(), formData)) {
+            context.success();
         }
-        context.success();
-    }
-
-    protected boolean validateForm(AuthenticationFlowContext context, MultivaluedMap<String, String> formData) {
-        return validateBackupCode(context, context.getUser(), formData);
     }
 
     @Override
     public boolean requiresUser() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) {
 
+        // we only allow checking for backup codes if another MFA is registered
         boolean otpConfigured = session.userCredentialManager().isConfiguredFor(realm, user, OTPCredentialModel.TYPE);
-        // only allow checking for backup codes if another MFA is registered
         if (!otpConfigured) {
             return false;
         }
@@ -76,7 +74,7 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
             return badBackupCodeHandler(context, user, true);
         }
 
-        context.getEvent().detail("withBackupCode", "true");
+        context.getEvent().detail("backup_code", "true");
 
         UserCredentialModel backupCode = new UserCredentialModel(null, BackupCode.CREDENTIAL_TYPE, backupCodeInput, false);
         if (!context.getSession().userCredentialManager().isValid(context.getRealm(), user, backupCode)) {
@@ -103,10 +101,14 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
         return form.createForm("login-backup-codes.ftl");
     }
 
-    private boolean badBackupCodeHandler(AuthenticationFlowContext context, UserModel user, boolean emptyBackupCode) {
-        context.getEvent().user(user);
-        context.getEvent().error(Errors.INVALID_USER_CREDENTIALS);
-        Response challengeResponse = challenge(context, Messages.INVALID_USER, FIELD_BACKUP_CODE);
+    protected boolean badBackupCodeHandler(AuthenticationFlowContext context, UserModel user, boolean emptyBackupCode) {
+
+        EventBuilder event = context.getEvent();
+
+        event.user(user);
+        event.error(Errors.INVALID_USER_CREDENTIALS);
+
+        Response challengeResponse = challenge(context, MESSAGE_BACKUP_CODE_INVALID, FIELD_BACKUP_CODE);
         if (emptyBackupCode) {
             context.forceChallenge(challengeResponse);
         } else {

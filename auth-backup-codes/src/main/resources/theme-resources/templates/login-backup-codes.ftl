@@ -1,5 +1,5 @@
 <#import "template.ftl" as layout>
-<@layout.registrationLayout displayMessage=!messagesPerField.existsError('password'); section>
+<@layout.registrationLayout displayMessage=!messagesPerField.existsError('backupCode'); section>
     <#if section = "header">
         ${msg("doLogIn")}
     <#elseif section = "form">
@@ -27,12 +27,6 @@
                     <div class="${properties.kcFormGroupClass!} ${properties.kcFormSettingClass!}">
                         <div id="kc-form-options">
                         </div>
-<#--                        <div class="${properties.kcFormOptionsWrapperClass!}">-->
-<#--                            <#if realm.resetPasswordAllowed>-->
-<#--                                <span><a tabindex="5"-->
-<#--                                         href="${url.loginResetCredentialsUrl}">${msg("doForgotPassword")}</a></span>-->
-<#--                            </#if>-->
-<#--                        </div>-->
                     </div>
 
                     <div id="kc-form-buttons" class="${properties.kcFormGroupClass!}">
