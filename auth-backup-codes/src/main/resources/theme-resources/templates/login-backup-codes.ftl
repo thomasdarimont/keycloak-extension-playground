@@ -4,7 +4,7 @@
         ${msg("doLogIn")}
     <#elseif section = "form">
 
-        <h1>Please enter an unused Backup Code</h1>
+        <h1>${msg("backup-code-input")}</h1>
 
         <div id="kc-form">
             <div id="kc-form-wrapper">
@@ -12,7 +12,7 @@
                       method="post">
                     <div class="${properties.kcFormGroupClass!} no-bottom-margin">
                         <hr/>
-                        <label for="backupCode" class="${properties.kcLabelClass!}">${msg("backupCode")}</label>
+                        <label for="backupCode" class="${properties.kcLabelClass!}">${msg("backup-code")}</label>
                         <input tabindex="2" id="backupCode" class="${properties.kcInputClass!}" name="backupCode"
                                type="password" autocomplete="on"
                                aria-invalid="<#if messagesPerField.existsError('backupCode')>true</#if>"

@@ -43,7 +43,7 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
     }
 
     protected boolean validateForm(AuthenticationFlowContext context, MultivaluedMap<String, String> formData) {
-        return validatePassword(context, context.getUser(), formData);
+        return validateBackupCode(context, context.getUser(), formData);
     }
 
     @Override
@@ -61,7 +61,6 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
         }
 
         boolean backupCodesConfigured = session.userCredentialManager().isConfiguredFor(realm, user, BackupCode.CREDENTIAL_TYPE);
-
         return backupCodesConfigured;
     }
 
@@ -70,12 +69,14 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
         user.addRequiredAction(GenerateBackupCodeAction.ID);
     }
 
-    public boolean validatePassword(AuthenticationFlowContext context, UserModel user, MultivaluedMap<String, String> inputData) {
+    public boolean validateBackupCode(AuthenticationFlowContext context, UserModel user, MultivaluedMap<String, String> inputData) {
 
         String backupCodeInput = inputData.getFirst(FIELD_BACKUP_CODE);
         if (backupCodeInput == null || backupCodeInput.isEmpty()) {
             return badBackupCodeHandler(context, user, true);
         }
+
+        context.getEvent().detail("withBackupCode", "true");
 
         UserCredentialModel backupCode = new UserCredentialModel(null, BackupCode.CREDENTIAL_TYPE, backupCodeInput, false);
         if (!context.getSession().userCredentialManager().isValid(context.getRealm(), user, backupCode)) {

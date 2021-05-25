@@ -2,17 +2,19 @@ package com.github.thomasdarimont.keycloak.backupcodes.auth;
 
 import com.github.thomasdarimont.keycloak.backupcodes.BackupCode;
 import com.google.auto.service.AutoService;
+import org.keycloak.Config;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.AuthenticatorFactory;
-import org.keycloak.authentication.authenticators.browser.PasswordFormFactory;
+import org.keycloak.models.AuthenticationExecutionModel;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
 import java.util.Collections;
 import java.util.List;
 
 @AutoService(AuthenticatorFactory.class)
-public class BackupCodeAuthenticatorFactory extends PasswordFormFactory {
+public class BackupCodeAuthenticatorFactory implements AuthenticatorFactory {
 
     private static final BackupCodeAuthenticator INSTANCE = new BackupCodeAuthenticator();
 
@@ -37,17 +39,42 @@ public class BackupCodeAuthenticatorFactory extends PasswordFormFactory {
     }
 
     @Override
+    public AuthenticationExecutionModel.Requirement[] getRequirementChoices() {
+        return REQUIREMENT_CHOICES;
+    }
+
+    @Override
+    public boolean isUserSetupAllowed() {
+        return false;
+    }
+
+    @Override
     public String getReferenceCategory() {
         return BackupCode.CREDENTIAL_TYPE;
     }
 
     @Override
     public List<ProviderConfigProperty> getConfigProperties() {
-        return Collections.emptyList();
+        return null;
     }
 
     @Override
     public Authenticator create(KeycloakSession session) {
         return INSTANCE;
+    }
+
+    @Override
+    public void init(Config.Scope config) {
+        // NOOP
+    }
+
+    @Override
+    public void postInit(KeycloakSessionFactory factory) {
+        // NOOP
+    }
+
+    @Override
+    public void close() {
+        // NOOP
     }
 }

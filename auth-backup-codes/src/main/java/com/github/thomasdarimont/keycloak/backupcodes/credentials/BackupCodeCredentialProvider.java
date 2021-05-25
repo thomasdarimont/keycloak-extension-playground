@@ -35,8 +35,8 @@ public class BackupCodeCredentialProvider implements CredentialProvider<Credenti
 
     @Override
     public boolean isConfiguredFor(RealmModel realm, UserModel user, String credentialType) {
-        // TODO check if user actually has credentials
-        return true;
+        UserCredentialManager userCredentialManager = session.userCredentialManager();
+        return userCredentialManager.getStoredCredentialsByTypeStream(realm, user, BackupCode.CREDENTIAL_TYPE).findAny().isPresent();
     }
 
     @Override
@@ -85,7 +85,7 @@ public class BackupCodeCredentialProvider implements CredentialProvider<Credenti
     @Override
     public CredentialModel getCredentialFromModel(CredentialModel model) {
         // NOOP unused
-        return null;
+        return model;
     }
 
     @Override
@@ -95,13 +95,12 @@ public class BackupCodeCredentialProvider implements CredentialProvider<Credenti
         builder.type(BackupCode.CREDENTIAL_TYPE);
         builder.category(CredentialTypeMetadata.Category.TWO_FACTOR);
         builder.createAction(GenerateBackupCodeAction.ID);
-        builder.removeable(true);
-        builder.displayName("Backup Codes"); // TODO i18n
-        builder.helpText("Backup Codes for MFA Recovery"); // TODO i18n
+        builder.removeable(false);
+        builder.displayName("backup-codes-display-name");
+        builder.helpText("backup-codes-help-text");
         // builder.updateAction(GenerateBackupCodeAction.ID);
-        builder.iconCssClass("backupCodesClass"); // TODO fix css class
-        CredentialTypeMetadata credentialTypeMetadata = builder.build(session);
+        builder.iconCssClass("kcAuthenticatorBackupCodeClass");
 
-        return credentialTypeMetadata;
+        return builder.build(session);
     }
 }

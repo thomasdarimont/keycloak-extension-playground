@@ -7,7 +7,7 @@
     <#elseif section = "form">
 
         <div id="backup-codes">
-            <p>Here are the new Backup Codes for <strong>${username}</strong></p>
+            <p>${kcSanitize(msg("backup-code-download-hint", username))?no_esc}</p>
             <ol>
                 <#list backupCodes as backupCode>
                     <li>${backupCode.code}</li>
@@ -15,7 +15,7 @@
             </ol>
         </div>
 
-        <a id="backup-codes-download" href="#" download="backup-codes.txt">Download Backup Codes</a>
+        <a id="backup-codes-download" href="#" download="backup-codes.txt">${msg("backup-code-download")}</a>
         <script>
             let backupCodesDownload = document.querySelector("#backup-codes-download");
             backupCodesDownload.href = "data:text/html," + document.getElementById("backup-codes").textContent;

@@ -1,0 +1,10 @@
+{
+  "themes": [
+    {
+      "name": "keycloak-with-backup-codes",
+      "types": [
+        "account"
+      ]
+    }
+  ]
+}

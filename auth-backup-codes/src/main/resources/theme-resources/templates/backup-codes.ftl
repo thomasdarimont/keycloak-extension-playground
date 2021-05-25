@@ -1,12 +1,12 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayInfo=true; section>
     <#if section = "title">
-        Generate new Backup Codes
+        ${msg("backup-code-generate")}
     <#elseif section = "header">
-        Generate new Backup Codes
+        ${msg("backup-code-generate")}
     <#elseif section = "form">
-        <p>Do you want to generate new Backup Codes for <strong>${username}</strong>?</p>
-        <p>This will remove all existing backup codes!</p>
+        <p>${kcSanitize(msg("backup-code-generate-cta", username))}</p>
+        <p>${kcSanitize(msg("backup-code-generate-hint"))}</p>
         <form id="kc-passwd-update-form" class="${properties.kcFormClass!}" action="${url.loginAction}" method="post">
             <div class="${properties.kcFormGroupClass!}">
                 <div id="kc-form-buttons" class="${properties.kcFormButtonsClass!}">
