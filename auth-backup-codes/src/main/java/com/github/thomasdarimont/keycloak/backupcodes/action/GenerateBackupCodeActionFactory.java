@@ -52,6 +52,4 @@ public class GenerateBackupCodeActionFactory implements RequiredActionFactory, D
     public boolean isOneTimeAction() {
         return true;
     }
-
-
 }

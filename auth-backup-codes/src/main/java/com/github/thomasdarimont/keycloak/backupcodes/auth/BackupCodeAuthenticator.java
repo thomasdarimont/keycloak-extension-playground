@@ -1,6 +1,6 @@
 package com.github.thomasdarimont.keycloak.backupcodes.auth;
 
-import com.github.thomasdarimont.keycloak.backupcodes.BackupCode;
+import com.github.thomasdarimont.keycloak.backupcodes.BackupCodeCredentialModel;
 import com.github.thomasdarimont.keycloak.backupcodes.action.GenerateBackupCodeAction;
 import org.keycloak.authentication.AbstractFormAuthenticator;
 import org.keycloak.authentication.AuthenticationFlowContext;
@@ -58,7 +58,7 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
             return false;
         }
 
-        boolean backupCodesConfigured = session.userCredentialManager().isConfiguredFor(realm, user, BackupCode.CREDENTIAL_TYPE);
+        boolean backupCodesConfigured = session.userCredentialManager().isConfiguredFor(realm, user, BackupCodeCredentialModel.TYPE);
         return backupCodesConfigured;
     }
 
@@ -76,7 +76,7 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
 
         context.getEvent().detail("backup_code", "true");
 
-        UserCredentialModel backupCode = new UserCredentialModel(null, BackupCode.CREDENTIAL_TYPE, backupCodeInput, false);
+        UserCredentialModel backupCode = new UserCredentialModel(null, BackupCodeCredentialModel.TYPE, backupCodeInput, false);
         if (!context.getSession().userCredentialManager().isValid(context.getRealm(), user, backupCode)) {
             return badBackupCodeHandler(context, user, false);
         }

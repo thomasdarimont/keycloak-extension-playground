@@ -1,6 +1,6 @@
 package com.github.thomasdarimont.keycloak.backupcodes.auth;
 
-import com.github.thomasdarimont.keycloak.backupcodes.BackupCode;
+import com.github.thomasdarimont.keycloak.backupcodes.BackupCodeCredentialModel;
 import com.google.auto.service.AutoService;
 import org.keycloak.Config;
 import org.keycloak.authentication.Authenticator;
@@ -10,7 +10,6 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
-import java.util.Collections;
 import java.util.List;
 
 @AutoService(AuthenticatorFactory.class)
@@ -50,7 +49,7 @@ public class BackupCodeAuthenticatorFactory implements AuthenticatorFactory {
 
     @Override
     public String getReferenceCategory() {
-        return BackupCode.CREDENTIAL_TYPE;
+        return BackupCodeCredentialModel.TYPE;
     }
 
     @Override

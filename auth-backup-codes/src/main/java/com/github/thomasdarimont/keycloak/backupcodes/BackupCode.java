@@ -9,8 +9,6 @@ import lombok.ToString;
 @Getter
 public class BackupCode {
 
-    public static final String CREDENTIAL_TYPE = "backup-code";
-
     private final String id;
 
     private final String code;
