@@ -5,7 +5,7 @@
     <#elseif section = "header">
         ${msg("backup-code-generate")}
     <#elseif section = "form">
-        <p>${kcSanitize(msg("backup-code-generate-cta", username))}</p>
+        <p>${kcSanitize(msg("backup-code-generate-cta", username))?no_esc}</p>
 
         <div class="alert alert-info" style="margin-top:0 !important;margin-bottom:30px !important">
             <span class="pficon pficon-info"></span>
