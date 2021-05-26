@@ -1,9 +1,9 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayInfo=true; section>
     <#if section = "title">
-        Generated Backup Codes
+        ${msg("backup-code-generated")}
     <#elseif section = "header">
-        Generated Backup Codes
+        ${msg("backup-code-generated")}
     <#elseif section = "form">
 
         <div id="backup-codes">
