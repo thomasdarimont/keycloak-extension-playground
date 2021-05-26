@@ -6,7 +6,12 @@
         ${msg("backup-code-generate")}
     <#elseif section = "form">
         <p>${kcSanitize(msg("backup-code-generate-cta", username))}</p>
-        <p>${kcSanitize(msg("backup-code-generate-hint"))}</p>
+
+        <div class="alert alert-info" style="margin-top:0 !important;margin-bottom:30px !important">
+            <span class="pficon pficon-info"></span>
+            <p class="instruction">${kcSanitize(msg("backup-code-generate-hint"))}</p>
+        </div>
+
         <form id="kc-passwd-update-form" class="${properties.kcFormClass!}" action="${url.loginAction}" method="post">
             <div class="${properties.kcFormGroupClass!}">
                 <div id="kc-form-buttons" class="${properties.kcFormButtonsClass!}">

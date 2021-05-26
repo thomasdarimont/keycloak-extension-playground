@@ -7,7 +7,11 @@
     <#elseif section = "form">
 
         <div id="backup-codes">
-            <p>${kcSanitize(msg("backup-code-download-hint", username))?no_esc}</p>
+            <p>${kcSanitize(msg("backup-code-download-cta", username))?no_esc}</p>
+            <div class="alert alert-info" style="margin-top:0 !important;margin-bottom:30px !important">
+                <span class="pficon pficon-info"></span>
+                <p class="instruction">${kcSanitize(msg("backup-code-download-hint"))}</p>
+            </div>
             <ol>
                 <#list backupCodes as backupCode>
                     <li>${backupCode.code}</li>
