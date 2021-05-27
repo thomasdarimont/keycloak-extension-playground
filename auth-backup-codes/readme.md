@@ -15,4 +15,4 @@ The example consists of the following main components:
 ![Backup Codes Auth Flow](keycloak-backupcode-auth-flow.png "Backup Codes Auth Flow")
 
 # Demo
-![Backup Codes Auth Flow Demo](poc-keycloak-backup-codes-v2.gif "Backup Codes Auth Flow Demo")
+![Backup Codes Auth Flow Demo](poc-keycloak-backup-codes-v3.gif "Backup Codes Auth Flow Demo")
