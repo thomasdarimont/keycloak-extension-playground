@@ -3,11 +3,11 @@ package com.github.thomasdarimont.keycloak.backupcodes.action;
 import com.github.thomasdarimont.keycloak.backupcodes.BackupCode;
 import com.github.thomasdarimont.keycloak.backupcodes.BackupCodeConfig;
 import com.github.thomasdarimont.keycloak.backupcodes.BackupCodeCredentialModel;
+import com.github.thomasdarimont.keycloak.backupcodes.BackupCodeGenerator;
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.authentication.InitiatedActionSupport;
 import org.keycloak.authentication.RequiredActionContext;
 import org.keycloak.authentication.RequiredActionProvider;
-import org.keycloak.common.util.RandomString;
 import org.keycloak.common.util.Time;
 import org.keycloak.credential.CredentialModel;
 import org.keycloak.forms.login.LoginFormsProvider;
@@ -63,9 +63,8 @@ public class GenerateBackupCodeAction implements RequiredActionProvider {
         List<BackupCode> backupCodes = new ArrayList<>();
         long now = Time.currentTimeMillis();
         for (int i = 1, count = backupCodeConfig.getBackupCodeCount(); i <= count; i++) {
-            String codeId = Integer.toString(i);
-            String code = RandomString.randomCode(backupCodeConfig.getBackupCodeLength());
-            BackupCode backupCode = new BackupCode(codeId, code, now);
+            String code = BackupCodeGenerator.generateCode(backupCodeConfig.getBackupCodeLength());
+            BackupCode backupCode = new BackupCode(""+i, code, now);
             try {
                 // create and store new backup-code credential model
                 userCredentialManager.createCredentialThroughProvider(realm, user, new BackupCodeCredentialModel(backupCode));
