@@ -2,8 +2,9 @@ package com.github.thomasdarimont.keycloak.trustdevice.auth;
 
 import com.github.thomasdarimont.keycloak.trustdevice.DeviceCookie;
 import com.github.thomasdarimont.keycloak.trustdevice.DeviceToken;
-import com.github.thomasdarimont.keycloak.trustdevice.model.jpa.TrustedDeviceEntity;
-import com.github.thomasdarimont.keycloak.trustdevice.model.jpa.TrustedDeviceRepository;
+import com.github.thomasdarimont.keycloak.trustdevice.model.SimpleTrustedDeviceManager;
+import com.github.thomasdarimont.keycloak.trustdevice.model.TrustedDeviceManager;
+import com.github.thomasdarimont.keycloak.trustdevice.model.TrustedDeviceModel;
 import lombok.extern.jbosslog.JBossLog;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.keycloak.authentication.AuthenticationFlowContext;
@@ -17,11 +18,16 @@ public class TrustedDeviceAuthenticator implements Authenticator {
 
     public static final String ID = "auth-trust-device";
 
+    private static final TrustedDeviceManager DEVICE_MANAGER = new SimpleTrustedDeviceManager();
+
     @Override
     public void authenticate(AuthenticationFlowContext context) {
 
-        if (isTrustedDevice(context)) {
+        TrustedDeviceModel candidate = lookupTrustedDevice(context);
+        if (candidate != null) {
             log.info("Found trusted device.");
+            context.getEvent().detail("trusted_device", "true");
+            context.getEvent().detail("trusted_device_id", candidate.getDeviceId());
             context.success();
         } else {
             log.info("Unknown device detected!");
@@ -29,26 +35,22 @@ public class TrustedDeviceAuthenticator implements Authenticator {
         }
     }
 
-    public static boolean isTrustedDevice(AuthenticationFlowContext context) {
+    public static TrustedDeviceModel lookupTrustedDevice(AuthenticationFlowContext context) {
 
         HttpRequest httpRequest = context.getHttpRequest();
         KeycloakSession session = context.getSession();
         UserModel user = context.getAuthenticationSession().getAuthenticatedUser();
         if (user == null) {
-            return false;
+            return null;
         }
 
         DeviceToken deviceToken = DeviceCookie.parseDeviceTokenFromCookie(httpRequest, session);
         if (deviceToken == null) {
-            return false;
+            return null;
         }
 
         RealmModel realm = context.getRealm();
-        TrustedDeviceRepository repo = new TrustedDeviceRepository(session);
-        TrustedDeviceEntity trustedDeviceEntity = repo.lookupTrustedDevice(
-                realm.getId(), user.getId(), deviceToken.getDeviceId());
-
-        return trustedDeviceEntity != null;
+        return DEVICE_MANAGER.lookupTrustedDevice(session, realm, user, deviceToken.getDeviceId());
     }
 
     @Override

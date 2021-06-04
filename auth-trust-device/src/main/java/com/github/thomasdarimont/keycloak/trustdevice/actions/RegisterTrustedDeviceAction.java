@@ -2,7 +2,9 @@ package com.github.thomasdarimont.keycloak.trustdevice.actions;
 
 import com.github.thomasdarimont.keycloak.trustdevice.DeviceCookie;
 import com.github.thomasdarimont.keycloak.trustdevice.DeviceToken;
-import com.github.thomasdarimont.keycloak.trustdevice.model.jpa.TrustedDeviceRepository;
+import com.github.thomasdarimont.keycloak.trustdevice.model.SimpleTrustedDeviceManager;
+import com.github.thomasdarimont.keycloak.trustdevice.model.TrustedDeviceManager;
+import com.github.thomasdarimont.keycloak.trustdevice.support.UserAgentParser;
 import lombok.extern.jbosslog.JBossLog;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.keycloak.authentication.InitiatedActionSupport;
@@ -15,13 +17,11 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.PolicyFactory;
-import ua_parser.Parser;
 import ua_parser.UserAgent;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.function.Consumer;
@@ -31,19 +31,9 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
 
     public static final String ID = "register-trusted-device";
 
-    private static final Parser USER_AGENT_PARSER;
-
     private static final PolicyFactory TEXT_ONLY_SANITIZATION_POLICY = new HtmlPolicyBuilder().toFactory();
 
-    static {
-        Parser parser = null;
-        try {
-            parser = new Parser();
-        } catch (IOException e) {
-            log.errorf(e, "Could not initialize user_agent parser");
-        }
-        USER_AGENT_PARSER = parser;
-    }
+    private static final TrustedDeviceManager DEVICE_MANAGER = new SimpleTrustedDeviceManager();
 
     @Override
     public void evaluateTriggers(RequiredActionContext context) {
@@ -84,7 +74,7 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
             RealmModel realm = context.getRealm();
 
             String deviceName = sanitizeDeviceName(formParams.getFirst("device"));
-            registerTrustedDevice(deviceToken.getDeviceId(), deviceName, session, realm, user);
+            DEVICE_MANAGER.registerTrustedDevice(session, realm, user, deviceToken.getDeviceId(), deviceName);
 
             int numberOfDaysToTrustDevice = 120; //FIXME make name of days to remember deviceToken configurable
             int maxAge = numberOfDaysToTrustDevice * 24 * 60 * 60;
@@ -120,16 +110,7 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
         RealmModel realm = context.getRealm();
         UserModel user = context.getUser();
 
-        TrustedDeviceRepository repo = new TrustedDeviceRepository(session);
-        int deleted = repo.deleteTrustedDevicesForUser(realm.getId(), user.getId());
-        if (deleted > 0) {
-            log.infof("Deleted trusted devices for user. realm=%s userId=%s devices=%s", realm.getId(), user.getId(), deleted);
-        }
-    }
-
-    private void registerTrustedDevice(String deviceId, String deviceName, KeycloakSession session, RealmModel realm, UserModel user) {
-        TrustedDeviceRepository repo = new TrustedDeviceRepository(session);
-        repo.registerTrustedDevice(realm.getId(), user.getId(), deviceId, deviceName);
+        DEVICE_MANAGER.removeAllTrustedDevices(session, realm, user);
     }
 
     protected DeviceToken createDeviceToken(HttpRequest httpRequest) {
@@ -164,12 +145,11 @@ public class RegisterTrustedDeviceAction implements RequiredActionProvider {
         String userAgentString = request.getHttpHeaders().getHeaderString(HttpHeaders.USER_AGENT);
         String name = "Browser";
 
-        if (USER_AGENT_PARSER == null) {
+        // TODO generate a better device name based on the user agent
+        UserAgent userAgent = UserAgentParser.parseUserAgent(userAgentString);
+        if (userAgent == null) {
             return name;
         }
-
-        // TODO generate a better device name based on the user agent
-        UserAgent userAgent = USER_AGENT_PARSER.parseUserAgent(userAgentString);
         return name + " " + userAgent.family;
     }
 

@@ -1,5 +1,6 @@
 package com.github.thomasdarimont.keycloak.trustdevice.auth;
 
+import com.github.thomasdarimont.keycloak.trustdevice.model.TrustedDeviceModel;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.authenticators.conditional.ConditionalAuthenticator;
 import org.keycloak.models.AuthenticatorConfigModel;
@@ -20,7 +21,9 @@ public class TrustedDeviceCondition implements ConditionalAuthenticator {
 
         boolean negated = isNegated(context);
 
-        boolean trusted = TrustedDeviceAuthenticator.isTrustedDevice(context);
+        TrustedDeviceModel device = TrustedDeviceAuthenticator.lookupTrustedDevice(context);
+
+        boolean trusted = device != null;
         if (negated) {
             trusted = !trusted;
         }

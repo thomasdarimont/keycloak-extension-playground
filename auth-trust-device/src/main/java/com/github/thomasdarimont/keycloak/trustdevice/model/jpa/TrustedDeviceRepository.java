@@ -21,7 +21,7 @@ public class TrustedDeviceRepository {
         this.session = session;
     }
 
-    public void registerTrustedDevice(String realmId, String userId, String deviceId, String deviceName) {
+    public TrustedDeviceEntity registerTrustedDevice(String realmId, String userId, String deviceId, String deviceName) {
 
         Objects.requireNonNull(realmId, "realmId");
         Objects.requireNonNull(deviceId, "deviceId");
@@ -34,20 +34,23 @@ public class TrustedDeviceRepository {
 
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
+
+        TrustedDeviceEntity tde = new TrustedDeviceEntity();
+        tde.setRealmId(realmId);
+        tde.setUserId(userId);
+        tde.setDeviceId(deviceId);
+        tde.setDeviceName(deviceName);
+        tde.setCreatedAt(Time.currentTime());
+
         try {
             tx.begin();
-            TrustedDeviceEntity tde = new TrustedDeviceEntity();
-            tde.setRealmId(realmId);
-            tde.setUserId(userId);
-            tde.setDeviceId(deviceId);
-            tde.setDeviceName(deviceName);
-            tde.setCreatedAt(Time.currentTime());
-
             em.persist(tde);
             tx.commit();
         } finally {
             em.close();
         }
+
+        return tde;
     }
 
     public List<TrustedDeviceEntity> findByUser(String realmId, String userId) {
