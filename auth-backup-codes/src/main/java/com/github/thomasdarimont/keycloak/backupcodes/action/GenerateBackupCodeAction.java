@@ -50,9 +50,21 @@ public class GenerateBackupCodeAction implements RequiredActionProvider {
     protected Response createGenerateBackupCodesForm(RequiredActionContext context) {
 
         LoginFormsProvider form = context.form();
-        String username = context.getAuthenticationSession().getAuthenticatedUser().getUsername();
-        form.setAttribute("username", username);
+        UserModel user = context.getAuthenticationSession().getAuthenticatedUser();
+        form.setAttribute("username", user.getUsername());
+
+        if (userHasBackupCodesConfigured(context, user)) {
+            form.setAttribute("backupCodesPresent", true);
+        }
+
         return form.createForm("backup-codes.ftl");
+    }
+
+    private boolean userHasBackupCodesConfigured(RequiredActionContext context, UserModel user) {
+
+        UserCredentialManager ucm = context.getSession().userCredentialManager();
+        return ucm.getStoredCredentialsByTypeStream(context.getRealm(), user, BackupCodeCredentialModel.TYPE)
+                .findAny().isPresent();
     }
 
     protected List<BackupCode> createNewBackupCodes(RealmModel realm, UserModel user, KeycloakSession session) {
@@ -64,7 +76,7 @@ public class GenerateBackupCodeAction implements RequiredActionProvider {
         long now = Time.currentTimeMillis();
         for (int i = 1, count = backupCodeConfig.getBackupCodeCount(); i <= count; i++) {
             String code = BackupCodeGenerator.generateCode(backupCodeConfig.getBackupCodeLength());
-            BackupCode backupCode = new BackupCode(""+i, code, now);
+            BackupCode backupCode = new BackupCode("" + i, code, now);
             try {
                 // create and store new backup-code credential model
                 userCredentialManager.createCredentialThroughProvider(realm, user, new BackupCodeCredentialModel(backupCode));

@@ -7,10 +7,12 @@
     <#elseif section = "form">
         <p>${kcSanitize(msg("backup-code-generate-cta", username))?no_esc}</p>
 
-        <div class="alert alert-info" style="margin-top:0 !important;margin-bottom:30px !important">
-            <span class="pficon pficon-info"></span>
-            <p class="instruction">${kcSanitize(msg("backup-code-generate-hint"))}</p>
-        </div>
+        <#if backupCodesPresent??>
+            <div class="alert alert-info" style="margin-top:0 !important;margin-bottom:30px !important">
+                <span class="pficon pficon-info"></span>
+                <p class="instruction">${kcSanitize(msg("backup-code-generate-hint"))}</p>
+            </div>
+        </#if>
 
         <form id="kc-passwd-update-form" class="${properties.kcFormClass!}" action="${url.loginAction}" method="post">
             <div class="${properties.kcFormGroupClass!}">
