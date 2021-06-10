@@ -14,9 +14,13 @@ import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.credential.OTPCredentialModel;
 import org.keycloak.models.utils.FormMessage;
+import org.keycloak.services.messages.Messages;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+
+import static org.keycloak.authentication.authenticators.util.AuthenticatorUtils.getDisabledByBruteForceEventError;
+import static org.keycloak.services.validation.Validation.FIELD_USERNAME;
 
 public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
 
@@ -76,12 +80,28 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
 
         context.getEvent().detail("backup_code", "true");
 
+        if (isDisabledByBruteForce(context, user)) {
+            return false;
+        }
+
         UserCredentialModel backupCode = new UserCredentialModel(null, BackupCodeCredentialModel.TYPE, backupCodeInput, false);
         if (!context.getSession().userCredentialManager().isValid(context.getRealm(), user, backupCode)) {
             return badBackupCodeHandler(context, user, false);
         }
 
         return true;
+    }
+
+    protected boolean isDisabledByBruteForce(AuthenticationFlowContext context, UserModel user) {
+        String bruteForceError = getDisabledByBruteForceEventError(context.getProtector(), context.getSession(), context.getRealm(), user);
+        if (bruteForceError != null) {
+            context.getEvent().user(user);
+            context.getEvent().error(bruteForceError);
+            Response challengeResponse = challenge(context, disabledByBruteForceError(), disabledByBruteForceFieldError());
+            context.forceChallenge(challengeResponse);
+            return true;
+        }
+        return false;
     }
 
     protected Response challenge(AuthenticationFlowContext context, String error, String field) {
@@ -115,6 +135,14 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
             context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challengeResponse);
         }
         return false;
+    }
+
+    protected String disabledByBruteForceError() {
+        return Messages.INVALID_USER;
+    }
+
+    protected String disabledByBruteForceFieldError() {
+        return FIELD_USERNAME;
     }
 
 }
