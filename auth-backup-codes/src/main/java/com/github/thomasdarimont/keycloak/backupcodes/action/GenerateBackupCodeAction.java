@@ -16,10 +16,15 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserCredentialManager;
 import org.keycloak.models.UserModel;
+import org.keycloak.sessions.AuthenticationSessionModel;
 
 import javax.ws.rs.core.Response;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
@@ -51,16 +56,14 @@ public class GenerateBackupCodeAction implements RequiredActionProvider {
 
         LoginFormsProvider form = context.form();
         UserModel user = context.getAuthenticationSession().getAuthenticatedUser();
-        form.setAttribute("username", user.getUsername());
-
-        if (userHasBackupCodesConfigured(context, user)) {
-            form.setAttribute("backupCodesPresent", true);
-        }
+        String username = user.getUsername();
+        form.setAttribute("username", username);
+        form.setAttribute("backupCodesPresent", backupCodesConfiguredForUser(context, user));
 
         return form.createForm("backup-codes.ftl");
     }
 
-    private boolean userHasBackupCodesConfigured(RequiredActionContext context, UserModel user) {
+    private boolean backupCodesConfiguredForUser(RequiredActionContext context, UserModel user) {
 
         UserCredentialManager ucm = context.getSession().userCredentialManager();
         return ucm.getStoredCredentialsByTypeStream(context.getRealm(), user, BackupCodeCredentialModel.TYPE)
@@ -120,10 +123,19 @@ public class GenerateBackupCodeAction implements RequiredActionProvider {
 
     protected Response createDownloadForm(RequiredActionContext context, List<BackupCode> backupCodes) {
 
+        Instant createdAt = Instant.now();
+
         // use form from src/main/resources/theme-resources/templates/
         LoginFormsProvider form = context.form();
-        form.setAttribute("username", context.getAuthenticationSession().getAuthenticatedUser().getUsername());
-        form.setAttribute("createdAt", Time.currentTimeMillis());
+        AuthenticationSessionModel authSession = context.getAuthenticationSession();
+        UserModel user = authSession.getAuthenticatedUser();
+        form.setAttribute("username", user.getUsername());
+        form.setAttribute("createdAt", createdAt.toEpochMilli());
+
+        Locale locale = context.getSession().getContext().resolveLocale(user);
+        String createdAtDate = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).localizedBy(locale).format(createdAt);
+        form.setAttribute("createdAtDate", createdAtDate);
+
         form.setAttribute("realm", new RealmBean(context.getRealm()));
         form.setAttribute("backupCodes", backupCodes);
         return form.createForm("backup-codes-download.ftl");

@@ -12,7 +12,7 @@
         </div>
 
         <div id="backup-codes">
-            <p>${kcSanitize(msg("backup-code-download-cta", username))?no_esc}</p>
+            <p>${kcSanitize(msg("backup-code-download-cta", realm.name, createdAtDate))?no_esc}</p>
             <ol>
                 <#list backupCodes as backupCode>
                     <li>${backupCode.code}</li>
@@ -20,7 +20,7 @@
             </ol>
         </div>
 
-        <a id="backup-codes-download" href="#" download="backup-codes-${kcSanitize(username)}.txt"
+        <a id="backup-codes-download" href="#" download="${kcSanitize(realm.name)}-backup-codes.txt"
            class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}">
             ${msg("backup-code-download")}</a>
         <script>
