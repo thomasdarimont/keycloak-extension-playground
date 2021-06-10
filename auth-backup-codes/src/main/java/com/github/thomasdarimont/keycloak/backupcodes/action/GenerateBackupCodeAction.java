@@ -19,7 +19,9 @@ import org.keycloak.models.UserModel;
 import org.keycloak.sessions.AuthenticationSessionModel;
 
 import javax.ws.rs.core.Response;
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
@@ -53,14 +55,16 @@ public class GenerateBackupCodeAction implements RequiredActionProvider {
     }
 
     protected Response createGenerateBackupCodesForm(RequiredActionContext context) {
+        return createBackupCodesForm(context).createForm("backup-codes.ftl");
+    }
 
+    protected LoginFormsProvider createBackupCodesForm(RequiredActionContext context) {
         LoginFormsProvider form = context.form();
         UserModel user = context.getAuthenticationSession().getAuthenticatedUser();
         String username = user.getUsername();
         form.setAttribute("username", username);
         form.setAttribute("backupCodesPresent", backupCodesConfiguredForUser(context, user));
-
-        return form.createForm("backup-codes.ftl");
+        return form;
     }
 
     private boolean backupCodesConfiguredForUser(RequiredActionContext context, UserModel user) {
@@ -108,37 +112,38 @@ public class GenerateBackupCodeAction implements RequiredActionProvider {
         context.success();
 
         // Show backup code download form
-        context.challenge(createDownloadForm(context, backupCodes));
+        context.challenge(createDownloadForm(context, backupCodes).createForm("backup-codes-download.ftl"));
     }
 
     protected void removeExistingBackupCodes(RealmModel realm, UserModel user, KeycloakSession session) {
 
         UserCredentialManager userCredentialManager = session.userCredentialManager();
         log.debugf("Removing existing backup codes. realm=%s user=%s", realm.getId(), user.getId());
-        for (CredentialModel credential : userCredentialManager.getStoredCredentialsByTypeStream(realm, user, BackupCodeCredentialModel.TYPE).collect(Collectors.toList())) {
+        List<CredentialModel> credentials = userCredentialManager.getStoredCredentialsByTypeStream(realm, user, BackupCodeCredentialModel.TYPE)
+                .collect(Collectors.toList());
+        for (CredentialModel credential : credentials) {
             userCredentialManager.removeStoredCredential(realm, user, credential.getId());
         }
         log.debugf("Removed existing backup codes. realm=%s user=%s", realm.getId(), user.getId());
     }
 
-    protected Response createDownloadForm(RequiredActionContext context, List<BackupCode> backupCodes) {
+    protected LoginFormsProvider createDownloadForm(RequiredActionContext context, List<BackupCode> backupCodes) {
 
-        Instant createdAt = Instant.now();
-
-        // use form from src/main/resources/theme-resources/templates/
-        LoginFormsProvider form = context.form();
         AuthenticationSessionModel authSession = context.getAuthenticationSession();
         UserModel user = authSession.getAuthenticatedUser();
+        ZonedDateTime createdAt = LocalDateTime.now().atZone(ZoneId.systemDefault());
+
+        LoginFormsProvider form = context.form();
         form.setAttribute("username", user.getUsername());
-        form.setAttribute("createdAt", createdAt.toEpochMilli());
+        form.setAttribute("createdAt", createdAt.toInstant().toEpochMilli());
 
         Locale locale = context.getSession().getContext().resolveLocale(user);
-        String createdAtDate = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).localizedBy(locale).format(createdAt);
+        String createdAtDate = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).localizedBy(locale).format(createdAt);
         form.setAttribute("createdAtDate", createdAtDate);
 
         form.setAttribute("realm", new RealmBean(context.getRealm()));
         form.setAttribute("backupCodes", backupCodes);
-        return form.createForm("backup-codes-download.ftl");
+        return form;
     }
 
     @Override

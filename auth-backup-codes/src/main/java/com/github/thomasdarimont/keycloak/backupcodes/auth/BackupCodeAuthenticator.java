@@ -32,7 +32,7 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
 
     @Override
     public void authenticate(AuthenticationFlowContext context) {
-        Response challengeResponse = createLoginForm(context.form());
+        Response challengeResponse = context.form().createForm("login-backup-codes.ftl");
         context.challenge(challengeResponse);
     }
 
@@ -56,14 +56,14 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
     @Override
     public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) {
 
+        // TODO revise handling of backup code auth prompt -> should we always ask for backup codes if present and no other 2FA is configured?
         // we only allow checking for backup codes if another MFA is registered
         boolean otpConfigured = session.userCredentialManager().isConfiguredFor(realm, user, OTPCredentialModel.TYPE);
         if (!otpConfigured) {
             return false;
         }
 
-        boolean backupCodesConfigured = session.userCredentialManager().isConfiguredFor(realm, user, BackupCodeCredentialModel.TYPE);
-        return backupCodesConfigured;
+        return session.userCredentialManager().isConfiguredFor(realm, user, BackupCodeCredentialModel.TYPE);
     }
 
     @Override
@@ -78,6 +78,7 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
             return badBackupCodeHandler(context, user, true);
         }
 
+        // note backup_code usage in event
         context.getEvent().detail("backup_code", "true");
 
         if (isDisabledByBruteForce(context, user)) {
@@ -105,6 +106,10 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
     }
 
     protected Response challenge(AuthenticationFlowContext context, String error, String field) {
+        return createLoginForm(context, error, field).createForm("login-backup-codes.ftl");
+    }
+
+    protected LoginFormsProvider createLoginForm(AuthenticationFlowContext context, String error, String field) {
         LoginFormsProvider form = context.form()
                 .setExecution(context.getExecution().getId());
         if (error != null) {
@@ -114,11 +119,7 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
                 form.setError(error);
             }
         }
-        return createLoginForm(form);
-    }
-
-    protected Response createLoginForm(LoginFormsProvider form) {
-        return form.createForm("login-backup-codes.ftl");
+        return form;
     }
 
     protected boolean badBackupCodeHandler(AuthenticationFlowContext context, UserModel user, boolean emptyBackupCode) {

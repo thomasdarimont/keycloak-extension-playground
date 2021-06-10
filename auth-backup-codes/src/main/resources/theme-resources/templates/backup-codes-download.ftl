@@ -12,7 +12,7 @@
         </div>
 
         <div id="backup-codes">
-            <p>${kcSanitize(msg("backup-code-download-cta", realm.name, createdAtDate))?no_esc}</p>
+            <p>${kcSanitize(msg("backup-code-download-cta", realm.displayName, createdAtDate))?no_esc}</p>
             <ol>
                 <#list backupCodes as backupCode>
                     <li>${backupCode.code}</li>
