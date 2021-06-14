@@ -53,10 +53,10 @@ public class GenerateBackupCodeAction implements RequiredActionProvider {
 
     @Override
     public void requiredActionChallenge(RequiredActionContext context) {
-        context.challenge(createGenerateBackupCodesForm(context));
+        context.challenge(generateBackupCodesForm(context));
     }
 
-    protected Response createGenerateBackupCodesForm(RequiredActionContext context) {
+    protected Response generateBackupCodesForm(RequiredActionContext context) {
         return createBackupCodesForm(context).createForm("backup-codes.ftl");
     }
 
