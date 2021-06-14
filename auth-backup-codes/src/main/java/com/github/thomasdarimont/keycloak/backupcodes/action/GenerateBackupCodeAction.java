@@ -10,6 +10,8 @@ import org.keycloak.authentication.RequiredActionContext;
 import org.keycloak.authentication.RequiredActionProvider;
 import org.keycloak.common.util.Time;
 import org.keycloak.credential.CredentialModel;
+import org.keycloak.events.EventBuilder;
+import org.keycloak.events.EventType;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.forms.login.freemarker.model.RealmBean;
 import org.keycloak.models.KeycloakSession;
@@ -59,31 +61,37 @@ public class GenerateBackupCodeAction implements RequiredActionProvider {
     }
 
     protected LoginFormsProvider createBackupCodesForm(RequiredActionContext context) {
-        LoginFormsProvider form = context.form();
+
         UserModel user = context.getAuthenticationSession().getAuthenticatedUser();
         String username = user.getUsername();
+
+        LoginFormsProvider form = context.form();
         form.setAttribute("username", username);
+        // hint for the form that the current user already has backup codes that will be overridden by new codes.
         form.setAttribute("backupCodesPresent", backupCodesConfiguredForUser(context, user));
         return form;
     }
 
-    private boolean backupCodesConfiguredForUser(RequiredActionContext context, UserModel user) {
+    protected boolean backupCodesConfiguredForUser(RequiredActionContext context, UserModel user) {
 
         UserCredentialManager ucm = context.getSession().userCredentialManager();
-        return ucm.getStoredCredentialsByTypeStream(context.getRealm(), user, BackupCodeCredentialModel.TYPE)
+        return ucm.getStoredCredentialsByTypeStream(context.getRealm(), user, getBackupCodeType())
                 .findAny().isPresent();
+    }
+
+    protected String getBackupCodeType() {
+        return BackupCodeCredentialModel.TYPE;
     }
 
     protected List<BackupCode> createNewBackupCodes(RealmModel realm, UserModel user, KeycloakSession session) {
 
-        BackupCodeConfig backupCodeConfig = BackupCodeConfig.getConfig(realm);
-        UserCredentialManager userCredentialManager = session.userCredentialManager();
+        BackupCodeConfig backupCodeConfig = getBackupCodeConfig(realm);
 
         List<BackupCode> backupCodes = new ArrayList<>();
         long now = Time.currentTimeMillis();
+        UserCredentialManager userCredentialManager = session.userCredentialManager();
         for (int i = 1, count = backupCodeConfig.getBackupCodeCount(); i <= count; i++) {
-            String code = BackupCodeGenerator.generateCode(backupCodeConfig.getBackupCodeLength());
-            BackupCode backupCode = new BackupCode("" + i, code, now);
+            BackupCode backupCode = generateBackupCode(backupCodeConfig, now, i);
             try {
                 // create and store new backup-code credential model
                 userCredentialManager.createCredentialThroughProvider(realm, user, new BackupCodeCredentialModel(backupCode));
@@ -95,31 +103,45 @@ public class GenerateBackupCodeAction implements RequiredActionProvider {
         return backupCodes;
     }
 
+    protected BackupCode generateBackupCode(BackupCodeConfig backupCodeConfig, long timestamp, int backupCodeIndex) {
+        String code = BackupCodeGenerator.generateCode(backupCodeConfig.getBackupCodeLength());
+        return new BackupCode("" + backupCodeIndex, code, timestamp);
+    }
+
+    protected BackupCodeConfig getBackupCodeConfig(RealmModel realm) {
+        return BackupCodeConfig.getConfig(realm);
+    }
+
     @Override
     public void processAction(RequiredActionContext context) {
 
+        EventBuilder event = context.getEvent();
         KeycloakSession session = context.getSession();
         RealmModel realm = context.getRealm();
         UserModel user = context.getUser();
 
-        removeExistingBackupCodes(realm, user, session);
+        removeExistingBackupCodesIfPresent(realm, user, session);
 
+        // TODO introduce dedicated UPDATE_BACKUP_CODE or UPDATE_SECOND_FACTOR event
         List<BackupCode> backupCodes = createNewBackupCodes(realm, user, session);
+
+        event.event(EventType.UPDATE_PASSWORD);
+        event.detail("backup_code", "true");
+        event.success();
 
         // remove required action
         context.getUser().removeRequiredAction(ID);
-
         context.success();
 
         // Show backup code download form
         context.challenge(createDownloadForm(context, backupCodes).createForm("backup-codes-download.ftl"));
     }
 
-    protected void removeExistingBackupCodes(RealmModel realm, UserModel user, KeycloakSession session) {
+    protected void removeExistingBackupCodesIfPresent(RealmModel realm, UserModel user, KeycloakSession session) {
 
         UserCredentialManager userCredentialManager = session.userCredentialManager();
         log.debugf("Removing existing backup codes. realm=%s user=%s", realm.getId(), user.getId());
-        List<CredentialModel> credentials = userCredentialManager.getStoredCredentialsByTypeStream(realm, user, BackupCodeCredentialModel.TYPE)
+        List<CredentialModel> credentials = userCredentialManager.getStoredCredentialsByTypeStream(realm, user, getBackupCodeType())
                 .collect(Collectors.toList());
         for (CredentialModel credential : credentials) {
             userCredentialManager.removeStoredCredential(realm, user, credential.getId());

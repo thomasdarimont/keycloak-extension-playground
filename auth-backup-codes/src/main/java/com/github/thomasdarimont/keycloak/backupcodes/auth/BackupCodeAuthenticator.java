@@ -57,13 +57,20 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
     public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) {
 
         // TODO revise handling of backup code auth prompt -> should we always ask for backup codes if present and no other 2FA is configured?
-        // we only allow checking for backup codes if another MFA is registered
-        boolean otpConfigured = session.userCredentialManager().isConfiguredFor(realm, user, OTPCredentialModel.TYPE);
-        if (!otpConfigured) {
+        if (isSecondFactorRequired(session, realm, user) && !isSecondFactorConfigured(session, realm, user)) {
+            // we only allow checking for backup codes if another MFA is registered
             return false;
         }
 
         return session.userCredentialManager().isConfiguredFor(realm, user, BackupCodeCredentialModel.TYPE);
+    }
+
+    protected boolean isSecondFactorRequired(KeycloakSession session, RealmModel realm, UserModel user) {
+        return true;
+    }
+
+    protected boolean isSecondFactorConfigured(KeycloakSession session, RealmModel realm, UserModel user) {
+        return session.userCredentialManager().isConfiguredFor(realm, user, OTPCredentialModel.TYPE);
     }
 
     @Override
@@ -86,23 +93,25 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
         }
 
         UserCredentialModel backupCode = new UserCredentialModel(null, BackupCodeCredentialModel.TYPE, backupCodeInput, false);
-        if (!context.getSession().userCredentialManager().isValid(context.getRealm(), user, backupCode)) {
-            return badBackupCodeHandler(context, user, false);
+        if (context.getSession().userCredentialManager().isValid(context.getRealm(), user, backupCode)) {
+            return true;
         }
 
-        return true;
+        return badBackupCodeHandler(context, user, false);
     }
 
     protected boolean isDisabledByBruteForce(AuthenticationFlowContext context, UserModel user) {
+
         String bruteForceError = getDisabledByBruteForceEventError(context.getProtector(), context.getSession(), context.getRealm(), user);
-        if (bruteForceError != null) {
-            context.getEvent().user(user);
-            context.getEvent().error(bruteForceError);
-            Response challengeResponse = challenge(context, disabledByBruteForceError(), disabledByBruteForceFieldError());
-            context.forceChallenge(challengeResponse);
-            return true;
+        if (bruteForceError == null) {
+            return false;
         }
-        return false;
+
+        context.getEvent().user(user);
+        context.getEvent().error(bruteForceError);
+        Response challengeResponse = challenge(context, disabledByBruteForceError(), disabledByBruteForceFieldError());
+        context.forceChallenge(challengeResponse);
+        return true;
     }
 
     protected Response challenge(AuthenticationFlowContext context, String error, String field) {
@@ -110,14 +119,17 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
     }
 
     protected LoginFormsProvider createLoginForm(AuthenticationFlowContext context, String error, String field) {
+
         LoginFormsProvider form = context.form()
                 .setExecution(context.getExecution().getId());
-        if (error != null) {
-            if (field != null) {
-                form.addError(new FormMessage(field, error));
-            } else {
-                form.setError(error);
-            }
+        if (error == null) {
+            return form;
+        }
+
+        if (field != null) {
+            form.addError(new FormMessage(field, error));
+        } else {
+            form.setError(error);
         }
         return form;
     }

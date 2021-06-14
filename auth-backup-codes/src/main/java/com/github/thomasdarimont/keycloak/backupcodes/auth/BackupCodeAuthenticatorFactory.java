@@ -9,13 +9,33 @@ import org.keycloak.models.AuthenticationExecutionModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
+import org.keycloak.provider.ProviderConfigurationBuilder;
 
+import java.util.Collections;
 import java.util.List;
 
 @AutoService(AuthenticatorFactory.class)
 public class BackupCodeAuthenticatorFactory implements AuthenticatorFactory {
 
     private static final BackupCodeAuthenticator INSTANCE = new BackupCodeAuthenticator();
+
+    private static final List<ProviderConfigProperty> CONFIG_PROPERTIES;
+
+    static {
+        List<ProviderConfigProperty> list = ProviderConfigurationBuilder
+                .create()
+// TODO figure out how to access provider configuration in isConfiguredFor
+//                .property().name("secondFactorRequired")
+//                .type(ProviderConfigProperty.STRING_TYPE)
+//                .label("Required Second Factor Credential Type")
+//                .defaultValue(OTPCredentialModel.TYPE)
+//                .helpText("If the credential model type is configured for the user the authenticator is offered." +
+//                        "If the value is empty the authenticator is always offered.")
+//                .add()
+                .build();
+
+        CONFIG_PROPERTIES = Collections.unmodifiableList(list);
+    }
 
     @Override
     public String getId() {
@@ -29,7 +49,7 @@ public class BackupCodeAuthenticatorFactory implements AuthenticatorFactory {
 
     @Override
     public String getHelpText() {
-        return "Backup Code Authenticator Help";
+        return "Backup Codes for 2FA Recovery";
     }
 
     @Override
@@ -54,7 +74,7 @@ public class BackupCodeAuthenticatorFactory implements AuthenticatorFactory {
 
     @Override
     public List<ProviderConfigProperty> getConfigProperties() {
-        return null;
+        return CONFIG_PROPERTIES;
     }
 
     @Override

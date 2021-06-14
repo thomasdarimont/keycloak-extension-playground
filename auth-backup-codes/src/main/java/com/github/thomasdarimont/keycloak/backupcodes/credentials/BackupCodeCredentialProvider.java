@@ -33,14 +33,13 @@ public class BackupCodeCredentialProvider implements CredentialProvider<Credenti
 
     @Override
     public boolean supportsCredentialType(String credentialType) {
-        return BackupCodeCredentialModel.TYPE.equals(credentialType);
+        return getType().equals(credentialType);
     }
 
     @Override
     public boolean isConfiguredFor(RealmModel realm, UserModel user, String credentialType) {
         UserCredentialManager userCredentialManager = session.userCredentialManager();
-        return userCredentialManager.getStoredCredentialsByTypeStream(realm, user, BackupCodeCredentialModel.TYPE)
-                .findAny().isPresent();
+        return userCredentialManager.getStoredCredentialsByTypeStream(realm, user, credentialType).findAny().isPresent();
     }
 
     @Override
@@ -48,29 +47,30 @@ public class BackupCodeCredentialProvider implements CredentialProvider<Credenti
 
         String codeInput = credentialInput.getChallengeResponse();
 
-        BackupCodeConfig backupCodeConfig = BackupCodeConfig.getConfig(realm);
+        BackupCodeConfig backupCodeConfig = getBackupCodeConfig(realm);
         PasswordHashProvider passwordHashProvider = session.getProvider(PasswordHashProvider.class,
                 backupCodeConfig.getHashingProviderId());
 
         UserCredentialManager ucm = session.userCredentialManager();
-        List<CredentialModel> backupCodes = ucm.getStoredCredentialsByTypeStream(realm, user, BackupCodeCredentialModel.TYPE)
+        List<CredentialModel> backupCodes = ucm.getStoredCredentialsByTypeStream(realm, user, getType())
                 .collect(Collectors.toList());
 
         for (CredentialModel backupCode : backupCodes) {
-
             // check if the given backup code matches
             if (passwordHashProvider.verify(codeInput, PasswordCredentialModel.createFromCredentialModel(backupCode))) {
                 // we found matching backup code
-
-                // delete backup code entry
-                ucm.removeStoredCredential(realm, user, backupCode.getId());
-
+                handleUsedBackupCode(realm, user, ucm, backupCode);
                 return true;
             }
         }
 
         // no matching backup code found
         return false;
+    }
+
+    protected void handleUsedBackupCode(RealmModel realm, UserModel user, UserCredentialManager ucm, CredentialModel backupCode) {
+        // delete backup code entry
+        ucm.removeStoredCredential(realm, user, backupCode.getId());
     }
 
     @Override
@@ -85,7 +85,7 @@ public class BackupCodeCredentialProvider implements CredentialProvider<Credenti
             return null;
         }
 
-        BackupCodeConfig backupCodeConfig = BackupCodeConfig.getConfig(realm);
+        BackupCodeConfig backupCodeConfig = getBackupCodeConfig(realm);
 
         BackupCodeCredentialModel backupCodeCredentialModel = (BackupCodeCredentialModel) credentialModelInput;
         BackupCode backupCode = backupCodeCredentialModel.getBackupCode();
@@ -98,24 +98,41 @@ public class BackupCodeCredentialProvider implements CredentialProvider<Credenti
             throw new RuntimeException("Cloud not find hashProvider to hash backup codes");
         }
 
-        CredentialModel backupCodeModel = new CredentialModel();
-        backupCodeModel.setType(BackupCodeCredentialModel.TYPE);
-        backupCodeModel.setCreatedDate(backupCode.getCreatedAt());
-        // TODO make userlabel configurable
-        backupCodeModel.setUserLabel("Backup-Code: " + backupCode.getId());
-        PasswordCredentialModel encodedBackupCode = passwordHashProvider.encodedCredential(backupCode.getCode(),
-                backupCodeConfig.getBackupCodeHashIterations());
-        backupCodeModel.setSecretData(encodedBackupCode.getSecretData());
-        backupCodeModel.setCredentialData(encodedBackupCode.getCredentialData());
+        PasswordCredentialModel encodedBackupCode = encodeBackupCode(backupCode, backupCodeConfig, passwordHashProvider);
+        CredentialModel backupCodeModel = createBackupCodeCredentialModel(backupCode, encodedBackupCode);
 
         session.userCredentialManager().createCredential(realm, user, backupCodeModel);
 
         return backupCodeModel;
     }
 
+    protected CredentialModel createBackupCodeCredentialModel(BackupCode backupCode, PasswordCredentialModel encodedBackupCode) {
+
+        CredentialModel model = new CredentialModel();
+        model.setType(getType());
+        model.setCreatedDate(backupCode.getCreatedAt());
+        // TODO make userlabel configurable
+        model.setUserLabel(createBackupCodeUserLabel(backupCode));
+        model.setSecretData(encodedBackupCode.getSecretData());
+        model.setCredentialData(encodedBackupCode.getCredentialData());
+        return model;
+    }
+
+    protected PasswordCredentialModel encodeBackupCode(
+            BackupCode backupCode, BackupCodeConfig backupCodeConfig, PasswordHashProvider passwordHashProvider) {
+        return passwordHashProvider.encodedCredential(backupCode.getCode(), backupCodeConfig.getBackupCodeHashIterations());
+    }
+
+    protected String createBackupCodeUserLabel(BackupCode backupCode) {
+        return "Backup-Code: " + backupCode.getId();
+    }
+
+    protected BackupCodeConfig getBackupCodeConfig(RealmModel realm) {
+        return BackupCodeConfig.getConfig(realm);
+    }
+
     @Override
     public boolean deleteCredential(RealmModel realm, UserModel user, String credentialId) {
-
         UserCredentialManager userCredentialManager = session.userCredentialManager();
         return userCredentialManager.removeStoredCredential(realm, user, credentialId);
     }
@@ -123,7 +140,7 @@ public class BackupCodeCredentialProvider implements CredentialProvider<Credenti
     @Override
     public CredentialModel getCredentialFromModel(CredentialModel model) {
 
-        if (!BackupCodeCredentialModel.TYPE.equals(model.getType())) {
+        if (!getType().equals(model.getType())) {
             return null;
         }
 
@@ -134,13 +151,15 @@ public class BackupCodeCredentialProvider implements CredentialProvider<Credenti
     public CredentialTypeMetadata getCredentialTypeMetadata(CredentialTypeMetadataContext metadataContext) {
 
         CredentialTypeMetadataBuilder builder = CredentialTypeMetadata.builder();
-        builder.type(BackupCodeCredentialModel.TYPE);
+        builder.type(getType());
         builder.category(CredentialTypeMetadata.Category.TWO_FACTOR);
         builder.createAction(GenerateBackupCodeAction.ID);
+        // TODO make backup code removal configurable
         builder.removeable(false);
         builder.displayName("backup-codes-display-name");
         builder.helpText("backup-codes-help-text");
         // builder.updateAction(GenerateBackupCodeAction.ID);
+        // TODO configure proper FA icon for backup codes
         builder.iconCssClass("kcAuthenticatorBackupCodeClass");
 
         return builder.build(session);
