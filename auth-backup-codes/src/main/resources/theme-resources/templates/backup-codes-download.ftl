@@ -38,9 +38,8 @@
               method="post">
             <div class="${properties.kcFormGroupClass!}">
                 <div id="kc-form-buttons" class="${properties.kcFormButtonsClass!}">
-                    <button id="back-to-application" name="cancel-aia" value="true" type="submit" disabled
-                            class="${properties.kcButtonClass!} ${properties.kcButtonDefaultClass!} ${properties.kcButtonLargeClass!} hidden">
-                    ${msg("backToApplication")?no_esc}
+                    <button id="back-to-application" class="${properties.kcButtonClass!} ${properties.kcButtonDefaultClass!} ${properties.kcButtonLargeClass!} hidden" type="submit" name="cancel-aia" value="true" />
+                    ${msg("doSubmit")}
                     </button>
                 </div>
             </div>

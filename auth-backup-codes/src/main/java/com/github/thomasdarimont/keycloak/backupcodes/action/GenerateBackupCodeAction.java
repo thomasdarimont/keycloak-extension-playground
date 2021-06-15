@@ -5,6 +5,7 @@ import com.github.thomasdarimont.keycloak.backupcodes.BackupCodeConfig;
 import com.github.thomasdarimont.keycloak.backupcodes.BackupCodeCredentialModel;
 import com.github.thomasdarimont.keycloak.backupcodes.BackupCodeGenerator;
 import lombok.extern.jbosslog.JBossLog;
+import org.jboss.resteasy.spi.HttpRequest;
 import org.keycloak.authentication.InitiatedActionSupport;
 import org.keycloak.authentication.RequiredActionContext;
 import org.keycloak.authentication.RequiredActionProvider;
@@ -18,8 +19,11 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserCredentialManager;
 import org.keycloak.models.UserModel;
+import org.keycloak.services.managers.AuthenticationManager;
+import org.keycloak.services.resources.LoginActionsService;
 import org.keycloak.sessions.AuthenticationSessionModel;
 
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -31,11 +35,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-/**
- * <pre>
- * keycloak.login({action: "generate-backup-codes"});
- * </pre>
- */
 @JBossLog
 public class GenerateBackupCodeAction implements RequiredActionProvider {
 
@@ -115,6 +114,13 @@ public class GenerateBackupCodeAction implements RequiredActionProvider {
     @Override
     public void processAction(RequiredActionContext context) {
 
+        if (isCancelApplicationInitiatedAction(context)) {
+            AuthenticationSessionModel authSession = context.getAuthenticationSession();
+            AuthenticationManager.setKcActionStatus(GenerateBackupCodeAction.ID, RequiredActionContext.KcActionStatus.CANCELLED, authSession);
+            context.success();
+            return;
+        }
+
         EventBuilder event = context.getEvent();
         KeycloakSession session = context.getSession();
         RealmModel realm = context.getRealm();
@@ -135,6 +141,13 @@ public class GenerateBackupCodeAction implements RequiredActionProvider {
 
         // Show backup code download form
         context.challenge(createDownloadForm(context, backupCodes).createForm("backup-codes-download.ftl"));
+    }
+
+    protected boolean isCancelApplicationInitiatedAction(RequiredActionContext context) {
+
+        HttpRequest httpRequest = context.getHttpRequest();
+        MultivaluedMap<String, String> formParams = httpRequest.getDecodedFormParameters();
+        return formParams.containsKey(LoginActionsService.CANCEL_AIA);
     }
 
     protected void removeExistingBackupCodesIfPresent(RealmModel realm, UserModel user, KeycloakSession session) {

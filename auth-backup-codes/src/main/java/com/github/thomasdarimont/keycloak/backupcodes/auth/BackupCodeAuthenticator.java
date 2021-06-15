@@ -8,6 +8,7 @@ import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.events.Errors;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.forms.login.LoginFormsProvider;
+import org.keycloak.models.AuthenticatorConfigModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserCredentialModel;
@@ -18,6 +19,7 @@ import org.keycloak.services.messages.Messages;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.util.Map;
 
 import static org.keycloak.authentication.authenticators.util.AuthenticatorUtils.getDisabledByBruteForceEventError;
 import static org.keycloak.services.validation.Validation.FIELD_USERNAME;
@@ -29,6 +31,10 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
     public static final String FIELD_BACKUP_CODE = "backupCode";
 
     public static final String MESSAGE_BACKUP_CODE_INVALID = "backup-code-invalid";
+
+    public static final String CONFIG_RENEW_BACKUP_CODES_ON_EXHAUSTION = "renew-backup-codes-on-exhaustion";
+
+    public static final String DEFAULT_RENEW_BACKUP_CODES_ON_EXHAUSTION = "true";
 
     @Override
     public void authenticate(AuthenticationFlowContext context) {
@@ -93,11 +99,47 @@ public class BackupCodeAuthenticator extends AbstractFormAuthenticator {
         }
 
         UserCredentialModel backupCode = new UserCredentialModel(null, BackupCodeCredentialModel.TYPE, backupCodeInput, false);
-        if (context.getSession().userCredentialManager().isValid(context.getRealm(), user, backupCode)) {
-            return true;
+        KeycloakSession session = context.getSession();
+        RealmModel realm = context.getRealm();
+
+        boolean backupCodeValid = session.userCredentialManager().isValid(realm, user, backupCode);
+        if (!backupCodeValid) {
+            return badBackupCodeHandler(context, user, false);
         }
 
-        return badBackupCodeHandler(context, user, false);
+        checkForRemainingBackupCodes(context, session, realm, user);
+
+        return true;
+    }
+
+    protected void checkForRemainingBackupCodes(AuthenticationFlowContext context, KeycloakSession session, RealmModel realm, UserModel user) {
+
+        // check if there are remaining backup-codes left, otherwise add required action to user
+        boolean remainingBackupCodesPresent = session.userCredentialManager().isConfiguredFor(realm, user, BackupCodeCredentialModel.TYPE);
+        if (remainingBackupCodesPresent) {
+            return;
+        }
+
+        boolean renewBackupCodesOnExhaustion =
+                Boolean.parseBoolean(getConfig(context, CONFIG_RENEW_BACKUP_CODES_ON_EXHAUSTION, DEFAULT_RENEW_BACKUP_CODES_ON_EXHAUSTION));
+        if (renewBackupCodesOnExhaustion) {
+            user.addRequiredAction(GenerateBackupCodeAction.ID);
+        }
+    }
+
+    protected String getConfig(AuthenticationFlowContext context, String key, String defaultValue) {
+
+        AuthenticatorConfigModel configModel = context.getAuthenticatorConfig();
+        if (configModel == null) {
+            return defaultValue;
+        }
+
+        Map<String, String> config = configModel.getConfig();
+        if (config == null) {
+            return defaultValue;
+        }
+
+        return config.getOrDefault(key, defaultValue);
     }
 
     protected boolean isDisabledByBruteForce(AuthenticationFlowContext context, UserModel user) {
