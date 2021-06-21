@@ -2,7 +2,6 @@ package com.github.thomasdarimont.keycloak.backupcodes.credentials;
 
 import com.github.thomasdarimont.keycloak.backupcodes.BackupCode;
 import com.github.thomasdarimont.keycloak.backupcodes.BackupCodeConfig;
-import com.github.thomasdarimont.keycloak.backupcodes.BackupCodeCredentialModel;
 import com.github.thomasdarimont.keycloak.backupcodes.action.GenerateBackupCodeAction;
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.credential.CredentialInput;

@@ -1,6 +1,6 @@
 package com.github.thomasdarimont.keycloak.backupcodes.auth;
 
-import com.github.thomasdarimont.keycloak.backupcodes.BackupCodeCredentialModel;
+import com.github.thomasdarimont.keycloak.backupcodes.credentials.BackupCodeCredentialModel;
 import com.github.thomasdarimont.keycloak.backupcodes.action.GenerateBackupCodeAction;
 import org.keycloak.authentication.AbstractFormAuthenticator;
 import org.keycloak.authentication.AuthenticationFlowContext;

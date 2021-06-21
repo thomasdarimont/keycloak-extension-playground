@@ -1,5 +1,6 @@
-package com.github.thomasdarimont.keycloak.backupcodes;
+package com.github.thomasdarimont.keycloak.backupcodes.credentials;
 
+import com.github.thomasdarimont.keycloak.backupcodes.BackupCode;
 import org.keycloak.credential.CredentialModel;
 
 public class BackupCodeCredentialModel extends CredentialModel {

@@ -1,6 +1,6 @@
 package com.github.thomasdarimont.keycloak.backupcodes.auth;
 
-import com.github.thomasdarimont.keycloak.backupcodes.BackupCodeCredentialModel;
+import com.github.thomasdarimont.keycloak.backupcodes.credentials.BackupCodeCredentialModel;
 import com.google.auto.service.AutoService;
 import org.keycloak.Config;
 import org.keycloak.authentication.Authenticator;
