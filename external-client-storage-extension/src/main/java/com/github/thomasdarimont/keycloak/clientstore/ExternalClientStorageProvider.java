@@ -127,6 +127,11 @@ public class ExternalClientStorageProvider implements ClientStorageProvider {
     }
 
     @Override
+    public Stream<ClientModel> searchClientsByAttributes(RealmModel realm, Map<String, String> attributes, Integer firstResult, Integer maxResults) {
+        return Stream.empty();
+    }
+
+    @Override
     public Map<String, ClientScopeModel> getClientScopes(RealmModel realm, ClientModel client, boolean defaultScopes) {
         // TODO fix dynamic client scope resolution
         return Collections.emptyMap();
