@@ -1,5 +1,6 @@
 package demo.keycloak.auth;
 
+import com.google.auto.service.AutoService;
 import org.keycloak.Config;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.authentication.Authenticator;
@@ -14,6 +15,7 @@ import org.keycloak.provider.ProviderConfigProperty;
 
 import java.util.List;
 
+@AutoService(AuthenticatorFactory.class)
 public class AdhocRegistrationUsernameFormAuthenticatorFactory implements AuthenticatorFactory, DisplayTypeAuthenticatorFactory {
 
     public static final String PROVIDER_ID = "custom-auth-username-form";
