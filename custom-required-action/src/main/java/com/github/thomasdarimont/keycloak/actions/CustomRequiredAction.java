@@ -19,12 +19,10 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import java.util.function.Consumer;
 
-
 /**
  * http://localhost:8081/auth/realms/demo/protocol/openid-connect/auth?client_id=keycloak-js-demo&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fwebapp%2F&response_type=code&scope=openid&kc_action=UPDATE_CUSTOM_INFO
  */
 @JBossLog
-
 public class CustomRequiredAction implements RequiredActionProvider {
 
     public static final String ID = "UPDATE_CUSTOM_INFO";
