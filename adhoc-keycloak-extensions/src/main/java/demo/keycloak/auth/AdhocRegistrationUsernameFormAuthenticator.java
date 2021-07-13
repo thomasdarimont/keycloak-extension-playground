@@ -14,7 +14,7 @@ import java.util.Collections;
 
 /**
  * Variant of {@link org.keycloak.authentication.authenticators.browser.UsernameForm} authenticator,
- * that shows the prepoulated user registration page if a user with the given username cannot be found.
+ * that shows a prefilled user registration page if a user with the given username cannot be found.
  *
  * See: https://security.stackexchange.com/questions/88815/new-gmail-login-system-going-against-conventional-wisdom/88844
  */
@@ -22,26 +22,39 @@ public class AdhocRegistrationUsernameFormAuthenticator extends UsernamePassword
 
     @Override
     protected boolean validateForm(AuthenticationFlowContext context, MultivaluedMap<String, String> formData) {
-        boolean userValid = validateUser(context, formData);
 
-        if (userValid) {
-            return userValid;
+        boolean userIsValid = validateUser(context, formData);
+
+        if (userIsValid) {
+            return userIsValid;
         }
 
+        // we could not find the user with the given username
+
+        if (!context.getRealm().isRegistrationAllowed()) {
+            // only show the registration screen for unknown users if self registration is allowed
+            return userIsValid;
+        }
+
+        // show the registration page to the user prefilled with the given email if present
         LoginFormsProvider formProvider = context.form();
-        String maybeCurrentUsername = context.getHttpRequest().getDecodedFormParameters().getFirst(AuthenticationManager.FORM_USERNAME);
-        if (maybeCurrentUsername != null && Validation.isEmailValid(maybeCurrentUsername)) {
-
-            MultivaluedHashMap<String, String> newFormData = new MultivaluedHashMap<>();
-            newFormData.putSingle("email", maybeCurrentUsername);
-            formProvider.setFormData(newFormData);
-
-            formProvider.setErrors(Collections.emptyList());
+        if (context.getRealm().isRegistrationEmailAsUsername()) {
+            String maybeCurrentUsername = context.getHttpRequest().getDecodedFormParameters().getFirst(AuthenticationManager.FORM_USERNAME);
+            boolean usernameIsValidEmail = maybeCurrentUsername != null && Validation.isEmailValid(maybeCurrentUsername);
+            if (usernameIsValidEmail) {
+                // prefill the email field in the current registration form with the current username
+                MultivaluedHashMap<String, String> newFormData = new MultivaluedHashMap<>();
+                newFormData.putSingle("email", maybeCurrentUsername);
+                formProvider.setFormData(newFormData);
+            }
         }
+
+        // reset previous errors to avoid showing error messages on the registration page
+        formProvider.setErrors(Collections.emptyList());
 
         context.challenge(formProvider.createRegistration());
 
-        return userValid;
+        return userIsValid;
     }
 
     @Override
