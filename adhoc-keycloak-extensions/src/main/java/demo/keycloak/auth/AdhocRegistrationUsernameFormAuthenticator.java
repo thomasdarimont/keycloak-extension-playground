@@ -3,19 +3,19 @@ package demo.keycloak.auth;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.authenticators.browser.UsernamePasswordForm;
 import org.keycloak.forms.login.LoginFormsProvider;
-import org.keycloak.services.managers.AuthenticationManager;
+import org.keycloak.models.Constants;
+import org.keycloak.services.Urls;
 import org.keycloak.services.messages.Messages;
-import org.keycloak.services.validation.Validation;
+import org.keycloak.sessions.AuthenticationSessionModel;
 
-import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
+import javax.ws.rs.core.UriBuilder;
 
 /**
  * Variant of {@link org.keycloak.authentication.authenticators.browser.UsernameForm} authenticator,
- * that shows a prefilled user registration page if a user with the given username cannot be found.
- *
+ * that shows the user registration page if a user with the given username cannot be found.
+ * <p>
  * See: https://security.stackexchange.com/questions/88815/new-gmail-login-system-going-against-conventional-wisdom/88844
  */
 public class AdhocRegistrationUsernameFormAuthenticator extends UsernamePasswordForm {
@@ -36,24 +36,13 @@ public class AdhocRegistrationUsernameFormAuthenticator extends UsernamePassword
             return userIsValid;
         }
 
-        // show the registration page to the user prefilled with the given email if present
-        LoginFormsProvider formProvider = context.form();
-        if (context.getRealm().isRegistrationEmailAsUsername()) {
-            String maybeCurrentUsername = context.getHttpRequest().getDecodedFormParameters().getFirst(AuthenticationManager.FORM_USERNAME);
-            boolean usernameIsValidEmail = maybeCurrentUsername != null && Validation.isEmailValid(maybeCurrentUsername);
-            if (usernameIsValidEmail) {
-                // prefill the email field in the current registration form with the current username
-                MultivaluedHashMap<String, String> newFormData = new MultivaluedHashMap<>();
-                newFormData.putSingle("email", maybeCurrentUsername);
-                formProvider.setFormData(newFormData);
-            }
-        }
+        // redirect user to registration page
+        AuthenticationSessionModel authSession = context.getAuthenticationSession();
+        UriBuilder registerPageUri = UriBuilder.fromUri(Urls.realmRegisterPage(context.getUriInfo().getBaseUri(), context.getRealm().getName()));
+        registerPageUri.queryParam(Constants.CLIENT_ID, authSession.getClient().getClientId());
+        registerPageUri.queryParam(Constants.TAB_ID, authSession.getTabId());
 
-        // reset previous errors to avoid showing error messages on the registration page
-        formProvider.setErrors(Collections.emptyList());
-        formProvider.setInfo("Create New User");
-
-        context.challenge(formProvider.createRegistration());
+        context.challenge(Response.temporaryRedirect(registerPageUri.build()).build());
 
         return userIsValid;
     }
