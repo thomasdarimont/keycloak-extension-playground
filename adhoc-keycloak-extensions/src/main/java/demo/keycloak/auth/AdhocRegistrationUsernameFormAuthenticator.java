@@ -51,6 +51,7 @@ public class AdhocRegistrationUsernameFormAuthenticator extends UsernamePassword
 
         // reset previous errors to avoid showing error messages on the registration page
         formProvider.setErrors(Collections.emptyList());
+        formProvider.setInfo("Create New User");
 
         context.challenge(formProvider.createRegistration());
 
