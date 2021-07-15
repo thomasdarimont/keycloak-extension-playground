@@ -55,6 +55,7 @@
         <module>simple-realm-resource-with-form-example</module>
         <module>auth-trust-device</module>
         <module>auth-backup-codes</module>
+        <module>json-theme-provider-extension</module>
     </modules>
 
     <properties>
