@@ -14,6 +14,7 @@ import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.credential.PasswordCredentialModel;
+import org.keycloak.policy.PasswordPolicyManagerProvider;
 import org.keycloak.storage.StorageId;
 import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.federated.UserAttributeFederatedStorage;
@@ -89,6 +90,7 @@ public class FlyweightAcmeUserStorageProvider implements
         }
 
         UserCredentialModel cred = (UserCredentialModel) input;
+        // session.getProvider(PasswordPolicyManagerProvider.class).validate(realm, user, cred.getValue());
         return repository.updateCredentials(user.getUsername(), cred.getValue());
     }
 
