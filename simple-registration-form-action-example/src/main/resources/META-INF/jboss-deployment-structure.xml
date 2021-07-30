@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure>
+    <deployment>
+        <!-- Exposes the jboss-modules from $KEYCLOAK_HOME/modules for use
+        of this extension jar. This is a generous collection of dependencies
+        to simplify the development of extensions. -->
+        <dependencies>
+            <module name="org.keycloak.keycloak-common"/>
+            <module name="org.keycloak.keycloak-core"/>
+            <module name="org.keycloak.keycloak-server-spi"/>
+            <module name="org.keycloak.keycloak-server-spi-private"/>
+            <module name="org.jboss.resteasy.resteasy-jaxrs"/>
+            <module name="org.apache.httpcomponents"/>
+            <module name="org.keycloak.keycloak-services"/>
+            <module name="org.bouncycastle"/>
+            <module name="com.google.guava"/>
+            <module name="org.jboss.logging"/>
+            <module name="org.apache.commons.io"/>
+            <module name="javax.api"/>
+            <module name="javax.transaction.api"/>
+            <module name="com.fasterxml.jackson.core.jackson-core"/>
+            <module name="com.fasterxml.jackson.core.jackson-annotations"/>
+            <module name="com.fasterxml.jackson.core.jackson-databind"/>
+            <module name="com.fasterxml.jackson.core.jackson-databind"/>
+        </dependencies>
+    </deployment>
+</jboss-deployment-structure>

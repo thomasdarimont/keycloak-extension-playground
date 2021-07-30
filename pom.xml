@@ -56,6 +56,7 @@
         <module>auth-trust-device</module>
         <module>auth-backup-codes</module>
         <module>json-theme-provider-extension</module>
+        <module>simple-registration-form-action-example</module>
     </modules>
 
     <properties>
