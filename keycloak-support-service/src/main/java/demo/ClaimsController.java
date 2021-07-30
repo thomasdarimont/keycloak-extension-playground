@@ -25,6 +25,6 @@ class ClaimsController {
         claims.put("issuer", issuer);
         claims.put("userId", userId);
         claims.put("roles", Map.of("dms", List.of("ROLE1", "ROLE2")));
-        return claims;
+        return Map.of("democlaims", claims);
     }
 }
