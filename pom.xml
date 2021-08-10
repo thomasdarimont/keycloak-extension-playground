@@ -70,7 +70,7 @@
         <!-- dependency versions -->
         <lombok.version>1.18.20</lombok.version>
 
-        <keycloak.version>15.0.0</keycloak.version>
+        <keycloak.version>15.0.1</keycloak.version>
         <auto-service.version>1.0</auto-service.version>
         <jackson.version>2.12.1</jackson.version>
         <resteasy-jaxrs.version>3.15.1.Final</resteasy-jaxrs.version>
