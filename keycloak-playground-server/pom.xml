@@ -259,6 +259,13 @@
             <artifactId>json-theme-provider-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>auth-message-of-the-day</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- add new extension here -->
 
         <dependency>
