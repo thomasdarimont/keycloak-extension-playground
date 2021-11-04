@@ -29,6 +29,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Note that this custom UserStorageProvider does NOT support caching!
+ * Disable caching for the User Federation!
+ */
 @JBossLog
 public class FlyweightAcmeUserStorageProvider implements
         UserStorageProvider
@@ -135,6 +139,11 @@ public class FlyweightAcmeUserStorageProvider implements
         String externalId = StorageId.externalId(id);
         return createAdapter(realm, repository.findUserById(externalId));
     }
+
+//    @Override
+//    public UserModel getUserByUsername(RealmModel realm, String username) {
+//        return UserLookupProvider.super.getUserByUsername(realm, username);
+//    }
 
     @Override
     public UserModel getUserByUsername(String username, RealmModel realm) {

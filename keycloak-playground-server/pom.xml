@@ -14,6 +14,12 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-testsuite-utils</artifactId>
+            <version>${keycloak.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>simple-realm-resource-with-form-example</artifactId>
             <version>${project.version}</version>
@@ -266,6 +272,12 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>custom-user-profile-extension</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- add new extension here -->
 
         <dependency>
@@ -302,11 +314,6 @@
             <version>0.4.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-testsuite-utils</artifactId>
-            <version>${keycloak.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

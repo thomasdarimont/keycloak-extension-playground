@@ -57,7 +57,10 @@
         <module>auth-backup-codes</module>
         <module>json-theme-provider-extension</module>
         <module>simple-registration-form-action-example</module>
+        <module>kafka-event-listener</module>
         <module>auth-message-of-the-day</module>
+        <module>filebased-sync-userstorage-provider</module>
+        <module>custom-user-profile-extension</module>
     </modules>
 
     <properties>

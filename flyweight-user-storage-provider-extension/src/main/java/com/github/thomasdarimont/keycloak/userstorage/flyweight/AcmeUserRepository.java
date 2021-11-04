@@ -68,7 +68,8 @@ class AcmeUserRepository {
     }
 
     public boolean validateCredentials(String username, String password) {
-        return findUserByUsernameOrEmail(username).getPassword().equals(password);
+        AcmeUser user = findUserByUsernameOrEmail(username);
+        return user.getPassword().equals(password);
     }
 
     public boolean updateCredentials(String username, String password) {
