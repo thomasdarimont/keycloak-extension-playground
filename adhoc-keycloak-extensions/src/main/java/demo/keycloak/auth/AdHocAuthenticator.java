@@ -34,7 +34,7 @@ public class AdHocAuthenticator implements Authenticator {
 //
 //        boolean shouldWait = false;
 //        if (httpRequest.getUri().getQueryParameters().containsKey("wait")) {
-//            HttpServletResponse httpResponse = ResteasyProviderFactory.getContextData(HttpServletResponse.class);
+//            HttpServletResponse httpResponse = Resteasy.getContextData(HttpServletResponse.class);
 //            javax.servlet.http.Cookie cookie = new javax.servlet.http.Cookie("keycloak-pacer", "1");
 //            cookie.setMaxAge((int)(System.currentTimeMillis() / 1000) + 5); // 5 second wait time
 //            httpResponse.addCookie(cookie);

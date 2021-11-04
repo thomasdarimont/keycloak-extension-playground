@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.auto.service.AutoService;
 import lombok.extern.jbosslog.JBossLog;
 import org.jboss.logging.Logger;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.keycloak.broker.provider.util.SimpleHttp;
+import org.keycloak.common.util.Resteasy;
 import org.keycloak.models.ClientSessionContext;
 import org.keycloak.models.KeycloakContext;
 import org.keycloak.models.KeycloakSession;
@@ -26,11 +26,9 @@ import org.keycloak.provider.ProviderConfigurationBuilder;
 import org.keycloak.representations.IDToken;
 import org.keycloak.services.Urls;
 
-import javax.management.ObjectName;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -113,7 +111,7 @@ public class RemoteOidcMapper extends AbstractOIDCProtocolMapper implements OIDC
     @Override
     protected void setClaim(IDToken token, ProtocolMapperModel mappingModel, UserSessionModel userSession, KeycloakSession keycloakSession, ClientSessionContext clientSessionCtx) {
 
-        HttpServletRequest httpRequest = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
+        HttpServletRequest httpRequest = Resteasy.getContextData(HttpServletRequest.class);
         // extract information from httpRequest
 
         KeycloakContext context = keycloakSession.getContext();
@@ -132,7 +130,8 @@ public class RemoteOidcMapper extends AbstractOIDCProtocolMapper implements OIDC
         String claimName = mappingModel.getConfig().get(OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME);
         if (ROOT_OBJECT.equals(claimName) && claimValue instanceof ObjectNode) {
             ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> values = mapper.convertValue(claimValue, new TypeReference<Map<String, Object>>(){});
+            Map<String, Object> values = mapper.convertValue(claimValue, new TypeReference<Map<String, Object>>() {
+            });
             token.getOtherClaims().putAll(values);
             return;
         }
