@@ -16,7 +16,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-public interface KeycloakFacade {
+public interface RemoteKeycloakClient {
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)

@@ -19,13 +19,13 @@ public class RemoteTokenVerifier {
     // TODO replace with a time bound cache
     private static final ConcurrentHashMap<String, PublicKey> JWKS_CACHE = new ConcurrentHashMap<>();
 
-    private final KeycloakFacade keycloakFacade;
+    private final RemoteKeycloakClient keycloakFacade;
 
     private final String realm;
 
     private final String realmUrl;
 
-    public RemoteTokenVerifier(KeycloakFacade keycloakFacade, String authServerUrl, String realm) {
+    public RemoteTokenVerifier(RemoteKeycloakClient keycloakFacade, String authServerUrl, String realm) {
         this.keycloakFacade = keycloakFacade;
         this.realm = realm;
         this.realmUrl = authServerUrl + "/realms/" + realm;

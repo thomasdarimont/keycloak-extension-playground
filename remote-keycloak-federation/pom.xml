@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>keycloak-keycloak-federation</artifactId>
+    <artifactId>remote-keycloak-federation</artifactId>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>

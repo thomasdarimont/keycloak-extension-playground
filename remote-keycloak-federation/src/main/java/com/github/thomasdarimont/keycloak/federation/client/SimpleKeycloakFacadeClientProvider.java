@@ -2,7 +2,6 @@ package com.github.thomasdarimont.keycloak.federation.client;
 
 import lombok.extern.jbosslog.JBossLog;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.common.util.Time;
@@ -17,10 +16,11 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 @JBossLog
-public class SimpleKeycloakFacadeProvider implements KeycloakFacadeProvider {
+public class SimpleKeycloakFacadeClientProvider implements RemoteKeycloakClientProvider {
 
     private final AtomicReference<ExpiringAccessToken> accessTokenResponseHolder = new AtomicReference<>();
 
@@ -32,32 +32,28 @@ public class SimpleKeycloakFacadeProvider implements KeycloakFacadeProvider {
 
     private final String authServerUrl;
 
-    private final KeycloakFacade keycloakFacade;
+    private final RemoteKeycloakClient remoteKeycloakClient;
 
     private final RemoteTokenVerifier remoteTokenVerifier;
 
-    public SimpleKeycloakFacadeProvider(ComponentModel componentModel) {
+    public SimpleKeycloakFacadeClientProvider(ComponentModel componentModel, Function<ComponentModel, ResteasyClient> clientFactory) {
         this.clientId = componentModel.get("clientId");
         this.clientSecret = componentModel.get("clientSecret");
         this.realm = componentModel.get("realm");
         this.authServerUrl = componentModel.get("authServerUrl", "http://localhost:8080/auth");
-        this.keycloakFacade = createKeycloakApi();
-        this.remoteTokenVerifier = new RemoteTokenVerifier(keycloakFacade, authServerUrl, realm);
+        this.remoteKeycloakClient = createRemoteKeycloakClient(clientFactory.apply(componentModel));
+        this.remoteTokenVerifier = new RemoteTokenVerifier(remoteKeycloakClient, authServerUrl, realm);
     }
 
-    private KeycloakFacade createKeycloakApi() {
-        ResteasyClient client = new ResteasyClientBuilder() //
-                //.keyStore()
-                //
-                .build();
+    private RemoteKeycloakClient createRemoteKeycloakClient(ResteasyClient client) {
         ResteasyWebTarget webTarget = client.target(UriBuilder.fromPath(this.authServerUrl));
         webTarget.register(new AccessTokenInterceptor(this::getAccessToken));
-        return webTarget.proxy(KeycloakFacade.class);
+        return webTarget.proxy(RemoteKeycloakClient.class);
     }
 
     @Override
-    public KeycloakFacade getKeycloakFacade() {
-        return keycloakFacade;
+    public RemoteKeycloakClient getRemoteKeycloakClient() {
+        return remoteKeycloakClient;
     }
 
     private String getAccessToken() {
@@ -67,7 +63,7 @@ public class SimpleKeycloakFacadeProvider implements KeycloakFacadeProvider {
             return current.getAccessTokenString();
         }
 
-        AccessTokenResponse newAccessTokenResponse = keycloakFacade.getToken( //
+        AccessTokenResponse newAccessTokenResponse = remoteKeycloakClient.getToken( //
                 realm, //
                 clientId, //
                 clientSecret, //

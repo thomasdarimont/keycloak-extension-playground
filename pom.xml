@@ -61,7 +61,7 @@
         <module>auth-message-of-the-day</module>
         <module>filebased-sync-userstorage-provider</module>
         <module>custom-user-profile-extension</module>
-        <module>keycloak-keycloak-federation</module>
+        <module>remote-keycloak-federation</module>
     </modules>
 
     <properties>

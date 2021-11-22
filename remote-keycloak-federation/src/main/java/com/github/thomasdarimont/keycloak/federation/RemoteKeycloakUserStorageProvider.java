@@ -1,9 +1,10 @@
 package com.github.thomasdarimont.keycloak.federation;
 
-import com.github.thomasdarimont.keycloak.federation.client.KeycloakFacade;
-import com.github.thomasdarimont.keycloak.federation.client.KeycloakFacadeProvider;
-import com.github.thomasdarimont.keycloak.federation.client.SimpleKeycloakFacadeProvider;
+import com.github.thomasdarimont.keycloak.federation.client.RemoteKeycloakClient;
+import com.github.thomasdarimont.keycloak.federation.client.RemoteKeycloakClientProvider;
+import com.github.thomasdarimont.keycloak.federation.client.SimpleKeycloakFacadeClientProvider;
 import lombok.extern.jbosslog.JBossLog;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.credential.CredentialInput;
@@ -35,10 +36,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @JBossLog
-public class KeycloakUserStorageProvider implements UserStorageProvider, //
+public class RemoteKeycloakUserStorageProvider implements UserStorageProvider, //
         UserLookupProvider, // User lookup by username, email, userId
         CredentialInputValidator //  Credential validation
 {
@@ -46,12 +48,18 @@ public class KeycloakUserStorageProvider implements UserStorageProvider, //
     public static final String EXTERNAL_USER_ID_ATTRIBUTE = "externalUserIdAttribute";
     private final KeycloakSession session;
     private final ComponentModel componentModel;
-    private final ConcurrentMap<String, KeycloakFacadeProvider> keycloakFacadeProvider;
+    private final Function<ComponentModel, ResteasyClient> clientFactory;
+    private final ConcurrentMap<String, RemoteKeycloakClientProvider> remoteKeycloakProviderCache;
 
-    public KeycloakUserStorageProvider(KeycloakSession session, ComponentModel componentModel, ConcurrentMap<String, KeycloakFacadeProvider> keycloakFacadeProvider) {
+    public RemoteKeycloakUserStorageProvider(
+            KeycloakSession session,
+            ComponentModel componentModel,
+            ConcurrentMap<String, RemoteKeycloakClientProvider> remoteKeycloakProviderCache,
+            Function<ComponentModel, ResteasyClient> clientFactory) {
         this.session = session;
         this.componentModel = componentModel;
-        this.keycloakFacadeProvider = keycloakFacadeProvider;
+        this.remoteKeycloakProviderCache = remoteKeycloakProviderCache;
+        this.clientFactory = clientFactory;
     }
 
     @Override
@@ -67,7 +75,7 @@ public class KeycloakUserStorageProvider implements UserStorageProvider, //
         String externalId = StorageId.externalId(id);
         UserRepresentation user;
         try {
-            user = getKeycloakFacade().getUserById(componentModel.get("realm"), externalId);
+            user = getRemoteKeycloak().getUserById(componentModel.get("realm"), externalId);
         } catch (Exception ex) {
             return null;
         }
@@ -91,7 +99,7 @@ public class KeycloakUserStorageProvider implements UserStorageProvider, //
 
         List<UserRepresentation> users;
         try {
-            users = getKeycloakFacade().getUserByUsername(componentModel.get("realm"), username, false);
+            users = getRemoteKeycloak().getUserByUsername(componentModel.get("realm"), username, false);
         } catch (Exception ex) {
             return null;
         }
@@ -116,7 +124,7 @@ public class KeycloakUserStorageProvider implements UserStorageProvider, //
 
         List<UserRepresentation> users;
         try {
-            users = getKeycloakFacade().getUserByEmail(componentModel.get("realm"), email, false);
+            users = getRemoteKeycloak().getUserByEmail(componentModel.get("realm"), email, false);
         } catch (Exception ex) {
             return null;
         }
@@ -211,19 +219,12 @@ public class KeycloakUserStorageProvider implements UserStorageProvider, //
         return clientRoles.isEmpty() ? Collections.emptyList() : clientRoles;
     }
 
-    protected KeycloakFacadeProvider getKeycloakFacadeProvider() {
-
-        KeycloakFacadeProvider keycloakFacade = keycloakFacadeProvider.computeIfAbsent(componentModel.getId(), storageProviderId -> {
-
-            KeycloakFacadeProvider provider = createKeycloakFacadeProvider();
-            return provider;
-        });
-
-        return keycloakFacade;
+    protected RemoteKeycloakClientProvider getRemoteKeycloakProvider() {
+        return remoteKeycloakProviderCache.computeIfAbsent(componentModel.getId(), storageProviderId -> createKeycloakFacadeProvider(clientFactory));
     }
 
-    protected SimpleKeycloakFacadeProvider createKeycloakFacadeProvider() {
-        return new SimpleKeycloakFacadeProvider(componentModel);
+    protected SimpleKeycloakFacadeClientProvider createKeycloakFacadeProvider(Function<ComponentModel, ResteasyClient> clientFactory) {
+        return new SimpleKeycloakFacadeClientProvider(componentModel, clientFactory);
     }
 
     @Override
@@ -241,7 +242,7 @@ public class KeycloakUserStorageProvider implements UserStorageProvider, //
     public boolean isValid(RealmModel realm, UserModel user, CredentialInput credentialInput) {
 
         try {
-            AccessTokenResponse accessTokenResponse = getKeycloakFacade().validatePassword( //
+            AccessTokenResponse accessTokenResponse = getRemoteKeycloak().validatePassword( //
                     componentModel.get("realm"), //
                     componentModel.get("clientId"), //
                     componentModel.get("clientSecret"), //
@@ -250,7 +251,7 @@ public class KeycloakUserStorageProvider implements UserStorageProvider, //
                     OAuth2Constants.PASSWORD, //
                     "profile email");
 
-            AccessToken accessToken = getKeycloakFacadeProvider().verifyAccessToken(accessTokenResponse);
+            AccessToken accessToken = getRemoteKeycloakProvider().verifyAccessToken(accessTokenResponse);
             if (accessToken == null) {
                 return false;
             }
@@ -297,7 +298,7 @@ public class KeycloakUserStorageProvider implements UserStorageProvider, //
         }
     }
 
-    private KeycloakFacade getKeycloakFacade() {
-        return getKeycloakFacadeProvider().getKeycloakFacade();
+    private RemoteKeycloakClient getRemoteKeycloak() {
+        return getRemoteKeycloakProvider().getRemoteKeycloakClient();
     }
 }

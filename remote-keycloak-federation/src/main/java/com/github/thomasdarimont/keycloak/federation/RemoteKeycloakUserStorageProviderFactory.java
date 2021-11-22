@@ -1,8 +1,10 @@
 package com.github.thomasdarimont.keycloak.federation;
 
-import com.github.thomasdarimont.keycloak.federation.client.KeycloakFacadeProvider;
+import com.github.thomasdarimont.keycloak.federation.client.RemoteKeycloakClientProvider;
 import com.google.auto.service.AutoService;
 import lombok.extern.jbosslog.JBossLog;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.Config;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.component.ComponentValidationException;
@@ -20,18 +22,13 @@ import java.util.concurrent.ConcurrentMap;
 
 @JBossLog
 @AutoService(UserStorageProviderFactory.class)
-public class KeycloakUserStorageProviderFactory implements UserStorageProviderFactory<KeycloakUserStorageProvider> {
+public class RemoteKeycloakUserStorageProviderFactory implements UserStorageProviderFactory<RemoteKeycloakUserStorageProvider> {
 
-    private final ConcurrentMap<String, KeycloakFacadeProvider> keycloakApis = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, RemoteKeycloakClientProvider> remoteKeycloakClientCache
+            = new ConcurrentHashMap<>();
 
     @Override
     public void init(Config.Scope config) {
-
-        // this configuration is pulled from the SPI configuration of this provider in the standalone[-ha] / domain.xml
-        // see setup.cli
-
-//        String someProperty = config.get("someProperty");
-//        log.infov("Configured {0} with someProperty: {1}", this, someProperty);
     }
 
     @Override
@@ -39,12 +36,8 @@ public class KeycloakUserStorageProviderFactory implements UserStorageProviderFa
     }
 
     @Override
-    public KeycloakUserStorageProvider create(KeycloakSession session, ComponentModel model) {
-        // here you can setup the user storage provider, initiate some connections, etc.
-
-//        log.infov("CreateProvider {0}", List.of());
-
-        return new KeycloakUserStorageProvider(session, model, keycloakApis);
+    public RemoteKeycloakUserStorageProvider create(KeycloakSession session, ComponentModel model) {
+        return new RemoteKeycloakUserStorageProvider(session, model, remoteKeycloakClientCache, this::createRestEasyClient);
     }
 
     @Override
@@ -147,10 +140,20 @@ public class KeycloakUserStorageProviderFactory implements UserStorageProviderFa
         return config;
     }
 
+    protected ResteasyClient createRestEasyClient(ComponentModel componentModel) {
+        ResteasyClient client = new ResteasyClientBuilder() //
+                .connectionPoolSize(128) // allow multiple concurrent connections.
+                //.keyStore()
+                //
+                .build();
+
+        return client;
+    }
+
     @Override
     public void validateConfiguration(KeycloakSession session, RealmModel realm, ComponentModel config) throws ComponentValidationException {
 
-        String externalUserIdAttribute = config.get(KeycloakUserStorageProvider.EXTERNAL_USER_ID_ATTRIBUTE);
+        String externalUserIdAttribute = config.get(RemoteKeycloakUserStorageProvider.EXTERNAL_USER_ID_ATTRIBUTE);
         if (StringUtil.isBlank(externalUserIdAttribute)) {
             throw new ComponentValidationException("externalUserIdAttribute must not be empty!");
         }

@@ -280,7 +280,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>keycloak-keycloak-federation</artifactId>
+            <artifactId>remote-keycloak-federation</artifactId>
             <version>${project.version}</version>
         </dependency>
 
