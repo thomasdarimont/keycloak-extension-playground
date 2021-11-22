@@ -278,6 +278,12 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>keycloak-keycloak-federation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- add new extension here -->
 
         <dependency>

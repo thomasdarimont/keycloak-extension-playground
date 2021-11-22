@@ -1,20 +1,28 @@
 package com.github.thomasdarimont.keycloak.federation;
 
+import com.github.thomasdarimont.keycloak.federation.client.KeycloakFacadeProvider;
 import com.google.auto.service.AutoService;
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.Config;
 import org.keycloak.component.ComponentModel;
+import org.keycloak.component.ComponentValidationException;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
+import org.keycloak.models.RealmModel;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.provider.ProviderConfigurationBuilder;
 import org.keycloak.storage.UserStorageProviderFactory;
+import org.keycloak.utils.StringUtil;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @JBossLog
 @AutoService(UserStorageProviderFactory.class)
 public class KeycloakUserStorageProviderFactory implements UserStorageProviderFactory<KeycloakUserStorageProvider> {
+
+    private final ConcurrentMap<String, KeycloakFacadeProvider> keycloakApis = new ConcurrentHashMap<>();
 
     @Override
     public void init(Config.Scope config) {
@@ -28,7 +36,6 @@ public class KeycloakUserStorageProviderFactory implements UserStorageProviderFa
 
     @Override
     public void postInit(KeycloakSessionFactory factory) {
-
     }
 
     @Override
@@ -37,12 +44,12 @@ public class KeycloakUserStorageProviderFactory implements UserStorageProviderFa
 
 //        log.infov("CreateProvider {0}", List.of());
 
-        return new KeycloakUserStorageProvider(session, model);
+        return new KeycloakUserStorageProvider(session, model, keycloakApis);
     }
 
     @Override
     public String getId() {
-        return "keycloak";
+        return "keycloak-remote";
     }
 
     @Override
@@ -97,14 +104,56 @@ public class KeycloakUserStorageProviderFactory implements UserStorageProviderFa
                 .type(ProviderConfigProperty.STRING_TYPE)
                 .defaultValue("")
                 .add()
+                .property()
+                .name("defaultRealmRoles")
+                .label("Additional Realm Roles")
+                .helpText("Realm roles to add")
+                .type(ProviderConfigProperty.STRING_TYPE)
+                .defaultValue("")
+                .add()
+                .property()
+                .name("defaultClientRoles")
+                .label("Additional Client Roles")
+                .helpText("Client roles to add. clientId1=role1,role2;cliendId2=role3,role4")
+                .type(ProviderConfigProperty.STRING_TYPE)
+                .defaultValue("")
+                .add()
+                .property()
+                .name("externalUserIdAttribute")
+                .label("External UserId Attribute")
+                .helpText("The name of the user attribute to store the external userId.")
+                .type(ProviderConfigProperty.STRING_TYPE)
+                .defaultValue("extUserId")
+                .add()
+                .property()
+                .name("useEmailAsUsername")
+                .label("Use email as username")
+                .helpText("The name of the user attribute to store the external userId.")
+                .type(ProviderConfigProperty.BOOLEAN_TYPE)
+                .defaultValue("false")
+                .add()
+                .property()
+                .name("importEnabled")
+                .label("Import User into Keycloak")
+                .helpText("If enabled creates a local user for the given user information.")
+                .type(ProviderConfigProperty.BOOLEAN_TYPE)
+                .defaultValue("false")
+                .add()
                 // more properties
                 // .property()
                 // .add()
                 .build();
 
-//        config.addAll(getCommonProviderConfigProperties());
-
         return config;
+    }
+
+    @Override
+    public void validateConfiguration(KeycloakSession session, RealmModel realm, ComponentModel config) throws ComponentValidationException {
+
+        String externalUserIdAttribute = config.get(KeycloakUserStorageProvider.EXTERNAL_USER_ID_ATTRIBUTE);
+        if (StringUtil.isBlank(externalUserIdAttribute)) {
+            throw new ComponentValidationException("externalUserIdAttribute must not be empty!");
+        }
     }
 }
 
