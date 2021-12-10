@@ -69,6 +69,11 @@ public class AcmeRoleModel implements RoleModel {
     }
 
     @Override
+    public Stream<RoleModel> getCompositesStream(String search, Integer first, Integer max) {
+        return Stream.empty();
+    }
+
+    @Override
     public boolean hasRole(RoleModel role) {
         return false;
     }

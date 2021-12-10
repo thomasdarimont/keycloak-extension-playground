@@ -30,7 +30,6 @@ public class GlobalRequestResponseFilter implements ContainerRequestFilter, Cont
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
         log.infof("After request: request=%s response=%s", requestContext, responseContext);
-
 //        MDC.remove("traceId");
     }
 }

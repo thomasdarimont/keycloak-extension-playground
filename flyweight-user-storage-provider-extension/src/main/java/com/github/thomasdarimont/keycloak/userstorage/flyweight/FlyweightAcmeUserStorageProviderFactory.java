@@ -37,7 +37,7 @@ public class FlyweightAcmeUserStorageProviderFactory implements UserStorageProvi
     public FlyweightAcmeUserStorageProvider create(KeycloakSession session, ComponentModel model) {
         // here you can setup the user storage provider, initiate some connections, etc.
 
-//        log.infov("CreateProvider {0}", List.of());
+        log.infov("CreateProvider {0}", getId());
 
         return new FlyweightAcmeUserStorageProvider(session, model, repository);
     }
