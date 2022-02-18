@@ -284,6 +284,12 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>custom-login-forms-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- add new extension here -->
 
         <dependency>

@@ -62,6 +62,7 @@
         <module>filebased-sync-userstorage-provider</module>
         <module>custom-user-profile-extension</module>
         <module>remote-keycloak-federation</module>
+        <module>custom-login-forms-provider</module>
     </modules>
 
     <properties>
