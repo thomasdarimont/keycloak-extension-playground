@@ -2,6 +2,7 @@ package com.github.thomasdarimont.keycloak.global;
 
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.common.util.Resteasy;
+import org.keycloak.models.KeycloakContext;
 import org.keycloak.models.KeycloakSession;
 
 import javax.ws.rs.container.ContainerRequestContext;
@@ -19,8 +20,9 @@ public class GlobalRequestResponseFilter implements ContainerRequestFilter, Cont
     public void filter(ContainerRequestContext requestContext) throws IOException {
         log.infof("Before request: request=%s", requestContext);
 
-
         KeycloakSession keycloakSession = Resteasy.getContextData(KeycloakSession.class);
+        KeycloakContext context = keycloakSession.getContext();
+
 
 //        String traceId = requestContext.getHeaderString("X-TraceID");
 //        MDC.put("traceId", traceId);
