@@ -63,6 +63,7 @@
         <module>custom-user-profile-extension</module>
         <module>remote-keycloak-federation</module>
         <module>custom-login-forms-provider</module>
+        <module>custom-saml-identity-provider</module>
     </modules>
 
     <properties>
@@ -76,7 +77,7 @@
         <!-- dependency versions -->
         <lombok.version>1.18.22</lombok.version>
 
-        <keycloak.version>16.1.1</keycloak.version>
+        <keycloak.version>15.1.1</keycloak.version>
         <auto-service.version>1.0</auto-service.version>
         <jackson.version>2.12.1</jackson.version>
         <resteasy-jaxrs.version>3.15.1.Final</resteasy-jaxrs.version>
