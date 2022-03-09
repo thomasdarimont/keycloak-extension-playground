@@ -15,7 +15,7 @@ public class UserAgentParser {
         Parser parser = null;
         try {
             parser = new Parser();
-        } catch (IOException e) {
+        } catch (RuntimeException e) {
             log.errorf(e, "Could not initialize user_agent parser");
         }
         USER_AGENT_PARSER = parser;

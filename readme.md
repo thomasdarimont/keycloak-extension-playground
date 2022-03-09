@@ -12,7 +12,7 @@ To build the Keycloak Project simply clone it into a directory like
 
 ```
 # The Keycloak version referenced in the pom.xml 
-KC_VERSION=16.1.1
+KC_VERSION=17.0.0
 git clone https://github.com/keycloak/keycloak
 git fetch origin --tags
 git checkout $KC_VERSION
@@ -54,7 +54,6 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile=COMMUNITY
 -Dkeycloak.product.name=keycloak
 -Dproduct.name=keycloak
--Dproduct.version=16.1.x
 -Dkeycloak.profile=preview
 -Dkeycloak.hostname.frontendUrl=http://localhost:8081/auth
 -Dkeycloak.profile.feature.account2=enabled
@@ -66,7 +65,8 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile.feature.client_policies=enabled
 -Dkeycloak.profile.feature.map_storage=enabled
 -Dkeycloak.theme.welcomeTheme=keycloak
--Dkeycloak.theme.dir=../simple-theme/target/theme/
+-Dkeycloak.theme.dir=../simple-theme/target/
+-Dresources=../simple-theme/target/
 ```
 
 ### Developing with a PostgreSQL database
@@ -89,7 +89,6 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile=COMMUNITY
 -Dkeycloak.product.name=keycloak
 -Dproduct.name=keycloak
--Dproduct.version=16.1.x
 -Dkeycloak.profile=preview
 -Dkeycloak.profile.feature.account2=enabled
 -Dkeycloak.profile.feature.account_api=enabled
@@ -100,8 +99,8 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile.feature.client_policies=enabled
 -Dkeycloak.profile.feature.map_storage=enabled
 -Dkeycloak.theme.welcomeTheme=keycloak
--Dkeycloak.theme.dir=../simple-theme/target/theme/
--Dresources=../simple-theme/target/theme/
+-Dkeycloak.theme.dir=../simple-theme/target/
+-Dresources=../simple-theme/target/
 ```
 
 ## Developing a Keycloak extension

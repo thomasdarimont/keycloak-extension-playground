@@ -55,7 +55,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/theme</outputDirectory>
+                            <outputDirectory>${project.build.directory}/themes</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>src/main/themes</directory>
