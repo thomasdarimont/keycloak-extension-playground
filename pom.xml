@@ -77,13 +77,15 @@
         <!-- dependency versions -->
         <lombok.version>1.18.22</lombok.version>
 
-        <keycloak.version>17.0.0</keycloak.version>
-        <auto-service.version>1.0</auto-service.version>
-        <jackson.version>2.12.1</jackson.version>
+        <keycloak.version>17.0.1</keycloak.version>
+        <auto-service.version>1.0.1</auto-service.version>
+        <jackson.version>2.12.3</jackson.version>
         <resteasy-jaxrs.version>3.15.1.Final</resteasy-jaxrs.version>
         <jboss-servlet-api.version>2.0.0.Final</jboss-servlet-api.version>
-        <testcontainers-keycloak.version>1.7.0</testcontainers-keycloak.version>
-        <assertj-core.version>3.19.0</assertj-core.version>
+        <testcontainers-keycloak.version>2.1.2</testcontainers-keycloak.version>
+        <assertj-core.version>3.22.0</assertj-core.version>
+        <junit-jupiter.version>5.8.2</junit-jupiter.version>
+        <undertow-servlet.version>2.2.14.Final</undertow-servlet.version>
     </properties>
 
     <dependencyManagement>
@@ -132,7 +134,7 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
-                <version>5.7.1</version>
+                <version>${junit-jupiter.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

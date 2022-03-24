@@ -31,7 +31,7 @@ public class SimpleOidcMapperTest {
 
         try (KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:12.0.4")
                 .withRealmImportFile("test-realm.json")
-                .withExtensionClassesFrom("target/classes")
+                .withProviderClassesFrom("target/classes")
         ) {
             keycloak.start();
 
