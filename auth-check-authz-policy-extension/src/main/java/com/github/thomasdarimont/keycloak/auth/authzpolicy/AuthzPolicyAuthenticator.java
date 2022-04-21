@@ -5,6 +5,7 @@ import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authorization.AuthorizationProvider;
 import org.keycloak.authorization.model.Policy;
+import org.keycloak.authorization.model.ResourceServer;
 import org.keycloak.authorization.store.PolicyStore;
 import org.keycloak.events.Errors;
 import org.keycloak.models.AuthenticatorConfigModel;
@@ -44,6 +45,7 @@ public class AuthzPolicyAuthenticator implements Authenticator {
 
         AuthorizationProvider authzProvider = session.getProvider(AuthorizationProvider.class);
         PolicyStore policyStore = authzProvider.getStoreFactory().getPolicyStore();
+        ResourceServer resourceServer = authzProvider.getStoreFactory().getResourceServerStore().findByClient(client);
 
         AuthenticatorConfigModel configModel = context.getAuthenticatorConfig();
         Map<String, String> config = configModel.getConfig();
@@ -52,7 +54,7 @@ public class AuthzPolicyAuthenticator implements Authenticator {
         String rolePolicyName = config.get(ROLES_POLICY);
 
         String realmManagementClientId = realm.getClientByClientId(Constants.REALM_MANAGEMENT_CLIENT_ID).getId();
-        Policy clientPolicy = policyStore.findByName(clientPolicyName, realmManagementClientId);
+        Policy clientPolicy = policyStore.findByName(resourceServer, clientPolicyName);
 
         List<String> clients = parseJson(clientPolicy.getConfig().get("clients"), List.class);
         if (!clients.contains(client.getId())) {
@@ -61,7 +63,7 @@ public class AuthzPolicyAuthenticator implements Authenticator {
             return;
         }
 
-        Policy rolePolicy = policyStore.findByName(rolePolicyName, realmManagementClientId);
+        Policy rolePolicy = policyStore.findByName(resourceServer, rolePolicyName);
         List<Map<String, Object>> roles = parseJson(rolePolicy.getConfig().get("roles"), List.class);
         List<RoleModel> requiredRoles = roles.stream()
                 .map(r -> (String) r.get("id"))

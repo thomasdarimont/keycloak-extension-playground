@@ -260,7 +260,14 @@
             <version>${project.version}</version>
         </dependency>
 
-<!--        <dependency>-->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>simple-theme</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <!--        <dependency>-->
 <!--            <groupId>${project.groupId}</groupId>-->
 <!--            <artifactId>json-theme-provider-extension</artifactId>-->
 <!--            <version>${project.version}</version>-->
@@ -342,7 +349,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
+            <version>${jackson-databind.version}</version>
             <type>jar</type>
         </dependency>
     </dependencies>

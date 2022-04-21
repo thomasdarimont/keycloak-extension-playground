@@ -32,8 +32,17 @@
                                     <artifactId>keycloak-themes</artifactId>
                                     <version>${keycloak.version}</version>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
                                     <includes>theme/**/*.*</includes>
+                                </artifactItem>
+
+                                <artifactItem>
+                                    <groupId>org.keycloak</groupId>
+                                    <artifactId>keycloak-admin-ui</artifactId>
+                                    <version>${keycloak.version}</version>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/classes/theme/keycloak.v2</outputDirectory>
+                                    <includes>admin/**/*.*</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -55,7 +64,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/themes</outputDirectory>
+                            <outputDirectory>${project.build.directory}/classes/theme</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>src/main/themes</directory>

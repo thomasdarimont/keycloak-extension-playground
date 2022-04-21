@@ -12,12 +12,14 @@ To build the Keycloak Project simply clone it into a directory like
 
 ```
 # The Keycloak version referenced in the pom.xml 
-KC_VERSION=17.0.1
+KC_VERSION=18.0.0
 git clone https://github.com/keycloak/keycloak
 git fetch origin --tags
 git checkout $KC_VERSION
 mvn clean install -DskipTests
 ```
+
+Note that the current Keycloak release also needs the new [keycloak-admin-ui](https://github.com/keycloak/keycloak-admin-ui) dependency. If this dependency cannot be resolved, then you need to build the [admin ui keycloak-theme](https://github.com/keycloak/keycloak-admin-ui/blob/main/keycloak-theme/README.md) first. 
 
 ## IDE Setup
 
@@ -65,8 +67,6 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile.feature.client_policies=enabled
 -Dkeycloak.profile.feature.map_storage=enabled
 -Dkeycloak.theme.welcomeTheme=keycloak
--Dkeycloak.theme.dir=../simple-theme/target/
--Dresources=../simple-theme/target/
 ```
 
 ### Developing with a PostgreSQL database
@@ -99,8 +99,6 @@ You can access the local Keycloak instance via the URL: `http://localhost:8081/a
 -Dkeycloak.profile.feature.client_policies=enabled
 -Dkeycloak.profile.feature.map_storage=enabled
 -Dkeycloak.theme.welcomeTheme=keycloak
--Dkeycloak.theme.dir=../simple-theme/target/
--Dresources=../simple-theme/target/
 ```
 
 ## Developing a Keycloak extension
