@@ -24,6 +24,9 @@ public class FlyweightAcmeUserStorageProviderFactory implements UserStorageProvi
         // this configuration is pulled from the SPI configuration of this provider in the standalone[-ha] / domain.xml
         // see setup.cli
 
+        // --spi-storage-flyweight-acme-user-some-property=hello
+        // KC_SPI_STORAGE_FLYWEIGHT_ACME_USER_SOME_PROPERTY=hello
+
         String someProperty = config.get("someProperty");
         log.infov("Configured {0} with someProperty: {1}", this, someProperty);
     }

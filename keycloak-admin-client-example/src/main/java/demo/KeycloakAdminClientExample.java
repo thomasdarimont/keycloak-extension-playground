@@ -48,6 +48,12 @@ public class KeycloakAdminClientExample {
 
         // crudDemo(realm, keycloak);
 
+//        UserResource userRes = keycloak.realm(realm).users().get("someId");
+//        UserRepresentation userRepresentation = userRes.toRepresentation();
+//        userRepresentation.getAttributes().put("myAttr",List.of("myValue"));
+//        userRes.update(userRepresentation);
+
+
         List<UserRepresentation> users = keycloak.realm(realm).users().search("tester", true);
         if (!users.isEmpty()) {
             UserRepresentation user = users.get(0);
