@@ -12,7 +12,7 @@ To build the Keycloak Project simply clone it into a directory like
 
 ```
 # The Keycloak version referenced in the pom.xml 
-KC_VERSION=18.0.0
+KC_VERSION=18.0.2
 git clone https://github.com/keycloak/keycloak
 git fetch origin --tags
 git checkout $KC_VERSION

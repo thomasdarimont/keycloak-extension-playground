@@ -77,7 +77,7 @@
         <!-- dependency versions -->
         <lombok.version>1.18.22</lombok.version>
 
-        <keycloak.version>18.0.0</keycloak.version>
+        <keycloak.version>18.0.2</keycloak.version>
         <auto-service.version>1.0.1</auto-service.version>
         <jackson.version>2.13.2</jackson.version>
         <jackson-databind.version>2.13.2.2</jackson-databind.version>
