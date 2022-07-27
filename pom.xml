@@ -64,6 +64,7 @@
         <module>remote-keycloak-federation</module>
         <module>custom-login-forms-provider</module>
         <module>custom-saml-identity-provider</module>
+        <module>custom-ldap-user-storage-provider</module>
     </modules>
 
     <properties>
