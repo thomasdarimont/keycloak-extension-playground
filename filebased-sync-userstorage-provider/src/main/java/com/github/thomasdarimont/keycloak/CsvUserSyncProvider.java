@@ -36,6 +36,8 @@ public class CsvUserSyncProvider implements UserStorageProvider, ImportSynchroni
 
         SynchronizationResult result = new SynchronizationResult();
 
+        // TODO implement sync
+
         return result;
     }
 }

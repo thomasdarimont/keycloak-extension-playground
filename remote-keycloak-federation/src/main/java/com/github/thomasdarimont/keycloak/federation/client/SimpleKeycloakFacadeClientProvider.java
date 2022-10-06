@@ -10,8 +10,10 @@ import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.IDToken;
 
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
@@ -36,7 +38,7 @@ public class SimpleKeycloakFacadeClientProvider implements RemoteKeycloakClientP
 
     private final RemoteTokenVerifier remoteTokenVerifier;
 
-    public SimpleKeycloakFacadeClientProvider(ComponentModel componentModel, Function<ComponentModel, ResteasyClient> clientFactory) {
+    public SimpleKeycloakFacadeClientProvider(ComponentModel componentModel, Function<ComponentModel, Client> clientFactory) {
         this.clientId = componentModel.get("clientId");
         this.clientSecret = componentModel.get("clientSecret");
         this.realm = componentModel.get("realm");
@@ -45,10 +47,10 @@ public class SimpleKeycloakFacadeClientProvider implements RemoteKeycloakClientP
         this.remoteTokenVerifier = new RemoteTokenVerifier(remoteKeycloakClient, authServerUrl, realm);
     }
 
-    private RemoteKeycloakClient createRemoteKeycloakClient(ResteasyClient client) {
-        ResteasyWebTarget webTarget = client.target(UriBuilder.fromPath(this.authServerUrl));
+    private RemoteKeycloakClient createRemoteKeycloakClient(Client client) {
+        WebTarget webTarget = client.target(UriBuilder.fromPath(this.authServerUrl));
         webTarget.register(new AccessTokenInterceptor(this::getAccessToken));
-        return webTarget.proxy(RemoteKeycloakClient.class);
+        return ((ResteasyWebTarget)webTarget).proxy(RemoteKeycloakClient.class);
     }
 
     @Override

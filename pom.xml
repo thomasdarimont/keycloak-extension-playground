@@ -78,11 +78,12 @@
         <!-- dependency versions -->
         <lombok.version>1.18.22</lombok.version>
 
-        <keycloak.version>18.0.2</keycloak.version>
+        <keycloak.version>19.0.3</keycloak.version>
         <auto-service.version>1.0.1</auto-service.version>
+        <httpcomponents.version>4.5.13</httpcomponents.version>
         <jackson.version>2.13.2</jackson.version>
         <jackson-databind.version>2.13.2.2</jackson-databind.version>
-        <resteasy-jaxrs.version>3.15.1.Final</resteasy-jaxrs.version>
+        <resteasy-jaxrs.version>4.7.5.Final</resteasy-jaxrs.version>
         <jboss-servlet-api.version>2.0.0.Final</jboss-servlet-api.version>
         <testcontainers-keycloak.version>2.1.2</testcontainers-keycloak.version>
         <assertj-core.version>3.22.0</assertj-core.version>
@@ -107,7 +108,7 @@
 
             <dependency>
                 <groupId>org.jboss.resteasy</groupId>
-                <artifactId>resteasy-jaxrs</artifactId>
+                <artifactId>resteasy-core</artifactId>
                 <version>${resteasy-jaxrs.version}</version>
             </dependency>
 

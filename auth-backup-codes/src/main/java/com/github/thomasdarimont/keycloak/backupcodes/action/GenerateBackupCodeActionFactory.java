@@ -2,25 +2,19 @@ package com.github.thomasdarimont.keycloak.backupcodes.action;
 
 import com.google.auto.service.AutoService;
 import org.keycloak.Config;
-import org.keycloak.authentication.DisplayTypeRequiredActionFactory;
 import org.keycloak.authentication.RequiredActionFactory;
 import org.keycloak.authentication.RequiredActionProvider;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 
 @AutoService(RequiredActionFactory.class)
-public class GenerateBackupCodeActionFactory implements RequiredActionFactory, DisplayTypeRequiredActionFactory {
+public class GenerateBackupCodeActionFactory implements RequiredActionFactory {
 
     public static final GenerateBackupCodeAction INSTANCE = new GenerateBackupCodeAction();
 
     @Override
     public RequiredActionProvider create(KeycloakSession session) {
         return INSTANCE;
-    }
-
-    @Override
-    public RequiredActionProvider createDisplay(KeycloakSession session, String displayType) {
-        return create(session);
     }
 
     @Override

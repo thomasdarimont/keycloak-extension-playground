@@ -1,7 +1,7 @@
 package com.github.thomasdarimont.keycloak.auth.sessionprop;
 
 import org.apache.commons.codec.binary.Base64;
-import org.keycloak.common.util.RandomString;
+import org.keycloak.common.util.SecretGenerator;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -26,8 +26,9 @@ public class CryptoUtil {
         String payload = timestamp + ";" + username + ";" + sessionHandle;
 
         System.out.println(payload);
-        String key = RandomString.randomCode(64);
-        String salt = RandomString.randomCode(64);
+        SecretGenerator secretGenerator = SecretGenerator.getInstance();
+        String key = secretGenerator.randomString(64);
+        String salt = secretGenerator.randomString(64);
 
         String encrypted = encrypt(payload, key + salt);
         System.out.println(encrypted);

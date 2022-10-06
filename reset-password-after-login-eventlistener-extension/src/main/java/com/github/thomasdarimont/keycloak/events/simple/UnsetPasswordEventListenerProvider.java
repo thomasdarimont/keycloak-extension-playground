@@ -1,7 +1,6 @@
 package com.github.thomasdarimont.keycloak.events.simple;
 
 import lombok.extern.jbosslog.JBossLog;
-import org.keycloak.credential.CredentialModel;
 import org.keycloak.events.Event;
 import org.keycloak.events.EventListenerProvider;
 import org.keycloak.events.EventType;
@@ -9,10 +8,9 @@ import org.keycloak.events.admin.AdminEvent;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.RoleModel;
-import org.keycloak.models.UserCredentialManager;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.UserProvider;
-import org.keycloak.models.cache.UserCache;
+import org.keycloak.models.credential.PasswordCredentialModel;
 import org.keycloak.models.utils.RoleUtils;
 
 import static org.keycloak.models.utils.KeycloakModelUtils.getRoleFromString;
@@ -37,18 +35,14 @@ public class UnsetPasswordEventListenerProvider implements EventListenerProvider
 
         UserProvider users = this.session.getProvider(UserProvider.class);
         RealmModel realm = session.getContext().getRealm();
-        UserModel user = users.getUserById(event.getUserId(), realm);
+        UserModel user = users.getUserById(realm, event.getUserId());
 
         if (userHasRole(realm, user, "admin")) {
             return;
         }
 
         log.infof("onEvent: event=%s disable password credentials", event.getType());
-        UserCredentialManager credentialManager = session.userCredentialManager();
-        credentialManager.disableCredentialType(realm, user, CredentialModel.PASSWORD);
-
-        UserCache userCache = session.getProvider(UserCache.class);
-        userCache.evict(realm, user);
+        user.credentialManager().disableCredentialType(PasswordCredentialModel.TYPE);
     }
 
     private boolean userHasRole(RealmModel realm, UserModel user, String roleName) {

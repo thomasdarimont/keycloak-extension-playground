@@ -2,11 +2,8 @@ package demo.keycloak.auth;
 
 import com.google.auto.service.AutoService;
 import org.keycloak.Config;
-import org.keycloak.OAuth2Constants;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.AuthenticatorFactory;
-import org.keycloak.authentication.DisplayTypeAuthenticatorFactory;
-import org.keycloak.authentication.authenticators.console.ConsoleUsernameAuthenticator;
 import org.keycloak.models.AuthenticationExecutionModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
@@ -16,7 +13,7 @@ import org.keycloak.provider.ProviderConfigProperty;
 import java.util.List;
 
 @AutoService(AuthenticatorFactory.class)
-public class AdhocRegistrationUsernameFormAuthenticatorFactory implements AuthenticatorFactory, DisplayTypeAuthenticatorFactory {
+public class AdhocRegistrationUsernameFormAuthenticatorFactory implements AuthenticatorFactory {
 
     public static final String PROVIDER_ID = "custom-auth-username-form";
     public static final AdhocRegistrationUsernameFormAuthenticator SINGLETON = new AdhocRegistrationUsernameFormAuthenticator();
@@ -24,17 +21,6 @@ public class AdhocRegistrationUsernameFormAuthenticatorFactory implements Authen
     @Override
     public Authenticator create(KeycloakSession session) {
         return SINGLETON;
-    }
-
-    @Override
-    public Authenticator createDisplay(KeycloakSession session, String displayType) {
-        if (displayType == null) {
-            return SINGLETON;
-        }
-        if (!OAuth2Constants.DISPLAY_CONSOLE.equalsIgnoreCase(displayType)) {
-            return null;
-        }
-        return ConsoleUsernameAuthenticator.SINGLETON;
     }
 
     @Override

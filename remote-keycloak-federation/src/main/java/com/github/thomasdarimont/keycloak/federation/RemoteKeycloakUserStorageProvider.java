@@ -29,6 +29,7 @@ import org.keycloak.storage.adapter.InMemoryUserAdapter;
 import org.keycloak.storage.user.UserLookupProvider;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -48,14 +49,14 @@ public class RemoteKeycloakUserStorageProvider implements UserStorageProvider, /
     public static final String EXTERNAL_USER_ID_ATTRIBUTE = "externalUserIdAttribute";
     private final KeycloakSession session;
     private final ComponentModel componentModel;
-    private final Function<ComponentModel, ResteasyClient> clientFactory;
+    private final Function<ComponentModel, Client> clientFactory;
     private final ConcurrentMap<String, RemoteKeycloakClientProvider> remoteKeycloakProviderCache;
 
     public RemoteKeycloakUserStorageProvider(
             KeycloakSession session,
             ComponentModel componentModel,
             ConcurrentMap<String, RemoteKeycloakClientProvider> remoteKeycloakProviderCache,
-            Function<ComponentModel, ResteasyClient> clientFactory) {
+            Function<ComponentModel, Client> clientFactory) {
         this.session = session;
         this.componentModel = componentModel;
         this.remoteKeycloakProviderCache = remoteKeycloakProviderCache;
@@ -223,7 +224,7 @@ public class RemoteKeycloakUserStorageProvider implements UserStorageProvider, /
         return remoteKeycloakProviderCache.computeIfAbsent(componentModel.getId(), storageProviderId -> createKeycloakFacadeProvider(clientFactory));
     }
 
-    protected SimpleKeycloakFacadeClientProvider createKeycloakFacadeProvider(Function<ComponentModel, ResteasyClient> clientFactory) {
+    protected SimpleKeycloakFacadeClientProvider createKeycloakFacadeProvider(Function<ComponentModel, Client> clientFactory) {
         return new SimpleKeycloakFacadeClientProvider(componentModel, clientFactory);
     }
 

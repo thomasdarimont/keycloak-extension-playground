@@ -5,6 +5,7 @@ import com.google.auto.service.AutoService;
 import lombok.extern.jbosslog.JBossLog;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.client.jaxrs.internal.ClientConfiguration;
 import org.keycloak.Config;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.component.ComponentValidationException;
@@ -16,6 +17,7 @@ import org.keycloak.provider.ProviderConfigurationBuilder;
 import org.keycloak.storage.UserStorageProviderFactory;
 import org.keycloak.utils.StringUtil;
 
+import javax.ws.rs.client.Client;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -140,9 +142,9 @@ public class RemoteKeycloakUserStorageProviderFactory implements UserStorageProv
         return config;
     }
 
-    protected ResteasyClient createRestEasyClient(ComponentModel componentModel) {
-        ResteasyClient client = new ResteasyClientBuilder() //
-                .connectionPoolSize(128) // allow multiple concurrent connections.
+    protected Client createRestEasyClient(ComponentModel componentModel) {
+        Client client = ResteasyClientBuilder.newBuilder() //
+                // .connectionPoolSize(128) // allow multiple concurrent connections.
                 //.keyStore()
                 //
                 .build();
