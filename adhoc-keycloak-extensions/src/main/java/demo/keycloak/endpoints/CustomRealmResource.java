@@ -5,6 +5,7 @@ import org.keycloak.common.util.Resteasy;
 import org.keycloak.models.Constants;
 import org.keycloak.models.KeycloakContext;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.cache.UserCache;
 import org.keycloak.representations.AccessToken;
 
 import javax.ws.rs.Consumes;
@@ -42,6 +43,36 @@ public class CustomRealmResource {
         payload.put("timestamp", System.currentTimeMillis());
 
         return Response.ok(payload).build();
+    }
+
+    /**
+     * {@code
+     * curl -v -H "Authorization: Bearer $KC_ACCESS_TOKEN" -d "userId=1bffdf3a-9453-4be4-bdec-3c743db5fd6a" http://localhost:8081/auth/realms/demo/custom-resources/evict-user
+     * }
+     */
+    @POST
+    @Path("evict-user")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response evictUserFromCache(@FormParam("userId") String userId) {
+
+        var session = getSession();
+        var context = session.getContext();
+        var token = Tokens.getAccessToken(session);
+
+        checkRealmAdmin(token, context);
+
+        var realm = context.getRealm();
+        var user = session.users().getUserById(realm, userId);
+        if (user == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        UserCache userCache = session.getProvider(UserCache.class);
+        if (userCache != null) {
+            userCache.evict(realm, user);
+        }
+
+        return Response.noContent().build();
     }
 
     private void checkRealmAdmin(AccessToken token, KeycloakContext context) {
