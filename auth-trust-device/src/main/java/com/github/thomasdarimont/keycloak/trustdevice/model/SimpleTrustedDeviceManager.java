@@ -15,6 +15,9 @@ public class SimpleTrustedDeviceManager implements TrustedDeviceManager {
 
         TrustedDeviceRepository repo = new TrustedDeviceRepository(session);
         TrustedDeviceEntity entity = repo.lookupTrustedDevice(realm.getId(), user.getId(), deviceId);
+        if (entity == null) {
+            return null;
+        }
 
         return toModel(entity);
     }
