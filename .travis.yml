@@ -1,0 +1,33 @@
+language: java
+jdk:
+- openjdk11
+branches:
+  only:
+    - master
+cache:
+  directories:
+  - "$HOME/.m2"
+before_install:
+# - export APP_VERSION="`mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version | grep -Ev '(^\[|Download\w+:)'`-$TRAVIS_BUILD_NUMBER"
+# - echo $APP_VERSION
+script:
+# - mvn versions:set -DnewVersion=$APP_VERSION
+- git clone git@github.com:keycloak/keycloak.git ../
+- pushd ../keycloak; mvn clean install -DskipTests; pushd
+- mvn clean package
+before_deploy:
+# - git config --global user.email "builds@travis-ci.com"
+# - git config --global user.name "Travis CI"
+# - git commit -a -m "Set version to $APP_VERSION"
+# - git tag $APP_VERSION -a -m "Generated tag from TravisCI for $APP_VERSION"
+# - git push -q -f https://$GITHUB_API_KEY@github.com/imduffy15/keycloak-extension-playground --tags
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key: $GITHUB_API_KEY
+  file_glob: true
+  file: "**/target/*.jar"
+  on:
+    repo: imduffy15/keycloak-extension-playground
+    tags: false
+    branch: master
