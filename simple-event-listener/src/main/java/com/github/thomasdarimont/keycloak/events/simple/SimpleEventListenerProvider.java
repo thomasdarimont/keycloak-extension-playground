@@ -29,7 +29,7 @@ public class SimpleEventListenerProvider implements EventListenerProvider {
     public void onEvent(Event event) {
         log.infof("onEvent event=%s type=%s realm=%suserId=%s", event, event.getType(), event.getRealmId(), event.getUserId());
 
-        UserModel user = this.session.users().getUserById(event.getUserId(), session.realms().getRealm(event.getRealmId()));
+        UserModel user = this.session.users().getUserById(session.realms().getRealm(event.getRealmId()), event.getUserId());
         // user.getAttributes()
         // user.getFirstAttribute("attr")
 

@@ -10,7 +10,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>keycloak-playground-server</module>
+        <!-- TODO: Keycloak server is deprecated so this module maybe need to be refactored fully-->
+        <!--<module>keycloak-playground-server</module>-->
         <module>simple-auth-extension</module>
         <module>simple-auth-form-extension</module>
         <module>simple-theme</module>
@@ -65,6 +66,7 @@
         <module>custom-login-forms-provider</module>
         <module>custom-saml-identity-provider</module>
         <module>custom-ldap-user-storage-provider</module>
+        <module>auth-trusted-ip-list-extension</module>
     </modules>
 
     <properties>
@@ -78,7 +80,7 @@
         <!-- dependency versions -->
         <lombok.version>1.18.22</lombok.version>
 
-        <keycloak.version>19.0.3</keycloak.version>
+        <keycloak.version>20.0.0</keycloak.version>
         <auto-service.version>1.0.1</auto-service.version>
         <httpcomponents.version>4.5.13</httpcomponents.version>
         <jackson.version>2.13.2</jackson.version>
