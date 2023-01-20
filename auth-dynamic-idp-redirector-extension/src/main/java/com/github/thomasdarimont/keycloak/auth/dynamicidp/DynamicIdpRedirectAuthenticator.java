@@ -54,7 +54,7 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
 
         boolean fallbackToAuthFlow = getConfigValueOrDefault(context.getAuthenticatorConfig(), FALLBACK_TO_AUTHFLOW_CONFIG_PROPERTY, "true", Boolean::parseBoolean);
         if (fallbackToAuthFlow) {
-            context.attempted();
+            context.success();
             return;
         }
 
@@ -87,19 +87,15 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
 
     private IdentityProviderModel selectIdp(AuthenticationFlowContext context, String providerId) {
 
-        List<IdentityProviderModel> identityProviders = context.getRealm().getIdentityProviders();
-        for (IdentityProviderModel identityProvider : identityProviders) {
-
+        var found = context.getRealm().getIdentityProvidersStream().filter(identityProvider->{
             if (!identityProvider.isEnabled()) {
-                continue;
+                return false;
             }
 
-            if (providerId.equals(identityProvider.getAlias())) {
-                return identityProvider;
-            }
-        }
+            return providerId.equals(identityProvider.getAlias());
+        }).findFirst();
 
-        return null;
+        return found.orElse(null);
     }
 
 
@@ -114,6 +110,8 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
         if (targetIdp != null) {
             return targetIdp;
         }
+
+        log.warnf("Target IDP: "+targetIdp);
 
         return determineTargetIdpViaUserEmail(user, context);
     }
@@ -137,6 +135,11 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
         String[] mappings = mappingString.split(";");
         for (String mapping : mappings) {
             String[] emailSuffixPatternToIdpId = mapping.split("/");
+
+            if(emailSuffixPatternToIdpId.length!=2){
+                return null;
+            }
+
             String emailSuffixPattern = emailSuffixPatternToIdpId[0];
             String idpId = emailSuffixPatternToIdpId[1];
 
