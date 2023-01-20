@@ -9,7 +9,6 @@ import org.keycloak.models.AuthenticationExecutionModel;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
-import java.util.Arrays;
 import java.util.List;
 
 @AutoService(AuthenticatorFactory.class)
@@ -24,7 +23,7 @@ public class TrustedIpListConditionFactory implements ConditionalAuthenticatorFa
 
     @Override
     public String getDisplayType() {
-        return "Condition - IP address is not trusted";
+        return "Condition - IP address is trusted";
     }
 
     @Override
@@ -49,7 +48,7 @@ public class TrustedIpListConditionFactory implements ConditionalAuthenticatorFa
 
     @Override
     public String getHelpText() {
-        return "Flow is executed only if the current IP is not trusted. Use user attr. 'trusted-ip-list' as a json array of IPs and CIDRs.";
+        return "Flow is executed only if the current IP is trusted. Use user attr. 'trusted-ip-list' as a json array of IPs and CIDRs.";
     }
 
     @Override
@@ -59,17 +58,10 @@ public class TrustedIpListConditionFactory implements ConditionalAuthenticatorFa
         inverted.setType(ProviderConfigProperty.BOOLEAN_TYPE);
         inverted.setName("negated");
         inverted.setLabel("Negated");
-        inverted.setDefaultValue(false);
+        inverted.setDefaultValue("false");
         inverted.setHelpText("If this is on, the matching logic is negated.");
 
-        ProviderConfigProperty skipEmptyList = new ProviderConfigProperty();
-        skipEmptyList.setType(ProviderConfigProperty.BOOLEAN_TYPE);
-        skipEmptyList.setName("skip_empty_list");
-        skipEmptyList.setLabel("Skip empty list");
-        skipEmptyList.setDefaultValue(true);
-        skipEmptyList.setHelpText("If this is on and user not provided trusted list, always returning true.");
-
-        return Arrays.asList(inverted, skipEmptyList);
+        return List.of(inverted);
     }
 
     @Override

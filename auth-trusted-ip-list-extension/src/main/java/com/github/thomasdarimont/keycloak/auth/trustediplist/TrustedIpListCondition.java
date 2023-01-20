@@ -14,10 +14,9 @@ import java.util.Map;
 
 @JBossLog
 public class TrustedIpListCondition implements ConditionalAuthenticator {
-    public static final String ID = "custom-trusted-device-condition";
+    public static final String ID = "custom-trusted-ip-list-condition";
 
     static final String NEGATED_CONDITION = "negated";
-    static final String SKIP_EMPTY_LIST = "skip_empty_list";
 
     public static final String TRUSTED_IP_LIST_PROPERTY = "trusted-ip-list";
 
@@ -37,10 +36,14 @@ public class TrustedIpListCondition implements ConditionalAuthenticator {
             return false;
         }
 
-        boolean trusted = false;
-
         String[] trustedIpList = determineTrustedIpListAttribute(user);
-        if (trustedIpList.length > 0) {
+
+        boolean trusted;
+
+        if (trustedIpList.length == 0) {
+            trusted = true;
+        } else{
+            trusted = false;
 
             String userIP = context.getConnection().getRemoteAddr();
             for (String s : trustedIpList) {
@@ -49,20 +52,22 @@ public class TrustedIpListCondition implements ConditionalAuthenticator {
                     break;
                 }
             }
-        } else if (isSkipEmptyList(context)){
-            return false;
+
         }
+
 
         if (isNegated(context)) {
-            return trusted;
+            return !trusted;
         }
 
-        return !trusted;
+        return trusted;
     }
-
 
     private String[] determineTrustedIpListAttribute(UserModel user) {
         String attr = user.getFirstAttribute(TRUSTED_IP_LIST_PROPERTY);
+        if (attr == null) {
+            return new String[]{};
+        }
         try {
             return JsonSerialization.readValue(attr, String[].class);
         } catch (IOException e) {
@@ -81,19 +86,6 @@ public class TrustedIpListCondition implements ConditionalAuthenticator {
         }
         return Boolean.parseBoolean(config.get(NEGATED_CONDITION));
     }
-
-    private boolean isSkipEmptyList(AuthenticationFlowContext context) {
-        AuthenticatorConfigModel authenticatorConfig = context.getAuthenticatorConfig();
-        if (authenticatorConfig == null) {
-            return false;
-        }
-        Map<String, String> config = authenticatorConfig.getConfig();
-        if (config == null) {
-            return false;
-        }
-        return Boolean.parseBoolean(config.get(SKIP_EMPTY_LIST));
-    }
-
 
     @Override
     public void action(AuthenticationFlowContext context) {

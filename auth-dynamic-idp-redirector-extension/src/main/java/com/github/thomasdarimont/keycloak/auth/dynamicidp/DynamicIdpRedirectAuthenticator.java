@@ -54,7 +54,7 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
 
         boolean fallbackToAuthFlow = getConfigValueOrDefault(context.getAuthenticatorConfig(), FALLBACK_TO_AUTHFLOW_CONFIG_PROPERTY, "true", Boolean::parseBoolean);
         if (fallbackToAuthFlow) {
-            context.attempted();
+            context.success();
             return;
         }
 
@@ -111,6 +111,8 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
             return targetIdp;
         }
 
+        log.warnf("Target IDP: "+targetIdp);
+
         return determineTargetIdpViaUserEmail(user, context);
     }
 
@@ -133,6 +135,11 @@ public class DynamicIdpRedirectAuthenticator implements Authenticator {
         String[] mappings = mappingString.split(";");
         for (String mapping : mappings) {
             String[] emailSuffixPatternToIdpId = mapping.split("/");
+
+            if(emailSuffixPatternToIdpId.length!=2){
+                return null;
+            }
+
             String emailSuffixPattern = emailSuffixPatternToIdpId[0];
             String idpId = emailSuffixPatternToIdpId[1];
 
