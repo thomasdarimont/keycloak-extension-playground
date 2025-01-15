@@ -83,7 +83,7 @@
         <httpcomponents.version>4.5.13</httpcomponents.version>
         <jackson.version>2.13.2</jackson.version>
         <jackson-databind.version>2.13.2.2</jackson-databind.version>
-        <resteasy-jaxrs.version>4.7.5.Final</resteasy-jaxrs.version>
+        <resteasy-jaxrs.version>4.7.8.Final</resteasy-jaxrs.version>
         <jboss-servlet-api.version>2.0.0.Final</jboss-servlet-api.version>
         <testcontainers-keycloak.version>2.1.2</testcontainers-keycloak.version>
         <assertj-core.version>3.22.0</assertj-core.version>
